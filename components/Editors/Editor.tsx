@@ -81,11 +81,23 @@ const TerminalHolder = tw.div<PROPS>`
     flex
     justify-start
     items-start
-    bg-gray-800
-    p-2
+    bg-black4
+    p-4
+    flex-col
+    gap-4
 `;
 
-const EditorComponent = ({ code, setCode, theme, language, isOpen }: any) => {
+const EditorComponent = ({
+  code,
+  setCode,
+  theme,
+  language,
+  isOpen,
+  output,
+  setInput,
+}: any) => {
+  const [inputField, setInputField] = useState(false);
+
   return (
     <>
       {/* @ts-ignore */}
@@ -110,8 +122,57 @@ const EditorComponent = ({ code, setCode, theme, language, isOpen }: any) => {
           }}
         />
       </EditorHolder>
+      {isOpen && (
+        // @ts-ignore
+        <TerminalHolder $isOpen={isOpen}>
+          <div className="w-full h-12 flex justify-start items-center gap-5">
+            <span
+              className={`${
+                inputField
+                  ? "cursor-pointer bg-black1 h-full w-fit p-2"
+                  : "cursor-pointer"
+              }
+              select-none text-2xl`}
+              onClick={() => setInputField(true)}
+            >
+              Input
+            </span>
+            <span
+              className={`${
+                !inputField
+                  ? "bg-black1 cursor-pointer h-full w-fit p-2"
+                  : "cursor-pointer"
+              }
+              select-none
+              text-2xl `}
+              onClick={() => setInputField(false)}
+            >
+              Output
+            </span>
+          </div>
+          {inputField ? (
+            <InputField setOutput={setInput} />
+          ) : (
+            <Output output={output} />
+          )}
+        </TerminalHolder>
+      )}
     </>
   );
 };
 
 export default EditorComponent;
+
+const InputField = ({ setInput }: any) => {
+  return (
+    <textarea
+      className="h-full w-full bg-transparent outline-none border-none resize-none text-white"
+      placeholder="Input Here"
+      onChange={(e: any) => console.log(e.target.value)}
+    ></textarea>
+  );
+};
+
+const Output = ({ output }: any) => {
+  return <>Output</>;
+};

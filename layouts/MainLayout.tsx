@@ -130,7 +130,7 @@ const MainLayout = ({ children }: any) => {
             handleLogin={handleLogin}
           />
         )}
-        {handleRoutes.includes(router.pathname) && (
+        {handleRoutes.includes(router.pathname) && serversData && (
           <>
             <SideBar
               handleModelOpen={handleModelOpen}

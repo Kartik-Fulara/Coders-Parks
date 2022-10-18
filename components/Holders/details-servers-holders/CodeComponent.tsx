@@ -10,6 +10,7 @@ const CodeComponent = ({
   language,
   theme,
   openTerminal,
+  setInput,
 }: any) => {
   return (
     // @ts-ignore
@@ -20,6 +21,7 @@ const CodeComponent = ({
         language={language}
         theme={theme}
         isOpen={openTerminal}
+        setInput={setInput}
       />
     </div>
   );

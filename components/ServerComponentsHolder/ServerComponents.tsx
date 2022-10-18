@@ -66,6 +66,7 @@ const ServerComponents = () => {
   const [whiteBoardData, setWhiteBoardData] = React.useState<any>("");
   const [selectedSize, setSelectedSize] = React.useState<any>(5);
   const [code, setCode] = React.useState<string>("");
+  const [input, setInput] = React.useState<any>("");
   const [language, setLanguage] = React.useState<string>("java");
   const [theme, setTheme] = React.useState<string>("terminal");
   const [drawing, setDrawing] = React.useState<string>(
@@ -167,6 +168,7 @@ const ServerComponents = () => {
                   language={language}
                   theme={theme}
                   openTerminal={openTerminal}
+                  setInput={setInput}
                 />
               </section>
             )}

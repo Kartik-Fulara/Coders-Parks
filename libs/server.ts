@@ -67,3 +67,18 @@ export const getServerDetailsById = async (id: string) => {
     return { status: "error", data: "No Data", message: err };
   }
 };
+
+export const runCode = async (code: any, language: string, input: any) => {
+  try {
+    const { data } = await axios.post("/api/servers/runCode", {
+      code,
+      language,
+      input,
+    });
+    console.log(data);
+    return { status: "ok", data: data };
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", data: "No Data", message: err };
+  }
+};
