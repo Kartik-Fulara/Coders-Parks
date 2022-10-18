@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Language: css */
+/* set variable */
+:root {
+  --primary-color: #f00;
+  --secondary-color: #0f0;
+  --tertiary-color: #00f;
+  --friendsDetails-nav-height: 3.5rem;
+  --holders-sidebar-width: 20rem;
+  --global-sidebar-width: 4.5rem;
+}
