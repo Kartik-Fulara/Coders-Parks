@@ -87,7 +87,11 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
     <CreateServerModelComponent>
       <CreateServerModelWrapper>
         <div className="w-full h-[4rem] flex justify-end items-center p-4">
-          <button onClick={handleModelClose} className="h-10 w-10">
+          <button
+            aria-label="close"
+            onClick={handleModelClose}
+            className="h-10 w-10"
+          >
             <CloseCircle />
           </button>
         </div>
@@ -126,6 +130,7 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
               />
               <div className="absolute bottom-3 right-1">
                 <button
+                  aria-label="upload image"
                   onClick={() => {
                     fileInputRef.current?.click();
                   }}

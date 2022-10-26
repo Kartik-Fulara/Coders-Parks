@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import tw from "tailwind-styled-components";
-import Avatar from "react-avatar";
+
 import { useRouter } from "next/router";
-import { userDetails, queryUserById } from "../../libs/chats";
-import toast from "react-hot-toast";
+import { ServerDataContext } from "../../Context/ContextProvide";
+
 import DMS_NAME_HOLDER from "./details-chats-holders/ProfileHolder";
 
 import {
@@ -76,16 +76,6 @@ const DirectMessagesHolder = tw.div`
   overflow-auto
 `;
 
-const UserInfoHolder = tw.div`
-    flex
-    w-full
-    h-[4rem]
-    p-4
-    bg-black2
-    justify-between
-    items-center
-`;
-
 const FriendsBtn = tw.div`
     flex
     w-full
@@ -102,50 +92,26 @@ const FriendsBtn = tw.div`
     hover:bg-black1
 `;
 
-const FriendsHolder = ({
-  data,
-  recieveMsg,
-  handleLoading,
-  getUid,
-  setSendReq,
-}: any) => {
+const FriendsHolder = ({ setSendReq }: any) => {
   const router = useRouter();
-  const [userInfo, setUserInfo] = React.useState([]);
-  const [chats, setChats] = React.useState([]);
+
+  const { chats, setChatId } = useContext(ServerDataContext);
 
   const [selectedUser, setSelectedUser] = React.useState("friends");
-
-  const socket = useRef<any>();
 
   const [openModel, setOpenModel] = React.useState(false);
   const [findDms, setFindDms] = React.useState(true);
 
-  const chatData = async () => {
-    const { data: userData } = await userDetails(data);
-
-    if (userData && userData.status === "Ok") {
-      setUserInfo(userData.data);
-      setChats(userData.data.chats);
-    } else {
-      console.log(userData);
-    }
-  };
-
   React.useEffect(() => {
-    if (data !== undefined) {
-      chatData();
-    }
-  }, [data && router.isReady]);
+    console.log(chats);
+  }, [chats]);
 
-  const handleClick = (user: any) => {
+  const handleClick = (user: any, chatId: any) => {
     setSelectedUser(`${user}`);
-    getUid(user);
+    setChatId(chatId);
+    console.log(chatId);
     router.push(`/app/friends?id=${user}`);
   };
-
-  useEffect(() => {
-    handleLoading();
-  }, [selectedUser]);
 
   const handleModelClose = () => {
     setOpenModel(false);
@@ -155,21 +121,7 @@ const FriendsHolder = ({
     setOpenModel(true);
   };
 
-  const handleCall = () => {
-    chatData();
-  };
-
-  useEffect(() => {
-    if (recieveMsg) {
-      const { senderId } = recieveMsg;
-      console.log(senderId);
-      const dd = chats.findIndex((item: any) => item.users[0] === senderId);
-      if (dd < 0) {
-        chatData();
-      }
-      console.log(recieveMsg);
-    }
-  }, [recieveMsg]);
+  const handleCall = () => {};
 
   const options = [
     { value: "DM", label: "Direct Messages" },
@@ -239,15 +191,15 @@ const FriendsHolder = ({
               <div
                 key={chat?.chatId}
                 className={`flex gap-4 w-full h-[4rem] rounded-lg cursor-pointer py-2 px-4 justify-center items-center ${
-                  selectedUser === `${chat?.users[0]}`
+                  selectedUser === `${chat?.users.id}`
                     ? "bg-black1"
                     : "bg-black2"
                 } overflow-y-auto `}
                 onClick={() => {
-                  handleClick(chat?.users[0]);
+                  handleClick(chat?.users.id, chat?.chatId);
                 }}
               >
-                <DMS_NAME_HOLDER id={chat?.users[0]} />
+                <DMS_NAME_HOLDER data={chat?.users} />
               </div>
             ))}
           </DirectMessagesHolder>

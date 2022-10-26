@@ -3,18 +3,15 @@ import React from "react";
 import type { AppProps } from "next/app";
 
 import MainLayout from "../layouts/MainLayout";
-
-import { ServerIdContext } from "../Context/ServerIdContext";
+import ContextProvider from "../Context/ContextProvide";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [serverId, setServerId] = React.useState<any>("");
-
   return (
-    <ServerIdContext.Provider value={{ serverId, setServerId }}>
+    <ContextProvider>
       <MainLayout>
         <Component {...pageProps} />
       </MainLayout>
-    </ServerIdContext.Provider>
+    </ContextProvider>
   );
 }
 

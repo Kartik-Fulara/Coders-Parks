@@ -77,19 +77,6 @@ export default FriendsDetails;
 
 const DisplayAllFriends = ({ token }: any) => {
   const [friends, setFriends] = useState<any>([]);
-  const getAllFriends = async () => {
-    const { data } = await getFriends(token);
-    if (data.message === "No friends found") {
-      setFriends([]);
-      console.log("No friends found");
-    } else {
-      console.log(data);
-    }
-  };
-
-  useEffect(() => {
-    getAllFriends();
-  }, [token]);
 
   return (
     <div className="h-[calc(100%-var(--friendsDetails-nav-height))] w-full flex flex-col gap-4 text-white">
@@ -127,36 +114,18 @@ const DisplayPendingFriends = ({
   setSendRe,
 }: any) => {
   const [friends, setFriends] = useState<any>([]);
-  let previous: any[] = [];
-  const getFriends = async () => {
-    const { data } = await getPendingFriends(token);
-    if (data?.message === "No Pending Requests found") {
-      setFriends([]);
-    } else {
-      data?.map(async (request: any) => {
-        const { data } = await queryUserById(request.sendBy);
-        const req = data.data.data;
-        if (!previous.includes(request.sendBy) && req.friend === req.sendBy) {
-          previous.push(request.sendBy);
-          if (!friends.includes(req)) {
-            setFriends((prev: any) => [...prev, req]);
-          }
-        }
-      });
-    }
-  };
 
   useEffect(() => {
     setFriends([]);
-    getFriends();
+    // getFriends();
   }, [token]);
 
-  useEffect(() => {
-    if (!recieveReq && previous.length !== 0) {
-      setFriends([]);
-      previous = [];
-    }
-  }, [recieveReq]);
+  // useEffect(() => {
+  //   if (!recieveReq && previous.length !== 0) {
+  //     setFriends([]);
+  //     previous = [];
+  //   }
+  // }, [recieveReq]);
 
   return (
     <>
@@ -224,6 +193,7 @@ const Toast = ({ getFriends, setRecieveReq, setSendRe }: any) => {
           Click to see the Recent Request
         </span>
         <button
+          aria-label="close"
           onClick={() => handleAccept()}
           className={`h-14 w-14 p-4 rounded-lg text-lg font-medium cursor-pointer ${
             isHover ? "bg-black text-green-500" : "text-white"

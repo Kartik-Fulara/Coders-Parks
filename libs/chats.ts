@@ -29,7 +29,7 @@ export const changeUserName = async (username: string) => {
 
 export const getMessages = async (id: string) => {
   console.log(id);
-  const res = await axios.get(`/api/chat/getChats?uid=${id}`);
+  const res = await axios.get(`/api/chat/getChat?chatId=${id}`);
   return res;
 };
 

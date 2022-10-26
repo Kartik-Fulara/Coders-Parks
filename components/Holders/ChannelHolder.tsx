@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import tw from "tailwind-styled-components";
 import { DownArrow, UpArrow, DeleteIcon, SettingIcon } from "../../Icons/Icons";
-import { getServerDetailsById } from "../../libs/server";
+import { ServerDataContext } from "../../Context/ContextProvide";
 import { Code, Chat } from "../../Icons/Icons";
 
 const ChannelHolderComponent = tw.section`
@@ -44,18 +44,11 @@ const ServersChannels = tw.section`
     overflow-auto
 `;
 
-const ServerHolder = ({ id, setServerComponent, serverComponent }: any) => {
+const ServerHolder = () => {
   const [dropDown, setDropDown] = useState(false);
-  const [serverDetails, setServerDetails] = useState<any>();
 
-  React.useEffect(() => {
-    const init = async () => {
-      const { data } = await getServerDetailsById(id);
-      console.log(data);
-      setServerDetails(data);
-    };
-    init();
-  }, [id]);
+  const { serversData, setShowWhichComponent, showWhichComponent } =
+    useContext(ServerDataContext);
 
   return (
     //@ts-ignore
@@ -66,9 +59,7 @@ const ServerHolder = ({ id, setServerComponent, serverComponent }: any) => {
             onClick={() => setDropDown(!dropDown)}
             className=" flex w-full h-20 justify-between border-white  items-center cursor-pointer"
           >
-            <span className="uppercase">
-              {serverDetails?.serverName} Server
-            </span>
+            <span className="uppercase">{serversData?.serverName} Server</span>
             {!dropDown ? (
               <span className="h-5 w-5">
                 <DownArrow />
@@ -107,13 +98,38 @@ const ServerHolder = ({ id, setServerComponent, serverComponent }: any) => {
           </div>
         </div>
         <ServersChannels>
-          {serverDetails &&
-            serverDetails?.channels.map((channel: any) => (
-              <ChannelHolder
-                channelDetails={channel}
-                setServerComponent={setServerComponent}
-                serverComponent={serverComponent}
-              />
+          {serversData &&
+            serversData?.channels?.map((channel: any) => (
+              <>
+                <div
+                  className={`flex rounded-xl ${
+                    showWhichComponent === channel?.channelType
+                      ? "bg-black4"
+                      : "bg-black"
+                  } gap-4 cursor-pointer justify-start items-start p-4 w-full`}
+                  key={channel?.channelId}
+                  onClick={() => setShowWhichComponent(channel?.channelType)}
+                >
+                  <span
+                    className={`w-6 h-6 text-white ${
+                      showWhichComponent === channel?.channelType
+                        ? "text-green-500 text-opacity-100"
+                        : "text-white opacity-40"
+                    }`}
+                  >
+                    {channel?.channelType === "chat" ? <Chat /> : <Code />}
+                  </span>
+                  <div
+                    className={`text-white uppercase flex ${
+                      showWhichComponent === channel?.channelType
+                        ? "text-green-500 text-opacity-100"
+                        : "text-white opacity-40"
+                    } `}
+                  >
+                    {channel?.channelName}
+                  </div>
+                </div>
+              </>
             ))}
         </ServersChannels>
       </ChannelHolderWrapper>
@@ -122,48 +138,3 @@ const ServerHolder = ({ id, setServerComponent, serverComponent }: any) => {
 };
 
 export default ServerHolder;
-
-const ChannelHolder = ({
-  channelDetails,
-  setServerComponent,
-  serverComponent,
-}: any) => {
-  React.useEffect(() => {
-    if (channelDetails?.channelType === "chat") {
-      setServerComponent(channelDetails?.channelId);
-    }
-  }, []);
-
-  return (
-    <>
-      <div
-        className={`flex rounded-xl ${
-          serverComponent === channelDetails?.channelId
-            ? "bg-black4"
-            : "bg-black"
-        } gap-4 cursor-pointer justify-start items-start p-4 w-full`}
-        key={channelDetails?.channelId}
-        onClick={() => setServerComponent(channelDetails?.channelId)}
-      >
-        <span
-          className={`w-6 h-6 text-white ${
-            serverComponent === channelDetails?.channelId
-              ? "text-green-500 text-opacity-100"
-              : "text-white opacity-40"
-          }`}
-        >
-          {channelDetails?.channelType === "chat" ? <Chat /> : <Code />}
-        </span>
-        <div
-          className={`text-white uppercase flex ${
-            serverComponent === channelDetails?.channelId
-              ? "text-green-500 text-opacity-100"
-              : "text-white opacity-40"
-          } `}
-        >
-          {channelDetails?.channelName}
-        </div>
-      </div>
-    </>
-  );
-};

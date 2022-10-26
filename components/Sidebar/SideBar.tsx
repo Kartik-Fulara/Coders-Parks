@@ -3,7 +3,10 @@ import tw from "tailwind-styled-components";
 import Link from "next/link";
 import Avatar from "react-avatar";
 import { ChatIcon } from "../../Icons/Icons";
-import { ServerIdContext } from "../../Context/ServerIdContext";
+import {
+  ServerDataContext,
+  UserDataContext,
+} from "../../Context/ContextProvide";
 import Image from "next/image";
 
 import { useRouter } from "next/router";
@@ -91,34 +94,29 @@ const SidebarTooltip = tw.span`
   group-hover:scale-100
 `;
 
-const SideBar = ({
-  handleModelOpen,
-  serversData = [],
-  usersData,
-  handleLogOut,
-  setId,
-}: any) => {
+const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   const [focus, setFocus] = useState("0");
   const [canCreateServer, setCanCreateServer] = useState(true);
 
-  const { setServerId } = useContext(ServerIdContext);
-
   const router = useRouter();
+
+  const { sideBarServers } = useContext(ServerDataContext);
+  const { userData } = useContext(UserDataContext);
 
   const handleClick = (id: any) => {
     setFocus(id);
-    setServerId(id);
   };
 
   useEffect(() => {
-    setId(usersData?.id);
-  }, [usersData]);
+    console.log(userData);
+  }, [userData]);
 
   useEffect(() => {
-    if (serversData?.length >= 1) {
+    if (sideBarServers?.length >= 1) {
       setCanCreateServer(false);
     }
-  }, [serversData]);
+    console.log(sideBarServers);
+  }, [sideBarServers]);
 
   return (
     <>
@@ -158,7 +156,7 @@ const SideBar = ({
           <div className=" w-[80%] bg-white h-[0.05rem]"></div>
           {!canCreateServer && (
             <ul className="w-full flex flex-col gap-2">
-              {serversData?.map((item: any) => (
+              {sideBarServers?.map((item: any) => (
                 <li
                   key={item.serverId}
                   onClick={() => handleClick(item.serverId)}
@@ -223,27 +221,27 @@ const SideBar = ({
             </IconsHolders>
           </div>
           <Link
-            href={`/app/profile?id=${usersData?.id}`}
+            href={`/app/profile?id=${userData?.id}`}
             className="h-fit w-full"
           >
             <a
               className="w-full rounded-3xl hover:rounded-xl flex justify-center items-center h-fit relative group"
-              onClick={() => setFocus(usersData?.id)}
+              onClick={() => setFocus(userData?.id)}
             >
               <IconsHolders
                 className={`${
-                  focus === usersData?.id ? "rounded-xl" : "rounded-3xl"
+                  focus === userData?.id ? "rounded-xl" : "rounded-3xl"
                 } bg-black1 overflow-hidden`}
               >
                 <Avatar
                   size="100%"
                   color="rgba(0, 0, 0, 0)"
-                  name={`${usersData?.username}`}
-                  src={`${usersData?.profileImage}`}
+                  name={`${userData?.username}`}
+                  src={`${userData?.profileImage}`}
                 />
                 <SidebarTooltip>
                   <span className="text-green-500 text-xl">
-                    {usersData?.username}
+                    {userData?.username}
                   </span>
                 </SidebarTooltip>
               </IconsHolders>

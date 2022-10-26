@@ -45,10 +45,6 @@ const AuthContainer = tw.div`
 `;
 
 const Codersgateway = ({ login }: any) => {
-  const createGhostRoom = () => {
-    console.log("Clicked");
-  };
-
   return (
     // @ts-ignore
     <Container>

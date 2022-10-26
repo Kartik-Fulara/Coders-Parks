@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import tw from "tailwind-styled-components";
+import { ServerDataContext } from "../../Context/ContextProvide";
 
 interface PROPS {
   $isOpen: boolean;
@@ -10,47 +11,7 @@ const Editor = dynamic(
   async () => {
     const ace = await import("react-ace");
     // All themes
-    require("ace-builds/src-noconflict/theme-ambiance");
-    require("ace-builds/src-noconflict/theme-chaos");
-    require("ace-builds/src-noconflict/theme-chrome");
-    require("ace-builds/src-noconflict/theme-cloud9_day");
-    require("ace-builds/src-noconflict/theme-cloud9_night");
-    require("ace-builds/src-noconflict/theme-cloud9_night_low_color");
-    require("ace-builds/src-noconflict/theme-clouds");
-    require("ace-builds/src-noconflict/theme-clouds_midnight");
-    require("ace-builds/src-noconflict/theme-cobalt");
-    require("ace-builds/src-noconflict/theme-crimson_editor");
-    require("ace-builds/src-noconflict/theme-dawn");
-    require("ace-builds/src-noconflict/theme-dracula");
-    require("ace-builds/src-noconflict/theme-dreamweaver");
-    require("ace-builds/src-noconflict/theme-eclipse");
-    require("ace-builds/src-noconflict/theme-github");
-    require("ace-builds/src-noconflict/theme-gob");
-    require("ace-builds/src-noconflict/theme-gruvbox");
-    require("ace-builds/src-noconflict/theme-gruvbox_dark_hard");
-    require("ace-builds/src-noconflict/theme-gruvbox_light_hard");
-    require("ace-builds/src-noconflict/theme-idle_fingers");
-    require("ace-builds/src-noconflict/theme-iplastic");
-    require("ace-builds/src-noconflict/theme-katzenmilch");
-    require("ace-builds/src-noconflict/theme-kr_theme");
-    require("ace-builds/src-noconflict/theme-kuroir");
-    require("ace-builds/src-noconflict/theme-merbivore");
-    require("ace-builds/src-noconflict/theme-merbivore_soft");
-    require("ace-builds/src-noconflict/theme-mono_industrial");
-    require("ace-builds/src-noconflict/theme-monokai");
-    require("ace-builds/src-noconflict/theme-nord_dark");
-    require("ace-builds/src-noconflict/theme-pastel_on_dark");
-    require("ace-builds/src-noconflict/theme-solarized_dark");
-    require("ace-builds/src-noconflict/theme-solarized_light");
-    require("ace-builds/src-noconflict/theme-sqlserver");
     require("ace-builds/src-noconflict/theme-terminal");
-    require("ace-builds/src-noconflict/theme-textmate");
-    require("ace-builds/src-noconflict/theme-tomorrow");
-    require("ace-builds/src-noconflict/theme-tomorrow_night");
-    require("ace-builds/src-noconflict/theme-twilight");
-    require("ace-builds/src-noconflict/theme-vibrant_ink");
-    require("ace-builds/src-noconflict/theme-xcode");
-
     // mode
     require("ace-builds/src-noconflict/mode-java");
     require("ace-builds/src-noconflict/mode-python");
@@ -59,6 +20,7 @@ const Editor = dynamic(
     require("ace-builds/src-noconflict/mode-csharp");
     require("ace-builds/src-noconflict/mode-javascript");
 
+    require("ace-builds");
     require("ace-builds/src-noconflict/ext-language_tools");
     return ace;
   },
@@ -87,44 +49,40 @@ const TerminalHolder = tw.div<PROPS>`
     gap-4
 `;
 
-const EditorComponent = ({
-  code,
-  setCode,
-  theme,
-  language,
-  isOpen,
-  output,
-  setInput,
-}: any) => {
+const EditorComponent = () => {
   const [inputField, setInputField] = useState(false);
+
+  const { editorData, setEditorData, language, openConsole, setInput, output } =
+    React.useContext(ServerDataContext);
 
   return (
     <>
       {/* @ts-ignore */}
-      <EditorHolder $isOpen={isOpen}>
+      <EditorHolder $isOpen={openConsole}>
         <Editor
           style={{ width: "100%", height: "100%" }}
           placeholder="Code Here To Display Others"
           mode={`${language}`}
-          theme={`${theme}`}
+          theme="terminal"
           name="Code Editor"
           readOnly={false}
-          onChange={(val: any) => setCode(val)}
+          onChange={(val: any) => setEditorData(val)}
           fontSize={25}
           showPrintMargin={true}
           showGutter={true}
           highlightActiveLine={true}
-          value={code}
+          value={editorData}
           setOptions={{
             enableSnippets: true,
             showLineNumbers: true,
             tabSize: 5,
           }}
+          onCopy={(input) => console.log(input)}
         />
       </EditorHolder>
-      {isOpen && (
+      {openConsole && (
         // @ts-ignore
-        <TerminalHolder $isOpen={isOpen}>
+        <TerminalHolder $isOpen={openConsole}>
           <div className="w-full h-12 flex justify-start items-center gap-5">
             <span
               className={`${
@@ -151,7 +109,7 @@ const EditorComponent = ({
             </span>
           </div>
           {inputField ? (
-            <InputField setOutput={setInput} />
+            <InputField setInput={setInput} />
           ) : (
             <Output output={output} />
           )}
@@ -166,13 +124,17 @@ export default EditorComponent;
 const InputField = ({ setInput }: any) => {
   return (
     <textarea
-      className="h-full w-full bg-transparent outline-none border-none resize-none text-white"
+      className="h-full w-full bg-black p-4 outline-none border-none resize-none text-white"
       placeholder="Input Here"
-      onChange={(e: any) => console.log(e.target.value)}
+      onChange={(e: any) => setInput(e.target.value)}
     ></textarea>
   );
 };
 
 const Output = ({ output }: any) => {
-  return <>Output</>;
+  return (
+    <div className="h-full w-full bg-black p-4 outline-none border-none resize-none text-white">
+      {output || "Output Will Be Displayed Here"}
+    </div>
+  );
 };

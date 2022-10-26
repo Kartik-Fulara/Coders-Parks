@@ -3,8 +3,10 @@ import tw from "tailwind-styled-components";
 import { CloseCircle, SendMessage, AddFriends } from "../Icons/Icons";
 import Avatar from "react-avatar";
 import { startChat } from "../libs/chats";
+
 import { queryUserByUserName, addFriends } from "../libs/chats";
 import toast from "react-hot-toast";
+import { ServerDataContext } from "../Context/ContextProvide";
 
 const SearchUserComponent = tw.section`
     absolute
@@ -31,6 +33,9 @@ const SearchUserWrapper = tw.div`
 
 const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const [userName, setUserName] = React.useState<string>("");
+  const [canSendMessage, setCanSendMessage] = React.useState<boolean>(true);
+  const { chats, setChats, setMessagesData } =
+    React.useContext(ServerDataContext);
 
   const [user, setUser] = React.useState<any>(null);
 
@@ -39,10 +44,17 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     const init = async () => {
       const { data } = await queryUserByUserName(userName);
       console.log(data?.data.data);
+      console.log(chats);
       if (data?.data.data !== undefined) {
+        if (
+          chats?.find((chat: any) => chat?.user?._id === data?.data.data?._id)
+        ) {
+          setCanSendMessage(false);
+          toast.error("User already in your chats");
+        }
         setUser({ ...data?.data.data });
       } else {
-        setUser(" ");
+        setUser("");
       }
     };
     init();
@@ -53,7 +65,10 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     const init = async () => {
       const { data } = await startChat(user.id);
       console.log(data);
-      handleCall();
+      console.log(chats);
+      const chatData = data.currentChats;
+      setChats([...chats, chatData]);
+
       handleModelClose();
     };
     init();
@@ -63,7 +78,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     const init = async () => {
       const { data } = await addFriends(id);
       console.log(data);
-      setSendReq(true)
+      setSendReq(true);
       toast.success("Friend Request Sent");
     };
     init();
@@ -95,7 +110,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
             />
             <button type="submit">Search</button>
           </form>
-          {user !== " " && user ? (
+          {(user !== " " || user !== "") && user ? (
             <div className="flex w-[90%] justify-between p-4 items-center  h-fit bg-black2 rounded-3xl">
               <div className="w-full h-full flex gap-4 items-center justify-start">
                 <Avatar
@@ -109,13 +124,19 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                 </span>
               </div>
               <div className="flex gap-4">
+                {canSendMessage && (
+                  <button
+                    aria-label="Start Chat"
+                    type="button"
+                    className="bg-blue-700 text-white font-bold rounded-3xl h-10 w-20 flex items-center justify-center"
+                    onClick={handleStartChat}
+                  >
+                    Say Hi
+                  </button>
+                )}
                 <button
-                  className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10 "
-                  onClick={handleStartChat}
-                >
-                  <SendMessage />
-                </button>
-                <button
+                  aria-label="Add Friends"
+                  type="button"
                   onClick={() => handleAddFriends(user?.id)}
                   className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
                 >
