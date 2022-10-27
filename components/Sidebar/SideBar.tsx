@@ -9,8 +9,6 @@ import {
 } from "../../Context/ContextProvide";
 import Image from "next/image";
 
-import { useRouter } from "next/router";
-
 const Sidebar = tw.div`
     gap-2
     flex
@@ -98,24 +96,18 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   const [focus, setFocus] = useState("0");
   const [canCreateServer, setCanCreateServer] = useState(true);
 
-  const router = useRouter();
-
-  const { sideBarServers } = useContext(ServerDataContext);
+  const { sideBarServers, setSelectedServerId } = useContext(ServerDataContext);
   const { userData } = useContext(UserDataContext);
 
   const handleClick = (id: any) => {
     setFocus(id);
+    setSelectedServerId(id);
   };
-
-  useEffect(() => {
-    console.log(userData);
-  }, [userData]);
 
   useEffect(() => {
     if (sideBarServers?.length >= 1) {
       setCanCreateServer(false);
     }
-    console.log(sideBarServers);
   }, [sideBarServers]);
 
   return (

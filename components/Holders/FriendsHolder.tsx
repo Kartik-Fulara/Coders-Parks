@@ -6,18 +6,8 @@ import { ServerDataContext } from "../../Context/ContextProvide";
 
 import DMS_NAME_HOLDER from "./details-chats-holders/ProfileHolder";
 
-import {
-  SingleArrowDown,
-  PeopleIcon,
-  SingleArrowUp,
-  DeleteIcon,
-  CallCut,
-  MicroPhone,
-  SettingIcon,
-} from "../../Icons/Icons";
+import { SingleArrowDown, PeopleIcon } from "../../Icons/Icons";
 
-import { logout } from "../../libs/auth";
-import SearchUser from "../../models/SearchUser";
 import DropDown from "../Elements/DropDown";
 
 const FriendsHolderComponent = tw.section`
@@ -62,6 +52,7 @@ const SearchHolder = tw.div`
     text-white
     text-opacity-50
     relative
+    cursor-pointer
 `;
 
 const DirectMessagesHolder = tw.div`
@@ -92,19 +83,15 @@ const FriendsBtn = tw.div`
     hover:bg-black1
 `;
 
-const FriendsHolder = ({ setSendReq }: any) => {
+const FriendsHolder = () => {
   const router = useRouter();
 
-  const { chats, setChatId } = useContext(ServerDataContext);
+  const { chats, setChatId, setSearchUserModel } =
+    useContext(ServerDataContext);
 
   const [selectedUser, setSelectedUser] = React.useState("friends");
 
-  const [openModel, setOpenModel] = React.useState(false);
   const [findDms, setFindDms] = React.useState(true);
-
-  React.useEffect(() => {
-    console.log(chats);
-  }, [chats]);
 
   const handleClick = (user: any, chatId: any) => {
     setSelectedUser(`${user}`);
@@ -112,16 +99,6 @@ const FriendsHolder = ({ setSendReq }: any) => {
     console.log(chatId);
     router.push(`/app/friends?id=${user}`);
   };
-
-  const handleModelClose = () => {
-    setOpenModel(false);
-  };
-
-  const handleModelOpen = () => {
-    setOpenModel(true);
-  };
-
-  const handleCall = () => {};
 
   const options = [
     { value: "DM", label: "Direct Messages" },
@@ -155,7 +132,7 @@ const FriendsHolder = ({ setSendReq }: any) => {
             ) : (
               <SearchHolder>
                 <div
-                  onClick={handleModelOpen}
+                  onClick={() => setSearchUserModel(true)}
                   className="bg-transparent w-full h-full text-white text-opacity-50 text-lg outline-none text-center flex justify-center items-center"
                 >
                   Search a User
@@ -205,13 +182,6 @@ const FriendsHolder = ({ setSendReq }: any) => {
           </DirectMessagesHolder>
         </FriendsHolderWrapper>
       </FriendsHolderComponent>
-      {openModel && (
-        <SearchUser
-          handleModelClose={handleModelClose}
-          handleCall={handleCall}
-          setSendReq={setSendReq}
-        />
-      )}
     </>
   );
 };

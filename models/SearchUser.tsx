@@ -34,8 +34,7 @@ const SearchUserWrapper = tw.div`
 const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const [userName, setUserName] = React.useState<string>("");
   const [canSendMessage, setCanSendMessage] = React.useState<boolean>(true);
-  const { chats, setChats, setMessagesData } =
-    React.useContext(ServerDataContext);
+  const { chats, setChats } = React.useContext(ServerDataContext);
 
   const [user, setUser] = React.useState<any>(null);
 
@@ -89,8 +88,8 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     <SearchUserComponent>
       <SearchUserWrapper>
         <div
-          className="h-16 w-full flex px-6 mb-4 justify-end items-end"
-          onClick={handleModelClose}
+          className="h-16 w-full flex px-6 mb-4 justify-end items-end cursor-pointer"
+          onClick={() => handleModelClose(false)}
         >
           <span className="h-10 w-10">
             <CloseCircle />

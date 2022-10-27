@@ -79,7 +79,6 @@ const DropDown = ({ options, setFunc, onValue, start }: any) => {
   }, []);
 
   const handleOptionChange = (e: any) => {
-    console.log(e.target.id);
     setActive(e.target.id);
     onValue.map((item: any) => {
       if (item.on === e.target.id) {
@@ -112,6 +111,7 @@ const DropDown = ({ options, setFunc, onValue, start }: any) => {
               <MENUITEM
                 $active={active === option.value ? true : false}
                 id={option.value}
+                key={option.value}
                 onClick={(e: any) => handleOptionChange(e)}
               >
                 {option.label}

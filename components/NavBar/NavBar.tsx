@@ -28,8 +28,7 @@ const NavBar = ({
 }: any) => {
   const router = useRouter();
   const handleLoginClick = () => {
-    // router.push("?login");
-
+    router.push("?login");
     handleLogin();
     handleOpen();
   };
@@ -60,8 +59,8 @@ const NavBar = ({
             <Image
               src="/Asserts/Coders.png"
               alt="Ghost Gate Way"
-              layout="fill"
-              objectFit="cover"
+              height={800}
+              width={800}
             />
           </ImageHolder>
           <span

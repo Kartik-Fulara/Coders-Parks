@@ -17,6 +17,8 @@ export const getServerDetails = async () => {
 
 export const createServer = async (
   id: string,
+  username: string,
+  image: string,
   serverName: string,
   serverImage: string
 ) => {
@@ -26,9 +28,12 @@ export const createServer = async (
   if (!serverImage) {
     serverImage = "";
   }
+  console.log(username);
   try {
     const response = await axios.post("/api/servers/createServer", {
       id,
+      username,
+      userProfileImage: image,
       serverName,
       serverImage,
     });

@@ -14,6 +14,7 @@ import {
   SocketTransferData,
 } from "../Context/ContextProvide";
 import { io } from "socket.io-client";
+import SearchUser from "../models/SearchUser";
 
 const handleRoutes = ["/app/friends", "/app/channel/c", "/app/profile"];
 
@@ -22,36 +23,8 @@ const MainLayout = ({ children }: any) => {
   const [open, setOpen] = useState(false);
   const [openModel, setOpenModel] = React.useState(false);
   const [call, setCall] = React.useState(false);
-
-  const chatSocket = useRef<any>(null);
-  const serverSocket = useRef<any>(null);
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleLogin = () => {
-    setLogin(true);
-  };
-
-  const handleRegister = () => {
-    setLogin(false);
-  };
-
-  const handleModelOpen = () => {
-    setOpenModel(true);
-  };
-
-  const handleModelClose = () => {
-    setOpenModel(false);
-  };
-
+  const [checkUsername, setCheckUsername] = React.useState(false);
   const { userData, setUserData } = useContext(UserDataContext);
-
   const [recieveChat, setRecieveChart] = useState<any>([]);
 
   const {
@@ -72,16 +45,47 @@ const MainLayout = ({ children }: any) => {
     chats,
     setChats,
     chatId,
+    searchUserModel,
+    setSearchUserModel,
   } = useContext(ServerDataContext);
 
   const { chatMessageSocket, setChatMessageSocket } =
     useContext(SocketTransferData);
+
+  const chatSocket = useRef<any>(null);
+  const serverSocket = useRef<any>(null);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    router.push("/");
+  };
+
+  const handleLogin = () => {
+    setLogin(true);
+  };
+
+  const handleRegister = () => {
+    setLogin(false);
+  };
+
+  const handleModelOpen = () => {
+    setOpenModel(true);
+  };
+
+  const handleModelClose = () => {
+    setOpenModel(false);
+  };
 
   const router = useRouter();
 
   const { query } = router;
 
   React.useEffect(() => {
+    console.log("call");
     if (query?.login === "") {
       handleLogin();
       handleOpen();
@@ -118,7 +122,7 @@ const MainLayout = ({ children }: any) => {
   const getSideBarServers = async () => {
     const { data }: any = await getUsersServer();
     if (data) {
-      console.log(data);
+      setSideBarServers(data);
       setCall(false);
     }
   };
@@ -129,9 +133,11 @@ const MainLayout = ({ children }: any) => {
       const { email, name, username, id, uid, chats, friends, servers } =
         data.data;
       setUserData({ email, name, username, id, uid });
-      setSideBarServers(servers);
-      setFriendsData(friends);
-      setChats(chats);
+      if (username.length <= 20) {
+        setSideBarServers(servers);
+        setFriendsData(friends);
+        setChats(chats);
+      }
     } else {
       setUserData([]);
       toast.error("Something went wrong");
@@ -163,11 +169,11 @@ const MainLayout = ({ children }: any) => {
     const init = async () => {
       const data = await getServerDataById(sideBarServers[0]?.serverId);
       setServersData(data);
+      serverSocket.current?.emit("login", sideBarServers[0]?.serverId);
     };
 
     if (sideBarServers.length !== 0) {
       init();
-      console.log(sideBarServers);
     }
   }, [sideBarServers]);
 
@@ -179,7 +185,6 @@ const MainLayout = ({ children }: any) => {
 
   React.useEffect(() => {
     if (chats.length > 0 && messagesData.length === 0) {
-      console.log("coming here");
       chats.map((chat: any) => {
         const init = async () => {
           const { data }: any = await getMessages(chat.chatId);
@@ -189,7 +194,6 @@ const MainLayout = ({ children }: any) => {
           }
         };
         init();
-        console.log(chats);
       });
     }
   }, [chats]);
@@ -197,14 +201,16 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     if (userData.length !== 0) {
       const data = userData?.id;
-      console.log(data);
+      const checkUName = (userData?.username).length; // check if username is set or not
+      if (checkUName <= 20) {
+        setCheckUsername(true);
+      }
       chatSocket.current?.emit("login", data);
     }
   }, [userData]);
 
   React.useEffect(() => {
     if (chatMessageSocket.length !== 0) {
-      console.log(chatMessageSocket);
       chatSocket.current?.emit("sendMessage", chatMessageSocket);
     }
   }, [chatMessageSocket]);
@@ -213,6 +219,7 @@ const MainLayout = ({ children }: any) => {
     if (handleRoutes.includes(router.pathname) && userData.length === 0) {
       getUserData();
       chatSocket.current = io("ws://localhost:9739");
+      serverSocket.current = io("ws://localhost:5000");
 
       chatSocket.current?.on("getMessage", (data: any) => {
         const { data: transferData } = data;
@@ -222,7 +229,6 @@ const MainLayout = ({ children }: any) => {
         const { data: ret } = data;
         console.log(ret);
       });
-      // serverSocket.current = io("ws://localhost:5000/");
     }
   }, [router.pathname === "/app/friends"]);
 
@@ -275,20 +281,25 @@ const MainLayout = ({ children }: any) => {
             handleLogin={handleLogin}
           />
         )}
-        {handleRoutes.includes(router.pathname) && sideBarServers && (
-          <>
-            <SideBar
-              handleModelOpen={handleModelOpen}
-              handleLogOut={handleLogOut}
-            />
-            {openModel && (
-              <CreateNewServer
-                handleModelClose={handleModelClose}
-                setCall={setCall}
-                id={userData?.id}
+        {handleRoutes.includes(router.pathname) &&
+          sideBarServers &&
+          checkUsername && (
+            <>
+              <SideBar
+                handleModelOpen={handleModelOpen}
+                handleLogOut={handleLogOut}
               />
-            )}
-          </>
+              {openModel && (
+                <CreateNewServer
+                  handleModelClose={handleModelClose}
+                  setCall={setCall}
+                  id={userData?.id}
+                />
+              )}
+            </>
+          )}
+        {searchUserModel && (
+          <SearchUser handleModelClose={setSearchUserModel} />
         )}
         {children}
       </main>

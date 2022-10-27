@@ -24,8 +24,11 @@ const ContextProvider = ({ children }: any) => {
   const [openConsole, setOpenConsole] = React.useState<any>(false);
   const [input, setInput] = React.useState<any>("");
   const [output, setOutput] = React.useState<any>("");
-
+  const [serverChat, setServerChat] = React.useState<any>([]);
   const [chatMessageSocket, setChatMessageSocket] = React.useState<any>([]);
+  const [searchUserModel, setSearchUserModel] = React.useState(false);
+
+  const [selectedServerId, setSelectedServerId] = React.useState<any>("");
 
   return (
     <UserDataContext.Provider value={{ userData, setUserData }}>
@@ -59,6 +62,12 @@ const ContextProvider = ({ children }: any) => {
           setChats,
           chatId,
           setChatId,
+          serverChat,
+          setServerChat,
+          selectedServerId,
+          setSelectedServerId,
+          searchUserModel,
+          setSearchUserModel,
         }}
       >
         <SocketTransferData.Provider

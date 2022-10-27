@@ -9,23 +9,31 @@ import { userDetails } from "../../libs/chats";
 import SetUserName from "../../models/SetUserName";
 import { io } from "socket.io-client";
 import { UserDataContext } from "../../Context/ContextProvide";
+import SearchUser from "../../models/SearchUser";
 
-const friends = ({ token }: any) => {
+const friends = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [username, setusername] = React.useState(false);
-  const [sendMsg, setSendMsg] = React.useState(null);
-  const [receivedMsg, setReceivedMsg] = React.useState(null);
   const [sendReq, setSendReq] = React.useState(false);
   const [recieveReq, setRecieveReq] = React.useState(false);
+  const [username, setUsername] = React.useState(false);
+  const { userData } = React.useContext(UserDataContext);
+
+  React.useEffect(() => {
+    const tempUName = userData?.username || "";
+    if (tempUName.length > 20) {
+      setUsername(true);
+    } else {
+      setUsername(false);
+    }
+  }, [userData]);
 
   return (
     <Index>
       {username ? (
-        <SetUserName />
+        <SetUserName setUsername={setUsername} />
       ) : (
         <>
-          <FriendsHolder setSendReq={setSendReq} />
+          <FriendsHolder />
           {router.asPath === "/app/friends" && (
             <FriendsDetails
               recieveReq={recieveReq}
@@ -33,8 +41,9 @@ const friends = ({ token }: any) => {
               setSendRe={setSendReq}
             />
           )}
-          {router.asPath === `/app/friends?id=${router.query.id}` &&
-            !isLoading && <DmsComponent />}
+          {router.asPath === `/app/friends?id=${router.query.id}` && (
+            <DmsComponent />
+          )}
         </>
       )}
     </Index>
@@ -56,8 +65,6 @@ export const getServerSideProps = async (ctx: any) => {
     };
   }
   return {
-    props: {
-      token: token || null,
-    },
+    props: {},
   };
 };

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
-import {
-  getFriends,
-  getPendingFriends,
-  queryUserById,
-} from "../../../libs/chats";
+import { getFriends } from "../../../libs/chats";
 import { Refresh } from "../../../Icons/Icons";
 import Avatar from "react-avatar";
 const NavBar = tw.nav`

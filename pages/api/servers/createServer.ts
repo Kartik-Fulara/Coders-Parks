@@ -4,7 +4,7 @@ import nookies from "nookies";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const cookies = nookies.get({ req });
   const token = cookies.token;
-  const { id, serverName, serverImage } = req.body;
+  const { id, username, userProfileImage, serverName, serverImage } = req.body;
   try {
     const data: any = await fetch(
       `${process.env.NEXT_PUBLIC_AUTH_API_URL}/server/createServer`,
@@ -16,6 +16,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
         body: JSON.stringify({
           id,
+          username,
+          userProfileImage,
           serverName,
           serverImage,
         }),

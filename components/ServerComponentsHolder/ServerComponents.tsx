@@ -57,8 +57,6 @@ const ServerComponents = () => {
   const { openConsole, setOpenConsole, showWhichComponent, setLanguage } =
     useContext(ServerDataContext);
 
-  const socket = useRef<any>(null);
-
   return (
     <>
       <ChannelHolder />

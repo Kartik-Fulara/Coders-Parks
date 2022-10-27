@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import tw from "tailwind-styled-components";
 import { CloseCircle, ImageIcon } from "../Icons/Icons";
 import Avatar from "react-avatar";
 import { createServer } from "../libs/server";
+import { UserDataContext } from "../Context/ContextProvide";
 
 const CreateServerModelComponent = tw.section`
     absolute
@@ -32,6 +33,8 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
 
   const [file, setFile] = React.useState<File>();
 
+  const { userData } = useContext(UserDataContext);
+
   const [serverDetail, setServerDetail] = React.useState({
     name: "",
     serverImage: "",
@@ -60,7 +63,16 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
     const serverName = serverDetail.name.trim();
     const serverImage = serverDetail.serverImage;
     const init = async () => {
-      const response = await createServer(id, serverName, serverImage);
+      const image = userData?.profileImage || "";
+      const username = userData?.username;
+      console.log(username);
+      const response = await createServer(
+        id,
+        username,
+        image,
+        serverName,
+        serverImage
+      );
       console.log(response);
       if (response) {
         setCall(true);
