@@ -128,29 +128,27 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
             onClick={() => setFocus("0")}
             className="w-full rounded-3xl hover:rounded-xl flex justify-center items-center h-fit relative group"
           >
-            <Link href="/app/friends">
-              <a onClick={() => setFocus("0")}>
+            <Link href="/app/friends" onClick={() => setFocus("0")}>
+              <div
+                className={`w-full ${
+                  focus === "0" ? "rounded-xl" : "rounded-3xl"
+                } overflow-hidden hover:rounded-xl gap-2 flex justify-center items-center h-fit relative group`}
+              >
                 <div
-                  className={`w-full ${
+                  className={`absolute  left-0 bg-white w-1  group-hover:h-[80%] ${
+                    focus === "0" ? "h-[80%]" : "h-[30%]"
+                  } transition-all `}
+                ></div>
+                <IconsHolders
+                  className={`${
                     focus === "0" ? "rounded-xl" : "rounded-3xl"
-                  } overflow-hidden hover:rounded-xl gap-2 flex justify-center items-center h-fit relative group`}
+                  } overflow-hidden
+              p-2
+              `}
                 >
-                  <div
-                    className={`absolute  left-0 bg-white w-1  group-hover:h-[80%] ${
-                      focus === "0" ? "h-[80%]" : "h-[30%]"
-                    } transition-all `}
-                  ></div>
-                  <IconsHolders
-                    className={`${
-                      focus === "0" ? "rounded-xl" : "rounded-3xl"
-                    } overflow-hidden
-                  p-2
-                  `}
-                  >
-                    <ChatIcon />
-                  </IconsHolders>
-                </div>
-              </a>
+                  <ChatIcon />
+                </IconsHolders>
+              </div>
             </Link>
           </div>
           <div className=" w-[80%] bg-white h-[0.05rem]"></div>
@@ -162,31 +160,32 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
                   onClick={() => handleClick(item.serverId)}
                   className="w-full   rounded-3xl  hover:rounded-xl gap-4 flex justify-center items-center h-fit relative group"
                 >
-                  <Link href={`/app/channel/c?id=${item.serverId}`}>
-                    <a className="w-full h-fit flex justify-center items-center">
-                      <div
-                        className={`absolute  left-0 bg-white w-1  group-hover:h-[80%] ${
-                          focus === item.serverId ? "h-[80%]" : "h-[30%]"
-                        } transition-all `}
-                      ></div>
-                      <IconsHolders
-                        className={`${
-                          focus === item.serverId ? "rounded-xl" : "rounded-3xl"
-                        } bg-black1 overflow-hidden`}
-                      >
-                        <Avatar
-                          size="100%"
-                          color="rgba(0, 0, 0, 0)"
-                          name={`${item.serverName}`}
-                          src={`${item?.serverImage}`}
-                        />
-                        <SidebarTooltip>
-                          <span className="text-green-500 text-xl">
-                            {item.serverName}
-                          </span>
-                        </SidebarTooltip>
-                      </IconsHolders>
-                    </a>
+                  <Link
+                    href={`/app/channel/c?id=${item.serverId}`}
+                    className="w-full h-fit flex justify-center items-center"
+                  >
+                    <div
+                      className={`absolute  left-0 bg-white w-1  group-hover:h-[80%] ${
+                        focus === item.serverId ? "h-[80%]" : "h-[30%]"
+                      } transition-all `}
+                    ></div>
+                    <IconsHolders
+                      className={`${
+                        focus === item.serverId ? "rounded-xl" : "rounded-3xl"
+                      } bg-black1 overflow-hidden`}
+                    >
+                      <Avatar
+                        size="100%"
+                        color="rgba(0, 0, 0, 0)"
+                        name={`${item.serverName}`}
+                        src={`${item?.serverImage}`}
+                      />
+                      <SidebarTooltip>
+                        <span className="text-green-500 text-xl">
+                          {item.serverName}
+                        </span>
+                      </SidebarTooltip>
+                    </IconsHolders>
                   </Link>
                 </li>
               ))}
@@ -210,10 +209,10 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
             <IconsHolders className="bg-black justify-center items-center ml-3">
               <Image
                 src="/Asserts/logout.svg"
-                layout="fill"
-                objectFit="cover"
+                height={100}
                 alt="logout"
                 className="p-2 pl-3"
+                width={100}
               />
               <SidebarTooltip>
                 <span className="text-green-500 text-xl">Logout</span>
@@ -222,30 +221,26 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
           </div>
           <Link
             href={`/app/profile?id=${userData?.id}`}
-            className="h-fit w-full"
+            className="h-fit w-full rounded-3xl hover:rounded-xl flex justify-center items-center relative group"
+            onClick={() => setFocus(userData?.id)}
           >
-            <a
-              className="w-full rounded-3xl hover:rounded-xl flex justify-center items-center h-fit relative group"
-              onClick={() => setFocus(userData?.id)}
+            <IconsHolders
+              className={`${
+                focus === userData?.id ? "rounded-xl" : "rounded-3xl"
+              } bg-black1 overflow-hidden`}
             >
-              <IconsHolders
-                className={`${
-                  focus === userData?.id ? "rounded-xl" : "rounded-3xl"
-                } bg-black1 overflow-hidden`}
-              >
-                <Avatar
-                  size="100%"
-                  color="rgba(0, 0, 0, 0)"
-                  name={`${userData?.username}`}
-                  src={`${userData?.profileImage}`}
-                />
-                <SidebarTooltip>
-                  <span className="text-green-500 text-xl">
-                    {userData?.username}
-                  </span>
-                </SidebarTooltip>
-              </IconsHolders>
-            </a>
+              <Avatar
+                size="100%"
+                color="rgba(0, 0, 0, 0)"
+                name={`${userData?.username}`}
+                src={`${userData?.profileImage}`}
+              />
+              <SidebarTooltip>
+                <span className="text-green-500 text-xl">
+                  {userData?.username}
+                </span>
+              </SidebarTooltip>
+            </IconsHolders>
           </Link>
         </SidebarBottom>
       </Sidebar>
