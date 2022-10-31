@@ -2,10 +2,19 @@ import React, { useState, useContext, useEffect } from "react";
 import tw from "tailwind-styled-components";
 import { DownArrow, UpArrow, DeleteIcon, SettingIcon } from "../../Icons/Icons";
 import { ServerDataContext } from "../../Context/ContextProvide";
-import { Code, Chat } from "../../Icons/Icons";
+import { Code, Chat, ShareIcon, Menu } from "../../Icons/Icons";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import toast from "react-hot-toast";
+import Avatar from "react-avatar";
 
-const ChannelHolderComponent = tw.section`
-    flex
+interface Props {
+  $Open: boolean;
+}
+
+const ChannelHolderComponent = tw.section<Props>`
+    xl:flex
+    ${(props: any) => (props.$Open ? "flex absolute" : "hidden")}
+    xl:relative
     flex-col
     items-start
     justify-start
@@ -14,6 +23,7 @@ const ChannelHolderComponent = tw.section`
     min-w-[var(--holders-sidebar-width)]
     max-w-[var(--holders-sidebar-width)]
     bg-black3
+    z-[50]
 `;
 
 const ChannelHolderWrapper = tw.div`
@@ -47,12 +57,40 @@ const ServersChannels = tw.section`
 const ServerHolder = () => {
   const [dropDown, setDropDown] = useState(false);
 
-  const { serversData, setShowWhichComponent, showWhichComponent } =
-    useContext(ServerDataContext);
+  const {
+    serversData,
+    setShowWhichComponent,
+    showWhichComponent,
+    openHolder,
+    setOpenHolder,
+  } = useContext(ServerDataContext);
+
+  const [serverId, setServerId] = useState("");
+  const [members, setMembers] = useState([]);
+  const [showProfile, setShowProfile] = useState(false);
+
+  useEffect(() => {
+    setMembers(serversData.members);
+    console.log(serversData);
+    if (
+      serversData.length !== 0 &&
+      serversData !== undefined &&
+      serversData !== "No Data"
+    ) {
+      const id = serversData?.serverLinks[0] || "";
+      console.log(id);
+      setServerId(id);
+    }
+  }, [serversData]);
+
+  const handleProfile = (member: any) => {
+    setShowProfile(!showProfile);
+    console.log(member);
+  };
 
   return (
     //@ts-ignore
-    <ChannelHolderComponent>
+    <ChannelHolderComponent $Open={openHolder}>
       <ChannelHolderWrapper>
         <div className="flex flex-col w-full">
           <div
@@ -61,33 +99,52 @@ const ServerHolder = () => {
           >
             <span className="uppercase">{serversData?.serverName} Server</span>
             {!dropDown ? (
-              <span className="h-5 w-5">
+              <div className="h-5 w-5">
                 <DownArrow />
-              </span>
+              </div>
             ) : (
-              <span className="h-5 w-5">
+              <div className="h-5 w-5">
                 <UpArrow />
-              </span>
+              </div>
             )}
+            <div
+              className="h-5 w-5 xl:hidden"
+              onClick={() => setOpenHolder(!openHolder)}
+            >
+              <Menu />
+            </div>
             {/*  A dropdown menu. */}
             <div
               className={`absolute ${
                 dropDown ? "scale-100 " : "scale-0"
-              } transition-all top-[4.8rem] flex justify-center  items-center w-[85%] h-fit `}
+              }  transition-all top-[4.8rem] flex justify-center  items-center w-[85%] h-fit `}
             >
-              <div className="w-full  bg-black1 p-4">
-                <ul className="flex flex-col w-full gap-2">
-                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-white rounded-xl">
+              <div className="w-full  bg-black p-4 ">
+                <ul className="flex flex-col w-full gap-2 z-20">
+                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-white rounded-xl z-20">
+                    <CopyToClipboard
+                      text={serverId}
+                      onCopy={() => toast.success("Copied to clipboard")}
+                    >
+                      <div className="flex gap-4">
+                        <span className="w-6 h-6 z-10">
+                          <ShareIcon />
+                        </span>
+                        <span>Share Server Link</span>
+                      </div>
+                    </CopyToClipboard>
+                  </li>
+                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-white rounded-xl z-20">
                     <span className="w-6 h-6">
                       <SettingIcon />
                     </span>
-                    Server Settings
+                    <span className="z-10">Server Settings</span>
                   </li>
-                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-red-400 rounded-xl">
+                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-red-400 rounded-xl z-20 ">
                     <span className="w-6 h-6">
                       <DeleteIcon />
                     </span>
-                    Delete Server
+                    <span>Delete Server</span>
                   </li>
                 </ul>
               </div>
@@ -99,14 +156,15 @@ const ServerHolder = () => {
         </div>
         <ServersChannels>
           {serversData &&
+            !dropDown &&
             serversData?.channels?.map((channel: any) => (
               <>
                 <div
                   className={`flex rounded-xl ${
                     showWhichComponent === channel?.channelType
-                      ? "bg-black4"
-                      : "bg-black"
-                  } gap-4 cursor-pointer justify-start items-start p-4 w-full`}
+                      ? "bg-black1"
+                      : "bg-black4"
+                  } gap-4 cursor-pointer justify-start items-start p-4 w-full z-2`}
                   key={channel?.channelId}
                   onClick={() => setShowWhichComponent(channel?.channelType)}
                 >
@@ -120,17 +178,50 @@ const ServerHolder = () => {
                     {channel?.channelType === "chat" ? <Chat /> : <Code />}
                   </span>
                   <div
-                    className={`text-white uppercase flex ${
+                    className={`text-white uppercase flex z-1 ${
                       showWhichComponent === channel?.channelType
                         ? "text-green-500 text-opacity-100"
                         : "text-white opacity-40"
                     } `}
                   >
-                    {channel?.channelName}
+                    {channel?.channelType === "chat"
+                      ? "Chat Area"
+                      : "Collab Area"}
                   </div>
                 </div>
               </>
             ))}
+
+          {serversData && (
+            <div
+              className={`flex rounded-xl flex-col gap-4 cursor-pointer justify-start items-start p-4 w-full z-2`}
+            >
+              <div className="flex gap-4 items-center justify-between w-full">
+                <span className=" text-white uppercase">Members</span>
+                <span className="text-white ">{members?.length}</span>
+              </div>
+              <div className="flex gap-4 items-center w-full flex-col">
+                {members?.map((member: any) => (
+                  <div
+                    key={member?.userId}
+                    onClick={() => handleProfile(member)}
+                    className="w-full h-12 rounded-xl pl-4 items-center justify-start gap-4 flex bg-black2 relative"
+                  >
+                    <div className="h-10 w-10 p-1">
+                      <Avatar
+                        name={member?.userName}
+                        round={true}
+                        size="50"
+                        className="w-full h-full"
+                        src={member?.userAvatar}
+                      />
+                    </div>
+                    <span className="uppercase">{member?.userName}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </ServersChannels>
       </ChannelHolderWrapper>
     </ChannelHolderComponent>

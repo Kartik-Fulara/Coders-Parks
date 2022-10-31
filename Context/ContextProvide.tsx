@@ -11,6 +11,7 @@ const ContextProvider = ({ children }: any) => {
   const [userData, setUserData] = React.useState<any>([]);
   const [sideBarServers, setSideBarServers] = React.useState<any>([]);
   const [serversData, setServersData] = React.useState<any>([]);
+  const [serverChat, setServerChat] = React.useState<any>([]);
   const [pendingRequests, setPendingRequests] = React.useState<any>([]);
   const [sendRequests, setSendRequests] = React.useState<any>([]);
   const [friends, setFriends] = React.useState<any>([]);
@@ -24,11 +25,13 @@ const ContextProvider = ({ children }: any) => {
   const [openConsole, setOpenConsole] = React.useState<any>(false);
   const [input, setInput] = React.useState<any>("");
   const [output, setOutput] = React.useState<any>("");
-  const [serverChat, setServerChat] = React.useState<any>([]);
   const [chatMessageSocket, setChatMessageSocket] = React.useState<any>([]);
+  const [serverChatMessageSocket, setServerChatMessageSocket] =
+    React.useState<any>([]);
   const [searchUserModel, setSearchUserModel] = React.useState(false);
-
   const [selectedServerId, setSelectedServerId] = React.useState<any>("");
+
+  const [openHolder, setOpenHolder] = React.useState<any>(false);
 
   return (
     <UserDataContext.Provider value={{ userData, setUserData }}>
@@ -68,10 +71,17 @@ const ContextProvider = ({ children }: any) => {
           setSelectedServerId,
           searchUserModel,
           setSearchUserModel,
+          openHolder,
+          setOpenHolder,
         }}
       >
         <SocketTransferData.Provider
-          value={{ chatMessageSocket, setChatMessageSocket }}
+          value={{
+            chatMessageSocket,
+            setChatMessageSocket,
+            serverChatMessageSocket,
+            setServerChatMessageSocket,
+          }}
         >
           {children}
         </SocketTransferData.Provider>

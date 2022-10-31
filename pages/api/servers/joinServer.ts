@@ -4,11 +4,10 @@ import nookies from "nookies";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const cookies = nookies.get({ req });
   const token = cookies.token;
-  const { code, input, language } = req.body;
-  console.log(code, input, language);
+  const { serverName, serverId, serverImage, userAvatar, userName } = req.body;
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/server/runCode`,
+    const response: any = await fetch(
+      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/server/joinServer`,
       {
         method: "POST",
         headers: {
@@ -16,16 +15,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          code,
-          input,
-          language,
+          serverName,
+          serverId,
+          serverImage,
+          userAvatar,
+          userName,
         }),
       }
-    );
-
-    const data = await response.json();
-
-    res.status(200).json(data);
+    ).then((res) => res.json());
+    console.log(response);
+    res.status(200).json(response);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

@@ -9,23 +9,72 @@ import EmojiPicker, {
 import { useRouter } from "next/router";
 import React, { useEffect, useContext, useRef, useState } from "react";
 import Avatar from "react-avatar";
-import { ServerDataContext } from "../../../Context/ContextProvide";
+import {
+  ServerDataContext,
+  UserDataContext,
+  SocketTransferData,
+} from "../../../Context/ContextProvide";
 import { CloseIcon, EmojiIcon, SendIcon } from "../../../Icons/Icons";
 import { format } from "timeago.js";
+import { sendMessage } from "../../../libs/server";
 
 const ChatComponents = () => {
   const messageRef = useRef<any>(null);
-  const { serverChat, setServerChat } = useContext(ServerDataContext);
-  const [chat, setChat] = useState([]);
-  const [message, setMessage] = useState("");
+  const { userData } = useContext(UserDataContext);
+  const { serversData, serverChat, setServerChat } =
+    useContext(ServerDataContext);
+  const { setServerChatMessageSocket } = useContext(SocketTransferData);
+  const [chat, setChat] = useState<any>([]);
+  const [message, setMessage] = useState<any>("");
   const [showEmoji, setShowEmoji] = React.useState(false);
-  const [userData, setUserData] = React.useState([]);
+  const [usersData, setUserData] = React.useState<any>([]);
   useEffect(() => {}, [serverChat]);
   useEffect(() => {
     messageRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
   const clickedEmoji = (emojiData: EmojiClickData, event: MouseEvent) => {
     setMessage(message + emojiData.emoji);
+  };
+
+  React.useEffect(() => {
+    if (serversData) {
+      const members = serversData?.members;
+      setUserData(members);
+    }
+  }, [serversData]);
+
+  React.useEffect(() => {
+    if (serverChat.length !== 0 && chat.length === 0) {
+      setChat(serverChat.users);
+    } else if (serverChat.length !== 0 && chat.length > 0) {
+      setChat(serverChat.users);
+    }
+  }, [serverChat]);
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    if (message) {
+      const init = async () => {
+        const { data } = await sendMessage(
+          userData?.id,
+          serversData?.serverId,
+          message
+        );
+        if (data.status === "Ok") {
+          // setServerChat((prev: any) => {
+          //   const prevChat = prev.users;
+          //   const newChat = [...prevChat, data.data.data];
+          //   return { ...prev, users: newChat };
+          // });
+          setServerChatMessageSocket({
+            serverId: serversData?.serverId,
+            data: data.data.data,
+          });
+        }
+      };
+      init();
+      setMessage("");
+    }
   };
   return (
     <div className="h-full text-white max-w-full w-full bg-black4 ">
@@ -52,21 +101,21 @@ const ChatComponents = () => {
           className="flex w-full h-auto flex-col p-4  pt-6 flex-1 gap-10 overflow-y-auto"
           onClick={() => setShowEmoji(false)}
         >
-          {/* chat message */}
-          {chat?.map((item: any) => (
-            <div className="flex gap-4" key={item._id} ref={messageRef}>
-              <ChatMessage
-                data={item.messages}
-                user={userData}
-                isCurrentUser={true}
-              />
-            </div>
-          ))}
+          {usersData?.length > 0 &&
+            chat?.map((item: any) => (
+              <div className="flex gap-4" key={item._id} ref={messageRef}>
+                <ChatMessage
+                  data={item.messages}
+                  user={usersData}
+                  isCurrentUser={item.senderId}
+                />
+              </div>
+            ))}
         </div>
         {/* input for messages */}
         <div className="w-full h-[5rem] justify-center items-center bg-transparent">
           <form
-            onSubmit={(e: any) => console.log(e)}
+            onSubmit={(e: any) => handleSubmit(e)}
             className="flex h-full flex-row items-center justify-center px-4 border-black3 gap-4"
           >
             <div className="w-10 h-10" onClick={() => setShowEmoji(!showEmoji)}>
@@ -98,12 +147,21 @@ const ChatComponents = () => {
 export default ChatComponents;
 
 const ChatMessage = ({ data, user, isCurrentUser }: any) => {
+  const [currentUser, setCurrentUser] = useState<any>([]);
+  useEffect(() => {
+    if (user) {
+      const currentUser = user.filter(
+        (item: any) => item.userId === isCurrentUser
+      );
+      setCurrentUser(currentUser[0]);
+    }
+  }, [user]);
   return (
     <>
-      {isCurrentUser ? (
+      {currentUser.length !== 0 ? (
         <>
           <Avatar
-            name={user.username || "loading"}
+            name={currentUser.userName}
             round={true}
             size="40"
             textSizeRatio={2}
@@ -111,14 +169,14 @@ const ChatMessage = ({ data, user, isCurrentUser }: any) => {
           <div className="flex flex-col gap-2">
             <div className="flex flex-row items-center">
               <div className="text-sm text-white text-opacity-50">
-                {user.username || "loading"}
+                {currentUser.userName}
               </div>
               <div className="text-xs text-gray-400 ml-2 text-opacity-40">
-                {format(data[0]?.createdAt) || "loading"}
+                {format(data[0]?.createdAt)}
               </div>
             </div>
             <div className="text-sm text-white text-opacity-60">
-              {data[0]?.messages || "loading"}
+              {data[0]?.messages}
             </div>
           </div>
         </>
@@ -127,16 +185,12 @@ const ChatMessage = ({ data, user, isCurrentUser }: any) => {
           <Avatar name={"loading"} round={true} size="40" textSizeRatio={2} />
           <div className="flex flex-col gap-2">
             <div className="flex flex-row items-center">
-              <div className="text-sm text-white text-opacity-50">
-                {"loading"}
-              </div>
+              <div className="text-sm text-white text-opacity-50">loading</div>
               <div className="text-xs text-gray-400 ml-2 text-opacity-40">
-                {"loading"}
+                loading
               </div>
             </div>
-            <div className="text-sm text-white text-opacity-60">
-              {"loading"}
-            </div>
+            <div className="text-sm text-white text-opacity-60">loading</div>
           </div>
         </>
       )}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext } from "react";
 import Avatar from "react-avatar";
-import { SendIcon, EmojiIcon, CloseIcon } from "../../../Icons/Icons";
+import { SendIcon, EmojiIcon, CloseIcon, Menu } from "../../../Icons/Icons";
 import { useRouter } from "next/router";
 import {
   UserDataContext,
@@ -26,8 +26,14 @@ const DmsComponent = () => {
   const [isError, setIsError] = React.useState(false);
 
   const { userData } = useContext(UserDataContext);
-  const { chats, messagesData, setMessagesData, chatId } =
-    useContext(ServerDataContext);
+  const {
+    chats,
+    messagesData,
+    setMessagesData,
+    chatId,
+    setOpenHolder,
+    openHolder,
+  } = useContext(ServerDataContext);
   const { setChatMessageSocket } = useContext(SocketTransferData);
 
   const [otherUser, setOtherUser] = React.useState<any>([]);
@@ -75,7 +81,7 @@ const DmsComponent = () => {
         });
       }
       const receiverId = otherUser.id;
-      console.log("data")
+      console.log("data");
       setChatMessageSocket({ receiverId, chatId, data: data.data.data });
     };
     init();
@@ -103,7 +109,7 @@ const DmsComponent = () => {
   return (
     <>
       {isError ? (
-        <DmsErrorPage />
+        <DmsErrorPage setOpenHolder={setOpenHolder} openHolder={openHolder} />
       ) : !messages ? (
         <div className="h-full max-w-full w-full flex text-white justify-center items-center text-xl">
           Loading....
@@ -112,9 +118,15 @@ const DmsComponent = () => {
         <div className="h-full text-white max-w-full w-full bg-black4 ">
           <div className="flex flex-col h-full w-full relative justify-start items-start">
             <div
-              className="flex flex-row items-center justify-between px-4 py-2 border-b border-black3"
+              className="flex flex-row items-center justify-between px-4 py-2 border-b bg-black2 border-black3 w-full"
               onClick={() => setShowEmoji(false)}
             >
+              <div
+                className="h-5 w-5 xl:hidden"
+                onClick={() => setOpenHolder(!openHolder)}
+              >
+                <Menu />
+              </div>
               <UserLogo user={otherUser} />
             </div>
             {showEmoji && (
@@ -197,11 +209,17 @@ const DmsComponent = () => {
 
 export default DmsComponent;
 
-const DmsErrorPage = () => (
+const DmsErrorPage = ({ setOpenHolder, openHolder }: any) => (
   <div className="flex flex-col h-full max-w-[calc(100%-24.5rem)] w-[calc(100%-24.5rem)]">
     <div className="flex flex-row items-center justify-between px-4 py-2 border-b border-black3">
       <div className="flex flex-row items-center">
         <div className="flex flex-row items-center justify-center w-10 h-10 rounded-full bg-black3">
+          <div
+            className="h-5 w-5 xl:hidden"
+            onClick={() => setOpenHolder(!openHolder)}
+          >
+            <Menu />
+          </div>
           <svg
             className="w-5 h-5"
             fill="none"

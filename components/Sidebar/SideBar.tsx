@@ -9,9 +9,14 @@ import {
 } from "../../Context/ContextProvide";
 import Image from "next/image";
 
-const Sidebar = tw.div`
+interface Props {
+  $Open: boolean;
+}
+
+const Sidebar = tw.div<Props>`
     gap-2
-    flex
+    xl:flex
+    ${(props: any) => (props.$Open ? "flex absolute" : "hidden")}
     flex-col
     items-center
     justify-between
@@ -96,7 +101,8 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   const [focus, setFocus] = useState("0");
   const [canCreateServer, setCanCreateServer] = useState(true);
 
-  const { sideBarServers, setSelectedServerId } = useContext(ServerDataContext);
+  const { sideBarServers, setSelectedServerId, openHolder } =
+    useContext(ServerDataContext);
   const { userData } = useContext(UserDataContext);
 
   const handleClick = (id: any) => {
@@ -113,7 +119,7 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   return (
     <>
       {/* @ts-ignore*/}
-      <Sidebar>
+      <Sidebar $Open={openHolder}>
         <SidebarTop>
           <div
             key={"0"}

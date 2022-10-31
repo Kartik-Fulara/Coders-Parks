@@ -7,7 +7,11 @@ import CreateNewServer from "../models/CreateNewServer";
 import SideBar from "../components/Sidebar/SideBar";
 import { logout } from "../libs/auth";
 import { userDetails, getMessages } from "../libs/chats";
-import { getUsersServer, getServerDetailsById } from "../libs/server";
+import {
+  getUsersServer,
+  getServerDetailsById,
+  getServerChatByServerId,
+} from "../libs/server";
 import {
   UserDataContext,
   ServerDataContext,
@@ -15,6 +19,8 @@ import {
 } from "../Context/ContextProvide";
 import { io } from "socket.io-client";
 import SearchUser from "../models/SearchUser";
+
+let isCodeSync = false;
 
 const handleRoutes = ["/app/friends", "/app/channel/c", "/app/profile"];
 
@@ -26,6 +32,7 @@ const MainLayout = ({ children }: any) => {
   const [checkUsername, setCheckUsername] = React.useState(false);
   const { userData, setUserData } = useContext(UserDataContext);
   const [recieveChat, setRecieveChart] = useState<any>([]);
+  const [userID, setUserID] = useState<any>(null);
 
   const {
     serversData,
@@ -47,9 +54,11 @@ const MainLayout = ({ children }: any) => {
     chatId,
     searchUserModel,
     setSearchUserModel,
+    serverChat,
+    setServerChat,
   } = useContext(ServerDataContext);
 
-  const { chatMessageSocket, setChatMessageSocket } =
+  const { chatMessageSocket, setChatMessageSocket, serverChatMessageSocket } =
     useContext(SocketTransferData);
 
   const chatSocket = useRef<any>(null);
@@ -166,10 +175,79 @@ const MainLayout = ({ children }: any) => {
   };
 
   React.useEffect(() => {
+    if (handleRoutes.includes(router.pathname) && userData.length === 0) {
+      getUserData();
+
+      chatSocket.current = io("ws://localhost:9739");
+      chatSocket.current?.on("getMessage", (data: any) => {
+        const { data: transferData } = data;
+        setRecieveChart(transferData);
+      });
+      chatSocket.current?.on("getRequest", (data: any) => {
+        const { data: ret } = data;
+        console.log(ret);
+      });
+
+      serverSocket.current = io("ws://localhost:5000");
+      serverSocket.current?.on("roomUsers", (data: any) => {
+        console.log(data);
+        if (isCodeSync) {
+          serverSocket.current?.emit("syncCode", editorData);
+        }
+        isCodeSync = false;
+        serverSocket.current?.on("syncCode", (data: any) => {
+          if (!isCodeSync) {
+            setEditorData(data);
+            isCodeSync = true;
+          }
+        });
+      });
+
+      serverSocket.current?.on("codeShare", (data: any) => {
+        setEditorData(data);
+      });
+
+      serverSocket.current?.on("message", (data: any) => {
+        // console.log(data);
+        const { data: ret } = data;
+        console.log(ret);
+        setServerChat((prev: any) => {
+          const prevChat = prev.users;
+          const newChat = [...prevChat, ret];
+          return { ...prev, users: newChat };
+        });
+      });
+    }
+  }, [router.pathname === "/app"]);
+
+  React.useEffect(() => {
+    const init = async () => {
+      const { data }: any = await getServerChatByServerId(
+        serversData?.serverId
+      );
+      if (data) {
+        const { chatId, users } = data;
+        console.log({ chatId, users });
+        setServerChat({ chatId, users });
+      }
+    };
+    if (serversData.length !== 0 && serverChat.length === 0) {
+      init();
+    }
+    console.log(serversData, serverChat);
+  }, [serversData]);
+
+  React.useEffect(() => {
     const init = async () => {
       const data = await getServerDataById(sideBarServers[0]?.serverId);
       setServersData(data);
-      serverSocket.current?.emit("login", sideBarServers[0]?.serverId);
+      const SID = data.serverId;
+      serverSocket.current?.emit("joinRoom", {
+        serverId: SID,
+        id: userData.id,
+        userName: userData.username,
+        profileImage: userData.profileImage,
+      });
     };
 
     if (sideBarServers.length !== 0) {
@@ -201,6 +279,8 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     if (userData.length !== 0) {
       const data = userData?.id;
+      setUserID(data);
+      console.log(userData);
       const checkUName = (userData?.username).length; // check if username is set or not
       if (checkUName <= 20) {
         setCheckUsername(true);
@@ -214,23 +294,6 @@ const MainLayout = ({ children }: any) => {
       chatSocket.current?.emit("sendMessage", chatMessageSocket);
     }
   }, [chatMessageSocket]);
-
-  React.useEffect(() => {
-    if (handleRoutes.includes(router.pathname) && userData.length === 0) {
-      getUserData();
-      chatSocket.current = io("ws://localhost:9739");
-      serverSocket.current = io("ws://localhost:5000");
-
-      chatSocket.current?.on("getMessage", (data: any) => {
-        const { data: transferData } = data;
-        setRecieveChart(transferData);
-      });
-      chatSocket.current?.on("getRequest", (data: any) => {
-        const { data: ret } = data;
-        console.log(ret);
-      });
-    }
-  }, [router.pathname === "/app/friends"]);
 
   React.useEffect(() => {
     if (recieveChat.length !== 0) {
@@ -254,6 +317,18 @@ const MainLayout = ({ children }: any) => {
       });
     }
   }, [recieveChat]);
+
+  React.useEffect(() => {
+    serverSocket.current?.emit("chatMessage", serverChatMessageSocket);
+  }, [serverChatMessageSocket]);
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      serverSocket.current?.emit("codeShare", editorData);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [editorData]);
 
   return (
     <>

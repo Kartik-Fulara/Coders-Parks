@@ -10,6 +10,7 @@ const DROPDOWN = tw.section`
     w-full
     text-white
     box-border
+    h-full
 `;
 
 const SELECT = tw.div`
@@ -25,7 +26,7 @@ outline-none
 text-white 
 bg-black1  
 cursor-pointer 
-h-[3rem]
+h-full
 flex 
 gap-4
 items-center 

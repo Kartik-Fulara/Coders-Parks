@@ -10,8 +10,14 @@ import { SingleArrowDown, PeopleIcon } from "../../Icons/Icons";
 
 import DropDown from "../Elements/DropDown";
 
-const FriendsHolderComponent = tw.section`
-    flex
+interface Props {
+  $Open: boolean;
+}
+
+const FriendsHolderComponent = tw.section<Props>`
+    xl:flex
+    ${(props: any) => (props.$Open ? "flex absolute" : "hidden")}
+    xl:relative
     flex-col
     items-center
     justify-start
@@ -21,6 +27,7 @@ const FriendsHolderComponent = tw.section`
     max-w-[var(--holders-sidebar-width)]
     bg-black3
     overflow-hidden
+    z-[50]
 `;
 
 const FriendsHolderWrapper = tw.div`
@@ -86,7 +93,7 @@ const FriendsBtn = tw.div`
 const FriendsHolder = () => {
   const router = useRouter();
 
-  const { chats, setChatId, setSearchUserModel } =
+  const { chats, setChatId, setSearchUserModel, openHolder } =
     useContext(ServerDataContext);
 
   const [selectedUser, setSelectedUser] = React.useState("friends");
@@ -113,14 +120,16 @@ const FriendsHolder = () => {
   return (
     <>
       {/* @ts-ignore */}
-      <FriendsHolderComponent>
+      <FriendsHolderComponent $Open={openHolder}>
         <FriendsHolderWrapper>
           <>
-            <DropDown
-              options={options}
-              setFunc={setFindDms}
-              onValue={onValue}
-            />
+            <div className="h-[3rem] w-full">
+              <DropDown
+                options={options}
+                setFunc={setFindDms}
+                onValue={onValue}
+              />
+            </div>
             {findDms ? (
               <SearchHolder>
                 <input

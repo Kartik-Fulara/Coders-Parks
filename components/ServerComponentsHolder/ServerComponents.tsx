@@ -5,8 +5,10 @@ import { ServerDataContext } from "../../Context/ContextProvide";
 import tw from "tailwind-styled-components";
 import CodeComponent from "../Holders/details-servers-holders/CodeComponent";
 import ChatComponents from "../Holders/details-servers-holders/ChatComponents";
-import { io } from "socket.io-client";
+import { Menu } from "../../Icons/Icons";
+
 import DropDown from "../Elements/DropDown";
+import { runCode } from "../../libs/server";
 
 const Containers = tw.section`
     text-white
@@ -54,8 +56,31 @@ const languageOnValue = [
 ];
 
 const ServerComponents = () => {
-  const { openConsole, setOpenConsole, showWhichComponent, setLanguage } =
-    useContext(ServerDataContext);
+  const {
+    openConsole,
+    setOpenConsole,
+    showWhichComponent,
+    setLanguage,
+    setOpenHolder,
+    openHolder,
+    language,
+    editorData,
+    setOutput,
+    input,
+  } = useContext(ServerDataContext);
+
+  const getOutput = () => {
+    let regex = /[\r\n\x0B\x0C\u0085\u2028\u2029]+/g;
+    let result = editorData.replace(regex, "\n").replace(/ /g, "\n");
+    console.log(result);
+
+    const init = async () => {
+      console.log(language, result, input);
+      const response = await runCode(result, language, input);
+      console.log(response);
+    };
+    init();
+  };
 
   return (
     <>
@@ -64,13 +89,28 @@ const ServerComponents = () => {
       {showWhichComponent === "chat" ? (
         // @ts-ignore
         <Containers>
-          <ChatComponents />
+          <NavBar>
+            <div className="w-full h-full flex justify-start items-center gap-8 ">
+              <span
+                className="xl:hidden h-5 w-6"
+                onClick={() => setOpenHolder(!openHolder)}
+              >
+                <Menu />
+              </span>
+              <span className="ml-4 pb-2">Chat Area</span>
+            </div>
+          </NavBar>
+          <TabsComponent>
+            <section className="flex h-full w-full flex-col">
+              <ChatComponents />
+            </section>
+          </TabsComponent>
         </Containers>
       ) : (
         // @ts-ignore
         <Containers>
           <NavBar>
-            <div className="w-48">
+            <div className="w-48 h-[80%]">
               <DropDown
                 options={languageOption}
                 onValue={languageOnValue}
@@ -78,10 +118,19 @@ const ServerComponents = () => {
               />
             </div>
             <div
-              className="h-[90%] w-24 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
+              className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
               onClick={() => setOpenConsole(!openConsole)}
             >
               {openConsole ? "close" : "open"} Terminal
+            </div>
+            <div>
+              <button
+                type="button"
+                className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
+                onClick={() => getOutput()}
+              >
+                Run
+              </button>
             </div>
           </NavBar>
           <TabsComponent>

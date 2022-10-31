@@ -75,6 +75,7 @@ export const getServerDetailsById = async (id: string) => {
 
 export const runCode = async (code: any, language: string, input: any) => {
   try {
+    console.log(code, language, input);
     const { data } = await axios.post("/api/servers/runCode", {
       code,
       language,
@@ -82,6 +83,68 @@ export const runCode = async (code: any, language: string, input: any) => {
     });
     console.log(data);
     return { status: "ok", data: data };
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", data: "No Data", message: err };
+  }
+};
+
+export const searchServer = async (link: any) => {
+  try {
+    const { data } = await axios.get(`/api/servers/searchServer?link=${link}`);
+    console.log(data);
+    return { status: "ok", data: data };
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", data: "No Data", message: err };
+  }
+};
+
+export const joinServer = async (
+  serverId: string,
+  serverName: string,
+  serverImage: string,
+  userAvatar: string,
+  userName: string
+) => {
+  if (!serverImage) {
+    serverImage = "";
+  }
+  try {
+    const { data } = await axios.post("/api/servers/joinServer", {
+      serverName,
+      serverId,
+      serverImage,
+      userAvatar,
+      userName,
+    });
+    console.log(data);
+    return { status: "ok", data: data };
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", data: "No Data", message: err };
+  }
+};
+
+export const sendMessage = async (Suid: any, serverId: any, message: any) => {
+  const res = await axios.post(`/api/servers/sendMessage`, {
+    senderId: Suid,
+    chatId: serverId,
+    message: message,
+  });
+
+  console.log(res);
+
+  return res.data;
+};
+
+export const getServerChatByServerId = async (serverId: any) => {
+  try {
+    const { data } = await axios.get(
+      `/api/servers/getServerChatByServerId?serverId=${serverId}`
+    );
+    console.log(data);
+    return { status: "ok", data: data.server };
   } catch (err: any) {
     console.log(err);
     return { status: "error", data: "No Data", message: err };

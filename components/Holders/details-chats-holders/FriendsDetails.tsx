@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
 import { getFriends } from "../../../libs/chats";
 import { Refresh } from "../../../Icons/Icons";
 import Avatar from "react-avatar";
+import { Menu } from "../../../Icons/Icons";
+import { ServerDataContext } from "../../../Context/ContextProvide";
+
 const NavBar = tw.nav`
     flex
     justify-start
@@ -25,10 +28,18 @@ const FriendsDetails = ({
 }: any) => {
   const [pending, setIsPending] = useState(false);
 
+  const { setOpenHolder, openHolder } = useContext(ServerDataContext);
+
   return (
     <div className="h-full max-w-full w-full bg-black4">
       {/* @ts-ignore */}
       <NavBar>
+        <div
+          className="h-5 w-5 xl:hidden"
+          onClick={() => setOpenHolder(!openHolder)}
+        >
+          <Menu />
+        </div>
         <span className="w-16 select-none ">Friends</span>
         <span className="h-[80%] w-1  bg-black4"></span>
         <div className="flex w-[calc(100%-4.025rem)] h-full gap-2 justify-start items-center">
