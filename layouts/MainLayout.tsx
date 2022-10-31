@@ -178,7 +178,7 @@ const MainLayout = ({ children }: any) => {
     if (handleRoutes.includes(router.pathname) && userData.length === 0) {
       getUserData();
 
-      chatSocket.current = io("ws://localhost:9739");
+      chatSocket.current = io(`${process.env.CHAT_SOCKET}`);
       chatSocket.current?.on("getMessage", (data: any) => {
         const { data: transferData } = data;
         setRecieveChart(transferData);
@@ -188,7 +188,7 @@ const MainLayout = ({ children }: any) => {
         console.log(ret);
       });
 
-      serverSocket.current = io("ws://localhost:5000");
+      serverSocket.current = io(`${process.env.SERVER_SOCKET}`);
       serverSocket.current?.on("roomUsers", (data: any) => {
         console.log(data);
         if (isCodeSync) {
