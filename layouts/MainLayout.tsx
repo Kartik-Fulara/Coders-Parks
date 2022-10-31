@@ -25,11 +25,11 @@ let isCodeSync = false;
 const handleRoutes = ["/app/friends", "/app/channel/c", "/app/profile"];
 
 const MainLayout = ({ children }: any) => {
-  const [login, setLogin] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [openModel, setOpenModel] = React.useState(false);
-  const [call, setCall] = React.useState(false);
-  const [checkUsername, setCheckUsername] = React.useState(false);
+  const [login, setLogin] = useState<any>(false);
+  const [open, setOpen] = useState<any>(false);
+  const [openModel, setOpenModel] = React.useState<any>(false);
+  const [call, setCall] = React.useState<any>(false);
+  const [checkUsername, setCheckUsername] = React.useState<any>(false);
   const { userData, setUserData } = useContext(UserDataContext);
   const [recieveChat, setRecieveChart] = useState<any>([]);
   const [userID, setUserID] = useState<any>(null);

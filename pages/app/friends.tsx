@@ -13,9 +13,9 @@ import SearchUser from "../../models/SearchUser";
 
 const friends = () => {
   const router = useRouter();
-  const [sendReq, setSendReq] = React.useState(false);
-  const [recieveReq, setRecieveReq] = React.useState(false);
-  const [username, setUsername] = React.useState(false);
+  const [sendReq, setSendReq] = React.useState<any>(false);
+  const [recieveReq, setRecieveReq] = React.useState<any>(false);
+  const [username, setUsername] = React.useState<any>(false);
   const { userData } = React.useContext(UserDataContext);
 
   React.useEffect(() => {
