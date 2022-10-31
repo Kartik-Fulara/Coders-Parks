@@ -37,9 +37,9 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
 
   const { userData } = useContext(UserDataContext);
 
-  const [isServer, setIsServer] = React.useState(true);
+  const [isServer, setIsServer] = React.useState<any>(true);
 
-  const [serverDetail, setServerDetail] = React.useState({
+  const [serverDetail, setServerDetail] = React.useState<any>({
     name: "",
     serverImage: "",
   });
@@ -228,8 +228,8 @@ const CREATE_A_NEW_SERVER = ({
 
 const JOIN_A_NEW_SERVER = () => {
   const { userData } = useContext(UserDataContext);
-  const [serverId, setServerId] = React.useState(null);
-  const [serverDetail, setServerDetail] = React.useState([]);
+  const [serverId, setServerId] = React.useState<any>(null);
+  const [serverDetail, setServerDetail] = React.useState<any>([]);
   const fetchServerData = () => {
     const init = async () => {
       if (serverId !== "" && serverId !== null && serverId !== undefined) {
