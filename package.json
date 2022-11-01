@@ -1,9 +1,7 @@
 {
-  "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "start": "next dev",
+    "build": "yarn install && next build"
   },
   "dependencies": {
     "@material-ui/core": "^4.12.4",
