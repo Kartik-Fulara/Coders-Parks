@@ -178,7 +178,7 @@ const MainLayout = ({ children }: any) => {
     if (handleRoutes.includes(router.pathname) && userData.length === 0) {
       getUserData();
 
-      chatSocket.current = io(`${process.env.CHAT_SOCKET}`);
+      chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
       chatSocket.current?.on("getMessage", (data: any) => {
         const { data: transferData } = data;
         setRecieveChart(transferData);

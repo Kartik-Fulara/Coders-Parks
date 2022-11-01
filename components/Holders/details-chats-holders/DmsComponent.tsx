@@ -64,7 +64,11 @@ const DmsComponent = () => {
         retMessage.pop();
       }
       setOtherUser(retCurrentChat[0].users);
-      setMessages(retMessage[0].users);
+      if (retMessage[0]?.users !== undefined) {
+        setMessages(retMessage[0].users);
+      } else {
+        setMessages([]);
+      }
     }
   }, [chatId]);
 
