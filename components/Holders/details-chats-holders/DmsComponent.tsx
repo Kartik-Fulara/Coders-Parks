@@ -79,8 +79,14 @@ const DmsComponent = () => {
       if (data.status === "Ok") {
         setMessagesData((prev: any) => {
           const ret = prev.filter((msg: any) => msg.chatId === chatId);
+          console.log(ret);
           const ret2 = prev.filter((msg: any) => msg.chatId !== chatId);
-          ret[0].users.push(data.data.data);
+          if (ret.length > 0) {
+            ret[0].users.push(data.data.data);
+          } else {
+            ret2.push({ chatId: chatId, users: [data.data.data] });
+            return ret2;
+          }
           return [...ret2, ...ret];
         });
       }

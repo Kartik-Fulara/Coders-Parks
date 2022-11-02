@@ -15,7 +15,7 @@ const SearchUserComponent = tw.section`
     items-center
     justify-center
     h-screen
-    z-10
+    z-[100]
     w-screen
     bg-[rgba(0,0,0,0.5)]
 `;
@@ -46,7 +46,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
       console.log(chats);
       if (data?.data.data !== undefined) {
         if (
-          chats?.find((chat: any) => chat?.user?._id === data?.data.data?._id)
+          chats?.find((chat: any) => chat?.user?.id === data?.data.data?.id)
         ) {
           setCanSendMessage(false);
           toast.error("User already in your chats");

@@ -44,12 +44,14 @@ const AuthContainer = tw.div`
 
 `;
 
-const Codersgateway = ({ login }: any) => {
+const Codersgateway = ({ login, handleLogin }: any) => {
   return (
     // @ts-ignore
     <Container>
       <Wrapper>
-        <AuthContainer>{login ? <Login /> : <Register />}</AuthContainer>
+        <AuthContainer>
+          {login ? <Login handleLogin={handleLogin} /> : <Register />}
+        </AuthContainer>
       </Wrapper>
     </Container>
   );

@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 
 // get Static for login form
 
-const Login = () => {
+const Login = ({ handleLogin }: any) => {
   // login form state
 
   const [loginProps, setLoginProps] = React.useState({
@@ -27,6 +27,7 @@ const Login = () => {
       const data = await login(loginProps.email, loginProps.password);
 
       if (data.status === "ok") {
+        handleLogin(true);
         router.push("/app/friends");
       } else if (data.status === "error") {
         toast.error(data.message);

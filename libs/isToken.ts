@@ -2,6 +2,9 @@
 import axios from "axios";
 
 export const isToken = async () => {
-  const res = await axios.get(`/api/isToken`);
-  return res.data;
+  const { data } = await axios.get(`/api/isToken`);
+  if (data.ans) {
+    return true;
+  }
+  return false;
 };

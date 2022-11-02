@@ -29,7 +29,7 @@ const NavBar = ({
   const router = useRouter();
   const handleLoginClick = () => {
     router.push("?login");
-    handleLogin();
+    handleLogin(true);
     handleOpen();
   };
 
