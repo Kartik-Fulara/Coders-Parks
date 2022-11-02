@@ -14,7 +14,7 @@ const CreateServerModelComponent = tw.section`
     items-center
     justify-center
     h-screen
-    z-10
+    z-[500]
     w-screen
     bg-[rgba(0,0,0,0.5)]
 `;

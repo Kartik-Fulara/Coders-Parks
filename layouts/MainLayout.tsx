@@ -24,6 +24,8 @@ let isCodeSync = false;
 
 const handleRoutes = ["/app/friends", "/app/channel/c", "/app/profile"];
 
+
+
 const MainLayout = ({ children }: any) => {
   const [login, setLogin] = useState<any>(false);
   const [open, setOpen] = useState<any>(false);
@@ -33,6 +35,7 @@ const MainLayout = ({ children }: any) => {
   const { userData, setUserData } = useContext(UserDataContext);
   const [recieveChat, setRecieveChart] = useState<any>([]);
   const [userID, setUserID] = useState<any>(null);
+  const [loading, setLoading] = useState<any>(true);
 
   const {
     serversData,
@@ -169,6 +172,7 @@ const MainLayout = ({ children }: any) => {
         setEditorData("");
         setMessagesData([]);
         setChatMessageSocket([]);
+        setCheckUsername(false);
       }
     };
     init();
@@ -177,7 +181,7 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     if (handleRoutes.includes(router.pathname) && userData.length === 0) {
       getUserData();
-
+      setLoading(true);
       chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
       chatSocket.current?.on("getMessage", (data: any) => {
         const { data: transferData } = data;
@@ -188,7 +192,7 @@ const MainLayout = ({ children }: any) => {
         console.log(ret);
       });
 
-      serverSocket.current = io(`${process.env.SERVER_SOCKET}`);
+      serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
       serverSocket.current?.on("roomUsers", (data: any) => {
         console.log(data);
         if (isCodeSync) {
@@ -240,6 +244,9 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     const init = async () => {
       const data = await getServerDataById(sideBarServers[0]?.serverId);
+      if (data) {
+        setLoading(false);
+      }
       setServersData(data);
       const SID = data.serverId;
       serverSocket.current?.emit("joinRoom", {
@@ -284,6 +291,9 @@ const MainLayout = ({ children }: any) => {
       const checkUName = (userData?.username).length; // check if username is set or not
       if (checkUName <= 20) {
         setCheckUsername(true);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
       chatSocket.current?.emit("login", data);
     }
@@ -330,6 +340,10 @@ const MainLayout = ({ children }: any) => {
     return () => clearTimeout(timeout);
   }, [editorData]);
 
+  const LoadingFunction = () => {
+    return <div>Loading</div>;
+  };
+
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
@@ -340,6 +354,7 @@ const MainLayout = ({ children }: any) => {
             : "flex-row"
         }`}
       >
+        {loading && router.pathname !== "/" && <LoadingFunction />}
         {router.pathname === "/" && (
           <NavBar
             handleOpen={handleOpen}
@@ -356,27 +371,30 @@ const MainLayout = ({ children }: any) => {
             handleLogin={handleLogin}
           />
         )}
-        {handleRoutes.includes(router.pathname) &&
-          sideBarServers &&
-          checkUsername && (
-            <>
-              <SideBar
-                handleModelOpen={handleModelOpen}
-                handleLogOut={handleLogOut}
-              />
-              {openModel && (
-                <CreateNewServer
-                  handleModelClose={handleModelClose}
-                  setCall={setCall}
-                  id={userData?.id}
+        {!loading && (
+          <>
+            {handleRoutes.includes(router.pathname) && checkUsername && (
+              <>
+                <SideBar
+                  handleModelOpen={handleModelOpen}
+                  handleLogOut={handleLogOut}
                 />
-              )}
-            </>
-          )}
-        {searchUserModel && (
-          <SearchUser handleModelClose={setSearchUserModel} />
+                {openModel && (
+                  <CreateNewServer
+                    handleModelClose={handleModelClose}
+                    setCall={setCall}
+                    id={userData?.id}
+                  />
+                )}
+              </>
+            )}
+            {searchUserModel && (
+              <SearchUser handleModelClose={setSearchUserModel} />
+            )}
+            {children}
+          </>
         )}
-        {children}
+        {router.pathname === "/" && <>{children}</>}
       </main>
     </>
   );
