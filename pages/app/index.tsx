@@ -14,7 +14,6 @@ export default index;
 export const getServerSideProps = async (ctx: any) => {
   const cookies = nookies.get(ctx);
 
-  console.log(cookies);
 
   if (cookies.token) {
     return {
