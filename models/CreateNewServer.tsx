@@ -68,7 +68,7 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
     const init = async () => {
       const image = userData?.profileImage || "";
       const username = userData?.username;
-      console.log(username);
+
       const response = await createServer(
         id,
         username,
@@ -234,9 +234,8 @@ const JOIN_A_NEW_SERVER = () => {
     const init = async () => {
       if (serverId !== "" && serverId !== null && serverId !== undefined) {
         const response = await searchServer(serverId);
-        console.log(response);
+
         if (response.data.length !== 0 && response.data !== "No Data") {
-          console.log(response.data);
           setServerDetail(response.data);
         } else {
           setServerDetail([]);
@@ -259,7 +258,7 @@ const JOIN_A_NEW_SERVER = () => {
         userData?.profileImage,
         userData?.username
       );
-      console.log(response);
+
       if (response.data.message === "Joined Server") {
         toast.success("Joined Server");
       } else {

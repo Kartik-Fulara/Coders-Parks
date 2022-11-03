@@ -28,7 +28,6 @@ export const changeUserName = async (username: string) => {
 };
 
 export const getMessages = async (id: string) => {
-  console.log(id);
   const res = await axios.get(`/api/chat/getChat?chatId=${id}`);
   return res;
 };
@@ -44,8 +43,6 @@ export const sendMessage = async (Suid: any, chatId: any, message: any) => {
     chatId: chatId,
     message: message,
   });
-
-  console.log(res);
 
   return res.data;
 };

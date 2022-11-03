@@ -52,7 +52,6 @@ const DmsComponent = () => {
 
     const retCurrentChat = chats?.filter((chat: any) => chat.chatId === chatId);
 
-    console.log("data", retCurrentChat);
     if (retCurrentChat.length <= 0) {
       setIsError(true);
     } else {
@@ -75,12 +74,11 @@ const DmsComponent = () => {
   const onSubmit = (e: any) => {
     e.preventDefault();
     const init = async () => {
-      console.log(messages);
       const { data } = await sendMessage(userData.uid, chatId, message);
       if (data.status === "Ok") {
         setMessagesData((prev: any) => {
           const ret = prev.filter((msg: any) => msg.chatId === chatId);
-          console.log(ret);
+
           const ret2 = prev.filter((msg: any) => msg.chatId !== chatId);
           if (ret.length > 0) {
             ret[0].users.push(data.data.data);
@@ -92,7 +90,7 @@ const DmsComponent = () => {
         });
       }
       const receiverId = otherUser.id;
-      console.log("data");
+
       setChatMessageSocket({ receiverId, chatId, data: data.data.data });
     };
     init();
@@ -101,7 +99,6 @@ const DmsComponent = () => {
 
   // always scroll to the bottom
   useEffect(() => {
-    console.log(messagesData);
     scroll.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messagesData]);
 

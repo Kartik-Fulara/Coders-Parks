@@ -70,7 +70,6 @@ const DropDown = ({ options, setFunc, onValue, start }: any) => {
 
   useEffect(() => {
     if (start) {
-      console.log(start);
       setActive(start);
       setFunc(start);
     } else {

@@ -103,7 +103,7 @@ const FriendsHolder = () => {
   const handleClick = (user: any, chatId: any) => {
     setSelectedUser(`${user}`);
     setChatId(chatId);
-    console.log(chatId);
+
     router.push(`/app/friends?id=${user}`);
   };
 

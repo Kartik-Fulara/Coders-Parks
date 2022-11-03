@@ -154,7 +154,7 @@ const ChatMessage = ({ data, user, isCurrentUser }: any) => {
       const currentUser = user.filter(
         (item: any) => item.userId === isCurrentUser
       );
-      console.log(currentUser);
+
       setCurrentUser(currentUser[0]);
     }
   }, [user]);

@@ -28,7 +28,7 @@ export const createServer = async (
   if (!serverImage) {
     serverImage = "";
   }
-  console.log(username);
+
   try {
     const response = await axios.post("/api/servers/createServer", {
       id,
@@ -37,7 +37,7 @@ export const createServer = async (
       serverName,
       serverImage,
     });
-    console.log(response);
+
     return {
       status: "ok",
       data: response.data,
@@ -52,7 +52,7 @@ export const createServer = async (
 export const getUsersServer = async () => {
   try {
     const { data } = await axios.get("/api/servers/getAllServers");
-    console.log(data);
+
     return { status: "ok", data: data };
   } catch (err: any) {
     console.log(err);
@@ -65,7 +65,7 @@ export const getServerDetailsById = async (id: string) => {
     const { data } = await axios.get(
       `/api/servers/getServerDetailsById?id=${id}`
     );
-    console.log(data);
+
     return { status: "ok", data: data.server };
   } catch (err: any) {
     console.log(err);
@@ -75,13 +75,12 @@ export const getServerDetailsById = async (id: string) => {
 
 export const runCode = async (code: any, language: string, input: any) => {
   try {
-    console.log(code, language, input);
     const { data } = await axios.post("/api/servers/runCode", {
       code,
       language,
       input,
     });
-    console.log(data);
+
     return { status: "ok", data: data };
   } catch (err: any) {
     console.log(err);
@@ -92,7 +91,7 @@ export const runCode = async (code: any, language: string, input: any) => {
 export const searchServer = async (link: any) => {
   try {
     const { data } = await axios.get(`/api/servers/searchServer?link=${link}`);
-    console.log(data);
+
     return { status: "ok", data: data };
   } catch (err: any) {
     console.log(err);
@@ -118,7 +117,7 @@ export const joinServer = async (
       userAvatar,
       userName,
     });
-    console.log(data);
+
     return { status: "ok", data: data };
   } catch (err: any) {
     console.log(err);
@@ -143,7 +142,7 @@ export const getServerChatByServerId = async (serverId: any) => {
     const { data } = await axios.get(
       `/api/servers/getServerChatByServerId?serverId=${serverId}`
     );
-    console.log(data);
+
     return { status: "ok", data: data.server };
   } catch (err: any) {
     console.log(err);

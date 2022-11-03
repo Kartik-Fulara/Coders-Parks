@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { code, input, language } = req.body;
-  console.log(code, input, language);
+
   try {
     const response = await fetch(`${process.env.CODE_RUNNER_URL}/runCode`, {
       method: "POST",

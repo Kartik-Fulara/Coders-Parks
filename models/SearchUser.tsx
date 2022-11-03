@@ -42,8 +42,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     event.preventDefault();
     const init = async () => {
       const { data } = await queryUserByUserName(userName);
-      console.log(data?.data.data);
-      console.log(chats);
+
       if (data?.data.data !== undefined) {
         if (
           chats?.find((chat: any) => chat?.user?.id === data?.data.data?.id)
@@ -63,8 +62,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const handleStartChat = () => {
     const init = async () => {
       const { data } = await startChat(user.id);
-      console.log(data);
-      console.log(chats);
+
       const chatData = data.currentChats;
       setChats([...chats, chatData]);
 
@@ -76,7 +74,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const handleAddFriends = (id: any) => {
     const init = async () => {
       const { data } = await addFriends(id);
-      console.log(data);
+
       setSendReq(true);
       toast.success("Friend Request Sent");
     };

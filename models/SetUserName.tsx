@@ -47,7 +47,7 @@ const SetUserName = ({ setUsername }: any) => {
     event.preventDefault();
     const init = async () => {
       const { data: changeUsername } = await changeUserName(userName);
-      console.log(changeUsername);
+
       handleLogout();
     };
     init();

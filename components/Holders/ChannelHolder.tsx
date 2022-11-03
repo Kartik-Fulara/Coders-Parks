@@ -71,21 +71,20 @@ const ServerHolder = () => {
 
   useEffect(() => {
     setMembers(serversData.members);
-    console.log(serversData);
+
     if (
       serversData.length !== 0 &&
       serversData !== undefined &&
       serversData !== "No Data"
     ) {
       const id = serversData?.serverLinks[0] || "";
-      console.log(id);
+
       setServerId(id);
     }
   }, [serversData]);
 
   const handleProfile = (member: any) => {
     setShowProfile(!showProfile);
-    console.log(member);
   };
 
   return (

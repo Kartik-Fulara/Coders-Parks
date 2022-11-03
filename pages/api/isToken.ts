@@ -19,7 +19,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     );
     const isToken = await response.json();
-    console.log(isToken);
+
     res.status(200).json({ ans: true });
   } else {
     res.status(200).json({ ans: false });

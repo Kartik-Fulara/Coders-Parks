@@ -177,16 +177,13 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     const init = async () => {
       const isTokenVerify = await isToken();
-      console.log(isTokenVerify);
-      console.log(handleRoutes.includes(router.pathname));
       if (handleRoutes.includes(router.pathname) && isTokenVerify) {
-        console.log("here 2");
         getUserData();
         setLoading(true);
         chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
         chatSocket.current?.on("getMessage", (data: any) => {
           const { data: transferData } = data;
-          console.log(transferData);
+
           setRecieveChart(transferData);
         });
         chatSocket.current?.on("getRequest", (data: any) => {
@@ -224,9 +221,8 @@ const MainLayout = ({ children }: any) => {
         handleLogOut("Something went wrong login again please!!");
       }
     };
-    console.log("coming");
+
     init();
-    console.log();
   }, [router.pathname.split("/")[1] === "app" && router.isReady]);
 
   React.useEffect(() => {
@@ -275,7 +271,6 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     if (chats.length > 0 && messagesData.length === 0) {
       chats.map((chat: any) => {
-        console.log(chat);
         const init = async () => {
           const { data }: any = await getMessages(chat.chatId);
           if (data.data.status === "Ok") {
@@ -292,7 +287,7 @@ const MainLayout = ({ children }: any) => {
     if (userData.length !== 0) {
       const data = userData?.id;
       setUserID(data);
-      console.log(userData);
+
       const checkUName = (userData?.username).length; // check if username is set or not
       if (checkUName <= 20) {
         setCheckUsername(true);
@@ -324,7 +319,7 @@ const MainLayout = ({ children }: any) => {
         const ret = prev.filter(
           (msg: any) => msg.chatId === recieveChat.chatId
         );
-        console.log(ret);
+
         const ret2 = prev.filter(
           (msg: any) => msg.chatId !== recieveChat.chatId
         );

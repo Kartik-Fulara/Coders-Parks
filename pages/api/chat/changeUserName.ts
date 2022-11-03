@@ -6,10 +6,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   const token = cookies.token;
 
-  console.log(token)
   const { username } = req.body;
-
-  console.log(username);
 
   try {
     const response = await fetch(

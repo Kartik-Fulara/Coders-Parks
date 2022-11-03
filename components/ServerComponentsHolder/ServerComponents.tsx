@@ -69,9 +69,6 @@ const ServerComponents = () => {
 
   const getOutput = () => {
     setOutput("Loading.....");
-    console.log(editorData);
-    console.log(input);
-    console.log(language);
     const init = async () => {
       const output = await runCode(editorData, language, input);
       console.log(output);

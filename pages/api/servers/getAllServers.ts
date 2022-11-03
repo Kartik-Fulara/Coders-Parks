@@ -16,7 +16,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     );
 
-    console.log(data);
 
     res.send(data.data.servers);
   } catch (err: any) {

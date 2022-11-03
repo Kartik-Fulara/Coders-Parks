@@ -23,7 +23,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }),
       }
     ).then((res) => res.json());
-    console.log(response);
+
     res.status(200).json(response);
   } catch (err: any) {
     res.status(500).json({ message: err.message });

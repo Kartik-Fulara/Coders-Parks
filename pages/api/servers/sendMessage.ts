@@ -5,8 +5,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const cookies = nookies.get({ req });
   const token = cookies.token;
 
-  console.log(req.body);
-
   try {
     const data = await fetch(
       `${process.env.NEXT_PUBLIC_AUTH_API_URL}/server/sendMessages`,
