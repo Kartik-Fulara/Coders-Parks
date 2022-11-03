@@ -102,6 +102,7 @@ const ChatComponents = () => {
           onClick={() => setShowEmoji(false)}
         >
           {usersData?.length > 0 &&
+            chat &&
             chat?.map((item: any) => (
               <div className="flex gap-4" key={item._id} ref={messageRef}>
                 <ChatMessage

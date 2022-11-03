@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import tw from "tailwind-styled-components";
 import Link from "next/link";
 import Avatar from "react-avatar";
-import { ChatIcon } from "../../Icons/Icons";
+import { ChatIcon, CloseCircle, CloseIcon, Menu } from "../../Icons/Icons";
 import {
   ServerDataContext,
   UserDataContext,
@@ -15,8 +15,8 @@ interface Props {
 
 const Sidebar = tw.div<Props>`
     gap-2
-    xl:flex
-    ${(props: any) => (props.$Open ? "flex absolute" : "hidden")}
+    flex
+    
     flex-col
     items-center
     justify-between
@@ -24,7 +24,9 @@ const Sidebar = tw.div<Props>`
     w-[var(--global-sidebar-width)]
     min-w-[var(--global-sidebar-width)]
     relative
-    bg-black4
+    xl:bg-black4
+    bg-black3
+
     text-white
     py-2
     pr-2
@@ -101,7 +103,7 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   const [focus, setFocus] = useState("0");
   const [canCreateServer, setCanCreateServer] = useState(true);
 
-  const { sideBarServers, setSelectedServerId, openHolder } =
+  const { sideBarServers, setSelectedServerId, openHolder, setOpenHolder } =
     useContext(ServerDataContext);
   const { userData } = useContext(UserDataContext);
 
@@ -203,6 +205,15 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
           )}
         </SidebarTop>
         <SidebarBottom>
+          {/* @ts-ignore */}
+          <IconsHolders
+            className="bg-black1  justify-center items-center ml-3 xl:hidden"
+            onClick={() => setOpenHolder(!openHolder)}
+          >
+            <div className="h-10 w-[90%] p-1">
+              {!openHolder ? <Menu /> : <CloseIcon />}
+            </div>
+          </IconsHolders>
           <div className="h-fit w-full" onClick={() => handleLogOut()}>
             <IconsHolders className="bg-black justify-center items-center ml-3">
               <Image

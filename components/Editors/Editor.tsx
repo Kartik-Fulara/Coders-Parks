@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import tw from "tailwind-styled-components";
 import { ServerDataContext } from "../../Context/ContextProvide";
@@ -54,6 +54,10 @@ const EditorComponent = () => {
 
   const { editorData, setEditorData, language, openConsole, setInput, output } =
     React.useContext(ServerDataContext);
+
+  useEffect(() => {
+    console.log(output);
+  }, [output]);
 
   return (
     <>
@@ -133,7 +137,7 @@ const InputField = ({ setInput }: any) => {
 
 const Output = ({ output }: any) => {
   return (
-    <div className="h-full w-full bg-black p-4 outline-none border-none resize-none text-white">
+    <div className="h-full w-full bg-black p-4 outline-none whitespace-pre-wrap border-none resize-none text-white">
       {output || "Output Will Be Displayed Here"}
     </div>
   );

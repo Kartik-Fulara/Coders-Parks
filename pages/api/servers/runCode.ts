@@ -1,27 +1,20 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import nookies from "nookies";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const cookies = nookies.get({ req });
-  const token = cookies.token;
   const { code, input, language } = req.body;
   console.log(code, input, language);
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/server/runCode`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          code,
-          input,
-          language,
-        }),
-      }
-    );
+    const response = await fetch(`${process.env.CODE_RUNNER_URL}/runCode`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code,
+        language_id: language,
+        input,
+      }),
+    });
 
     const data = await response.json();
 

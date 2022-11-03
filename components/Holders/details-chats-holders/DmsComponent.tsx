@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext } from "react";
 import Avatar from "react-avatar";
-import { SendIcon, EmojiIcon, CloseIcon, Menu } from "../../../Icons/Icons";
+import { SendIcon, EmojiIcon, CloseIcon } from "../../../Icons/Icons";
 import { useRouter } from "next/router";
 import {
   UserDataContext,
@@ -132,12 +132,6 @@ const DmsComponent = () => {
               className="flex flex-row items-center justify-between px-4 py-2 border-b bg-black2 border-black3 w-full"
               onClick={() => setShowEmoji(false)}
             >
-              <div
-                className="h-5 w-5 xl:hidden"
-                onClick={() => setOpenHolder(!openHolder)}
-              >
-                <Menu />
-              </div>
               <UserLogo user={otherUser} />
             </div>
             {showEmoji && (
@@ -225,12 +219,6 @@ const DmsErrorPage = ({ setOpenHolder, openHolder }: any) => (
     <div className="flex flex-row items-center justify-between px-4 py-2 border-b border-black3">
       <div className="flex flex-row items-center">
         <div className="flex flex-row items-center justify-center w-10 h-10 rounded-full bg-black3">
-          <div
-            className="h-5 w-5 xl:hidden"
-            onClick={() => setOpenHolder(!openHolder)}
-          >
-            <Menu />
-          </div>
           <svg
             className="w-5 h-5"
             fill="none"

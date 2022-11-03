@@ -5,7 +5,7 @@ import { ServerDataContext } from "../../Context/ContextProvide";
 import tw from "tailwind-styled-components";
 import CodeComponent from "../Holders/details-servers-holders/CodeComponent";
 import ChatComponents from "../Holders/details-servers-holders/ChatComponents";
-import { Menu } from "../../Icons/Icons";
+
 
 import DropDown from "../Elements/DropDown";
 import { runCode } from "../../libs/server";
@@ -47,12 +47,12 @@ const languageOption = [
 ];
 
 const languageOnValue = [
-  { on: "java", value: "java" },
-  { on: "javascript", value: "javascript" },
-  { on: "python", value: "python" },
-  { on: "c", value: "c" },
-  { on: "c++", value: "c++" },
-  { on: "c#", value: "c#" },
+  { value: 62, on: "java" },
+  { value: 63, on: "javascript" },
+  { value: 71, on: "python" },
+  { value: 50, on: "c" },
+  { value: 54, on: "c++" },
+  { value: 51, on: "c#" },
 ];
 
 const ServerComponents = () => {
@@ -61,8 +61,6 @@ const ServerComponents = () => {
     setOpenConsole,
     showWhichComponent,
     setLanguage,
-    setOpenHolder,
-    openHolder,
     language,
     editorData,
     setOutput,
@@ -70,14 +68,37 @@ const ServerComponents = () => {
   } = useContext(ServerDataContext);
 
   const getOutput = () => {
-    let regex = /[\r\n\x0B\x0C\u0085\u2028\u2029]+/g;
-    let result = editorData.replace(regex, "\n").replace(/ /g, "\n");
-    console.log(result);
-
+    setOutput("Loading.....");
+    console.log(editorData);
+    console.log(input);
+    console.log(language);
     const init = async () => {
-      console.log(language, result, input);
-      const response = await runCode(result, language, input);
-      console.log(response);
+      const output = await runCode(editorData, language, input);
+      console.log(output);
+
+      const { data } = output;
+      if (data === "No Data") {
+        setOutput("Something went wrong");
+      } else {
+        if (data.message && data.stderr) {
+          const out =
+            data.status.description + "\n" + data.stderr + "\n" + data.message;
+          setOutput(out);
+        } else if (
+          data.status.description === "Compilation Error" &&
+          data.compile_output
+        ) {
+          const out =
+            data.status.description +
+            "\n" +
+            data.compile_output +
+            "\n" +
+            data.message;
+          setOutput(out);
+        } else if (data.stdout) {
+          setOutput(data.stdout);
+        }
+      }
     };
     init();
   };
@@ -91,12 +112,6 @@ const ServerComponents = () => {
         <Containers>
           <NavBar>
             <div className="w-full h-full flex justify-start items-center gap-8 ">
-              <span
-                className="xl:hidden h-5 w-6"
-                onClick={() => setOpenHolder(!openHolder)}
-              >
-                <Menu />
-              </span>
               <span className="ml-4 pb-2">Chat Area</span>
             </div>
           </NavBar>

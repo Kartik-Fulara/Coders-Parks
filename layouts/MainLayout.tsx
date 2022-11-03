@@ -227,7 +227,7 @@ const MainLayout = ({ children }: any) => {
     console.log("coming");
     init();
     console.log();
-  }, [router.pathname.split("/")[1] === "app"]);
+  }, [router.pathname.split("/")[1] === "app" && router.isReady]);
 
   React.useEffect(() => {
     const init = async () => {

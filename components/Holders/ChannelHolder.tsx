@@ -107,15 +107,10 @@ const ServerHolder = () => {
                 <UpArrow />
               </div>
             )}
-            <div
-              className="h-5 w-5 xl:hidden"
-              onClick={() => setOpenHolder(!openHolder)}
-            >
-              <Menu />
-            </div>
+
             {/*  A dropdown menu. */}
             <div
-              className={`absolute ${
+              className={`absolute z-[100] ${
                 dropDown ? "scale-100 " : "scale-0"
               }  transition-all top-[4.8rem] flex justify-center  items-center w-[85%] h-fit `}
             >
@@ -156,7 +151,6 @@ const ServerHolder = () => {
         </div>
         <ServersChannels>
           {serversData &&
-            !dropDown &&
             serversData?.channels?.map((channel: any) => (
               <>
                 <div
