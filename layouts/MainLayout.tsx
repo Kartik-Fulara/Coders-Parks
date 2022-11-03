@@ -186,6 +186,7 @@ const MainLayout = ({ children }: any) => {
         chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
         chatSocket.current?.on("getMessage", (data: any) => {
           const { data: transferData } = data;
+          console.log(transferData);
           setRecieveChart(transferData);
         });
         chatSocket.current?.on("getRequest", (data: any) => {
@@ -225,7 +226,8 @@ const MainLayout = ({ children }: any) => {
     };
     console.log("coming");
     init();
-  }, [router.pathname === "/app/friends"]);
+    console.log();
+  }, [router.pathname.split("/")[1] === "app"]);
 
   React.useEffect(() => {
     const init = async () => {
@@ -273,6 +275,7 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     if (chats.length > 0 && messagesData.length === 0) {
       chats.map((chat: any) => {
+        console.log(chat);
         const init = async () => {
           const { data }: any = await getMessages(chat.chatId);
           if (data.data.status === "Ok") {
@@ -343,7 +346,7 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     const timeout = setTimeout(() => {
       serverSocket.current?.emit("codeShare", editorData);
-    }, 1000);
+    }, 1100);
 
     return () => clearTimeout(timeout);
   }, [editorData]);

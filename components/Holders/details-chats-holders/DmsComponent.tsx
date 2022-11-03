@@ -75,6 +75,7 @@ const DmsComponent = () => {
   const onSubmit = (e: any) => {
     e.preventDefault();
     const init = async () => {
+      console.log(messages);
       const { data } = await sendMessage(userData.uid, chatId, message);
       if (data.status === "Ok") {
         setMessagesData((prev: any) => {
