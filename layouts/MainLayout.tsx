@@ -138,11 +138,14 @@ const MainLayout = ({ children }: any) => {
     if (data.status === "Ok") {
       const { email, name, username, id, uid, chats, friends, servers } =
         data.data;
+      console.log(data.data);
       setUserData({ email, name, username, id, uid });
       if (username.length <= 20) {
         setSideBarServers(servers);
         setFriendsData(friends);
         setChats(chats);
+      } else {
+        setLoading(false);
       }
     } else {
       setUserData([]);
@@ -178,8 +181,8 @@ const MainLayout = ({ children }: any) => {
     const init = async () => {
       const isTokenVerify = await isToken();
       if (handleRoutes.includes(router.pathname) && isTokenVerify) {
-        getUserData();
         setLoading(true);
+        getUserData();
         chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
         chatSocket.current?.on("getMessage", (data: any) => {
           const { data: transferData } = data;
