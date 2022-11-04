@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import tw from "tailwind-styled-components";
-import { ServerDataContext } from "../../Context/ContextProvide";
+import {
+  UserDataContext,
+  ServerDataContext,
+} from "../../Context/ContextProvide";
 
 interface PROPS {
   $isOpen: boolean;
@@ -52,8 +55,19 @@ const TerminalHolder = tw.div<PROPS>`
 const EditorComponent = () => {
   const [inputField, setInputField] = useState(false);
 
-  const { editorData, setEditorData, language, openConsole, setInput, output } =
-    React.useContext(ServerDataContext);
+  const {
+    serversData,
+    editorData,
+    setEditorData,
+    language,
+    openConsole,
+    setInput,
+    output,
+    currentHost,
+    setCurrentHost,
+  } = React.useContext(ServerDataContext);
+
+  const { userData } = React.useContext(UserDataContext);
 
   useEffect(() => {
     console.log(output);
@@ -69,7 +83,7 @@ const EditorComponent = () => {
           mode={`${language}`}
           theme="terminal"
           name="Code Editor"
-          readOnly={false}
+          readOnly={userData?.id !== currentHost ? true : false}
           onChange={(val: any) => setEditorData(val)}
           fontSize={25}
           showPrintMargin={true}

@@ -31,11 +31,12 @@ const MainLayout = ({ children }: any) => {
   const [openModel, setOpenModel] = React.useState<any>(false);
   const [call, setCall] = React.useState<any>(false);
   const [checkUsername, setCheckUsername] = React.useState<any>(false);
-  const { userData, setUserData } = useContext(UserDataContext);
   const [recieveChat, setRecieveChart] = useState<any>([]);
   const [userID, setUserID] = useState<any>(null);
   const [loading, setLoading] = useState<any>(true);
 
+  const { loadingText, setLoadingText, userData, setUserData } =
+    useContext(UserDataContext);
   const {
     serversData,
     setServersData,
@@ -58,6 +59,8 @@ const MainLayout = ({ children }: any) => {
     setSearchUserModel,
     serverChat,
     setServerChat,
+    currentHost,
+    setCurrentHost,
   } = useContext(ServerDataContext);
 
   const { chatMessageSocket, setChatMessageSocket, serverChatMessageSocket } =
@@ -134,6 +137,7 @@ const MainLayout = ({ children }: any) => {
   };
 
   const getUserData = async () => {
+    setLoadingText("fetching user details");
     const { data }: any = await userDetails();
     if (data.status === "Ok") {
       const { email, name, username, id, uid, chats, friends, servers } =
@@ -144,10 +148,12 @@ const MainLayout = ({ children }: any) => {
         setSideBarServers(servers);
         setFriendsData(friends);
         setChats(chats);
+        setLoading(true);
       } else {
         setLoading(false);
       }
     } else {
+      setLoading(false);
       setUserData([]);
       toast.error("Something went wrong");
       await logout();
@@ -172,6 +178,7 @@ const MainLayout = ({ children }: any) => {
         setCheckUsername(false);
         setLoading(true);
         setLogin(false);
+        setLoadingText("Loading...");
       }
     };
     init();
@@ -195,20 +202,23 @@ const MainLayout = ({ children }: any) => {
 
         serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
         serverSocket.current?.on("roomUsers", (data: any) => {
-          if (isCodeSync) {
-            serverSocket.current?.emit("syncCode", editorData);
-          }
-          isCodeSync = false;
+          serverSocket.current?.emit("syncCode", editorData);
           serverSocket.current?.on("syncCode", (data: any) => {
-            if (!isCodeSync) {
-              setEditorData(data);
-              isCodeSync = true;
-            }
+            setEditorData(data);
+            isCodeSync = true;
           });
         });
 
+        serverSocket.current?.on("changeHost", (data: any) => {
+          setCurrentHost(data);
+        });
+
         serverSocket.current?.on("codeShare", (data: any) => {
-          setEditorData(data);
+          if (userData?.id !== currentHost) {
+            console.log(userData);
+            console.log(serversData);
+            setEditorData(data);
+          }
         });
 
         serverSocket.current?.on("message", (data: any) => {
@@ -229,6 +239,13 @@ const MainLayout = ({ children }: any) => {
   }, [router.pathname.split("/")[1] === "app" && router.isReady]);
 
   React.useEffect(() => {
+    serverSocket.current?.emit("changeHost", {
+      host: currentHost,
+      serverId: serversData?.id,
+    });
+  }, [currentHost]);
+
+  React.useEffect(() => {
     const init = async () => {
       const { data }: any = await getServerChatByServerId(
         serversData?.serverId
@@ -247,17 +264,19 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     const init = async () => {
       const data = await getServerDataById(sideBarServers[0]?.serverId);
-      if (data) {
+      if (data.length !== 0) {
+        setLoadingText("fetching server data");
+        setServersData(data);
+        const SID = data.serverId;
+        setCurrentHost(data?.currentHost);
+        serverSocket.current?.emit("joinRoom", {
+          serverId: SID,
+          id: userData.id,
+          userName: userData.username,
+          profileImage: userData.profileImage,
+        });
         setLoading(false);
       }
-      setServersData(data);
-      const SID = data.serverId;
-      serverSocket.current?.emit("joinRoom", {
-        serverId: SID,
-        id: userData.id,
-        userName: userData.username,
-        profileImage: userData.profileImage,
-      });
     };
 
     if (sideBarServers.length !== 0) {
@@ -289,12 +308,11 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     if (userData.length !== 0) {
       const data = userData?.id;
-      setUserID(data);
 
       const checkUName = (userData?.username).length; // check if username is set or not
       if (checkUName <= 20) {
-        setCheckUsername(true);
         setLoading(false);
+        setCheckUsername(true);
       } else {
         setLoading(false);
       }
@@ -350,7 +368,7 @@ const MainLayout = ({ children }: any) => {
   }, [editorData]);
 
   const LoadingFunction = () => {
-    return <div>Loading</div>;
+    return <div>{loadingText}</div>;
   };
 
   return (

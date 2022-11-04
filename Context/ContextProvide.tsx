@@ -9,6 +9,8 @@ export const SocketTransferData = createContext<any>([]);
 
 const ContextProvider = ({ children }: any) => {
   const [userData, setUserData] = React.useState<any>([]);
+  const [currentHost, setCurrentHost] = React.useState<any>("");
+  const [loadingText, setLoadingText] = React.useState<any>("Loading....");
   const [sideBarServers, setSideBarServers] = React.useState<any>([]);
   const [serversData, setServersData] = React.useState<any>([]);
   const [serverChat, setServerChat] = React.useState<any>([]);
@@ -34,7 +36,9 @@ const ContextProvider = ({ children }: any) => {
   const [openHolder, setOpenHolder] = React.useState<any>(false);
 
   return (
-    <UserDataContext.Provider value={{ userData, setUserData }}>
+    <UserDataContext.Provider
+      value={{ userData, setUserData, loadingText, setLoadingText }}
+    >
       <ServerDataContext.Provider
         value={{
           serversData,
@@ -73,6 +77,8 @@ const ContextProvider = ({ children }: any) => {
           setSearchUserModel,
           openHolder,
           setOpenHolder,
+          currentHost,
+          setCurrentHost,
         }}
       >
         <SocketTransferData.Provider
