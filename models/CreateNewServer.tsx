@@ -41,59 +41,21 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
 
   const [serverDetail, setServerDetail] = React.useState<any>({
     name: "",
-    serverImage: "",
   });
-
-  React.useEffect(() => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setServerDetail({
-          ...serverDetail,
-          serverImage: reader.result as string,
-        });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setServerDetail({
-        ...serverDetail,
-        serverImage: "",
-      });
-    }
-  }, [file]);
 
   const handleSubmit = () => {
     const serverName = serverDetail.name.trim();
-    const serverImage = serverDetail.serverImage;
     const init = async () => {
       const image = userData?.profileImage || "";
       const username = userData?.username;
 
-      const response = await createServer(
-        id,
-        username,
-        image,
-        serverName,
-        serverImage
-      );
+      const response = await createServer(id, username, image, serverName, "");
       if (response) {
         setCall(true);
         handleModelClose();
       }
     };
     init();
-  };
-
-  const checkFileType = (event: any) => {
-    const file = event.target.files[0];
-
-    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-
-    if (validTypes.indexOf(file.type) === -1) {
-      setFile(undefined);
-    }
-
-    setFile(file);
   };
 
   return (
@@ -135,14 +97,12 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
           </div>
           {isServer ? (
             <CREATE_A_NEW_SERVER
-              fileInputRef={fileInputRef}
-              checkFileType={checkFileType}
               serverDetail={serverDetail}
               setServerDetail={setServerDetail}
               handleSubmit={handleSubmit}
             />
           ) : (
-            <JOIN_A_NEW_SERVER />
+            <JOIN_A_NEW_SERVER setCall={setCall}  handleModelClose={handleModelClose} />
           )}
         </div>
       </CreateServerModelWrapper>
@@ -153,8 +113,6 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
 export default CreateNewServer;
 
 const CREATE_A_NEW_SERVER = ({
-  fileInputRef,
-  checkFileType,
   serverDetail,
   setServerDetail,
   handleSubmit,
@@ -165,32 +123,16 @@ const CREATE_A_NEW_SERVER = ({
       <p className="text-white opacity-50">Give your Server a Name and Image</p>
     </div>
     <section className="flex w-full flex-col justify-center gap-10 items-center">
-      <input
-        type="file"
-        hidden
-        ref={fileInputRef}
-        accept="image/*"
-        onChange={(e: any) => checkFileType(e)}
-      />
       <div className="relative">
         <Avatar
-          onClick={() => {
-            fileInputRef.current?.click();
-          }}
           name={serverDetail.name}
-          src={
-            serverDetail.name ||
-            (!serverDetail.name && serverDetail.serverImage !== "")
-              ? serverDetail.serverImage !== ""
-                ? serverDetail.serverImage
-                : ""
-              : "/Asserts/Insertimage.png"
-          }
+          src={serverDetail.name || "S"}
           className="cursor-pointer"
           round={true}
           size="8rem"
         />
-        <div className="absolute bottom-3 right-1">
+        {/* when i will add server image  */}
+        {/* <div className="absolute bottom-3 right-1">
           <button
             aria-label="upload image"
             onClick={() => {
@@ -202,7 +144,7 @@ const CREATE_A_NEW_SERVER = ({
               <ImageIcon />
             </div>
           </button>
-        </div>
+        </div> */}
       </div>
 
       <input
@@ -226,7 +168,7 @@ const CREATE_A_NEW_SERVER = ({
   </>
 );
 
-const JOIN_A_NEW_SERVER = () => {
+const JOIN_A_NEW_SERVER = ({setCall, handleModelClose}:any) => {
   const { userData } = useContext(UserDataContext);
   const [serverId, setServerId] = React.useState<any>(null);
   const [serverDetail, setServerDetail] = React.useState<any>([]);
@@ -260,6 +202,8 @@ const JOIN_A_NEW_SERVER = () => {
       );
 
       if (response.data.message === "Joined Server") {
+        setCall(true);
+        handleModelClose();
         toast.success("Joined Server");
       } else {
         toast.error("Something went wrong");
@@ -275,7 +219,7 @@ const JOIN_A_NEW_SERVER = () => {
           className="flex w-full justify-center gap-4  items-center"
           onSubmit={(e) => {
             e.preventDefault();
-            fetchServerData();
+            serverId!=="" ? fetchServerData() : toast.error("Enter Server Id");
           }}
         >
           <input
@@ -312,7 +256,7 @@ const JOIN_A_NEW_SERVER = () => {
           </div>
         ) : (
           serverDetail.length === 0 &&
-          serverId === null && (
+          serverId !== null && (
             <div className="flex w-[90%] justify-center p-4 items-center  h-fit bg-black2 rounded-3xl">
               <div className="w-full h-full flex gap-4 items-center justify-center">
                 <span className="text-white text-opacity-80">

@@ -25,6 +25,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.send({ data: data });
   } catch (err:any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).send({ message: err.message });
   }
 };
