@@ -50,7 +50,11 @@ const Codersgateway = ({ login, handleLogin }: any) => {
     <Container>
       <Wrapper>
         <AuthContainer>
-          {login ? <Login handleLogin={handleLogin} /> : <Register />}
+          {login ? (
+            <Login handleLogin={handleLogin} />
+          ) : (
+            <Register handleLogin={handleLogin} />
+          )}
         </AuthContainer>
       </Wrapper>
     </Container>

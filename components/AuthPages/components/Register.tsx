@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { register } from "../../../libs/auth";
 
-const Register = () => {
+const Register = ({ handleLogin }: any) => {
   const [userDetails, setUserDetails] = React.useState({
     firstName: "",
     lastName: "",
@@ -15,7 +15,7 @@ const Register = () => {
   });
 
   const [show, setShow] = React.useState(false);
-
+  const [isRegister, setIsRegister] = React.useState(false);
   const [samePassword, setSamePassword] = React.useState(true);
 
   const router = useRouter();
@@ -34,6 +34,7 @@ const Register = () => {
     e.preventDefault();
 
     if (checkPassword()) {
+      setIsRegister(true);
       try {
         const data = await register(
           userDetails.firstName,
@@ -42,13 +43,22 @@ const Register = () => {
           userDetails.password
         );
 
+        console.log(data);
+
         if (data.status === "ok") {
+          console.log(data);
           router.push("/?login");
+          handleLogin(true);
+          setIsRegister(false);
+          toast.success("Account created successfully");
         } else if (data.status === "error") {
+          console.log(data);
           toast.error(data.status);
+          setIsRegister(false);
         }
       } catch (error: any) {
         toast.error(error.message);
+        setIsRegister(false);
       }
     }
   };
@@ -140,9 +150,24 @@ const Register = () => {
             </span>
           )}
         </div>
-        <button className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl">
-          Register
-        </button>
+        {isRegister ? (
+          <div>
+            <button
+              type="button"
+              disabled
+              className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl"
+            >
+              Registering...
+            </button>
+          </div>
+        ) : (
+          <button
+            type="submit"
+            className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl"
+          >
+            Register
+          </button>
+        )}
       </form>
     </div>
   );

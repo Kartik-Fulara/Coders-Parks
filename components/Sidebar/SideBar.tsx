@@ -8,6 +8,7 @@ import {
   UserDataContext,
 } from "../../Context/ContextProvide";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 interface Props {
   $Open: boolean;
@@ -107,6 +108,8 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
     useContext(ServerDataContext);
   const { userData } = useContext(UserDataContext);
 
+  const router = useRouter();
+
   const handleClick = (id: any) => {
     setFocus(id);
     setSelectedServerId(id);
@@ -117,6 +120,12 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
       setCanCreateServer(false);
     }
   }, [sideBarServers]);
+
+  useEffect(() => {
+    if (router.query.id && router.pathname === "/app/channel/c") {
+      setFocus(`${router?.query?.id}`);
+    }
+  }, [router.isReady]);
 
   return (
     <>

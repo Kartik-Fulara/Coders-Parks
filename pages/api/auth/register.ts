@@ -2,7 +2,7 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
-import { KeyboardReturnOutlined } from "@material-ui/icons";
+
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { firstName, lastName, password, email } = req.body;

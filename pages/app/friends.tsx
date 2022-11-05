@@ -5,11 +5,13 @@ import FriendsHolder from "../../components/Holders/FriendsHolder";
 import FriendsDetails from "../../components/Holders/details-chats-holders/FriendsDetails";
 import { useRouter } from "next/router";
 import DmsComponent from "../../components/Holders/details-chats-holders/DmsComponent";
-import { userDetails } from "../../libs/chats";
+
 import SetUserName from "../../models/SetUserName";
-import { io } from "socket.io-client";
-import { UserDataContext } from "../../Context/ContextProvide";
-import SearchUser from "../../models/SearchUser";
+
+import {
+  UserDataContext,
+  ServerDataContext,
+} from "../../Context/ContextProvide";
 
 const friends = () => {
   const router = useRouter();
@@ -17,6 +19,9 @@ const friends = () => {
   const [recieveReq, setRecieveReq] = React.useState<any>(false);
   const [username, setUsername] = React.useState<any>(false);
   const { userData } = React.useContext(UserDataContext);
+
+  const [loading, setLoading] = React.useState(true);
+  const { serversData, chats } = React.useContext(ServerDataContext);
 
   React.useEffect(() => {
     const tempUName = userData?.username || "";

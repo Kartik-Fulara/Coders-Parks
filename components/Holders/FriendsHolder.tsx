@@ -92,7 +92,7 @@ const FriendsBtn = tw.div`
 
 const FriendsHolder = () => {
   const router = useRouter();
-
+  const [loading, setLoading] = React.useState(true);
   const { chats, setChatId, setSearchUserModel, openHolder } =
     useContext(ServerDataContext);
 
@@ -116,6 +116,21 @@ const FriendsHolder = () => {
     { on: "DM", value: true },
     { on: "SU", value: false },
   ];
+
+  useEffect(() => {
+    if (router.query.id && router.pathname === "/app/friends") {
+      setSelectedUser(`${router.query.id}`);
+      setChatId(`${router.query.id}`);
+    }
+  }, [router.isReady]);
+
+  useEffect(() => {
+    if (chats.length <= 0) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [chats]);
 
   return (
     <>

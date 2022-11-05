@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import toast from "react-hot-toast";
 export const login = async (email: string, password: string) => {
   const res = await axios.post(`/api/auth/login`, {
     email,
@@ -14,14 +14,19 @@ export const register = async (
   email: string,
   password: string
 ) => {
-  const res = await axios.post(`/api/auth/register`, {
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    password: password,
-  });
-  return res.data;
-};
+  try {
+    const response = await axios.post(`/api/auth/register`, {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+    });
+
+    return response.data;
+  } catch (e) {
+    return { status: "error", message: e };
+  }
+};;
 
 export const logout = async () => {
   const res = await axios.delete(`/api/auth/logout`);

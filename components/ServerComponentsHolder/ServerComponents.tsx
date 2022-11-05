@@ -9,6 +9,7 @@ import ChatComponents from "../Holders/details-servers-holders/ChatComponents";
 
 import DropDown from "../Elements/DropDown";
 import { runCode } from "../../libs/server";
+import toast from "react-hot-toast";
 
 const Containers = tw.section`
     text-white
@@ -56,7 +57,9 @@ const languageOnValue = [
 ];
 
 const ServerComponents = () => {
+  const [loading, setLoading] = React.useState(true);
   const {
+    serversData,
     openConsole,
     setOpenConsole,
     showWhichComponent,
@@ -68,8 +71,13 @@ const ServerComponents = () => {
   } = useContext(ServerDataContext);
 
   const getOutput = () => {
+    if (editorData === "") {
+      toast.error("Please write some code");
+      return;
+    }
     setOutput("Loading.....");
     const init = async () => {
+      console.log("Clicked");
       const output = await runCode(editorData, language, input);
       console.log(output);
 
@@ -100,59 +108,75 @@ const ServerComponents = () => {
     init();
   };
 
+  useEffect(() => {
+    if (serversData.length <= 0) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [serversData]);
+
   return (
     <>
-      <ChannelHolder />
-      {/* @ts-ignore */}
-      {showWhichComponent === "chat" ? (
-        // @ts-ignore
-        <Containers>
-          <NavBar>
-            <div className="w-full h-full flex justify-start items-center gap-8 ">
-              <span className="ml-4 pb-2">Chat Area</span>
-            </div>
-          </NavBar>
-          <TabsComponent>
-            <section className="flex h-full w-full flex-col">
-              <ChatComponents />
-            </section>
-          </TabsComponent>
-        </Containers>
+      {loading ? (
+        <div className="flex justify-center items-center h-full w-full relative">
+          <div className="text-white">Loading....</div>
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500 absolute"></div>
+        </div>
       ) : (
-        // @ts-ignore
-        <Containers>
-          <NavBar>
-            <div className="w-48 h-[80%]">
-              <DropDown
-                options={languageOption}
-                onValue={languageOnValue}
-                setFunc={setLanguage}
-              />
-            </div>
-            <div
-              className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
-              onClick={() => setOpenConsole(!openConsole)}
-            >
-              {openConsole ? "close" : "open"} Terminal
-            </div>
-            <div>
-              <button
-                type="button"
-                className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
-                onClick={() => getOutput()}
-              >
-                Run
-              </button>
-            </div>
-          </NavBar>
-          <TabsComponent>
-            <section className="flex h-full w-full flex-col">
-              <CodeComponent />
-            </section>
-          </TabsComponent>
-        </Containers>
+        <>
+          <ChannelHolder />
+          {/* @ts-ignore */}
+          {showWhichComponent === "chat" ? (
+            // @ts-ignore
+            <Containers>
+              <NavBar>
+                <div className="w-full h-full flex justify-start items-center gap-8 ">
+                  <span className="ml-4 pb-2">Chat Area</span>
+                </div>
+              </NavBar>
+              <TabsComponent>
+                <section className="flex h-full w-full flex-col">
+                  <ChatComponents />
+                </section>
+              </TabsComponent>
+            </Containers>
+          ) : (
+            // @ts-ignore
+            <Containers>
+              <NavBar>
+                <div className="w-48 h-[80%]">
+                  <DropDown
+                    options={languageOption}
+                    onValue={languageOnValue}
+                    setFunc={setLanguage}
+                  />
+                </div>
+                <div
+                  className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
+                  onClick={() => setOpenConsole(!openConsole)}
+                >
+                  {openConsole ? "close" : "open"} Terminal
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
+                    onClick={() => getOutput()}
+                  >
+                    Run
+                  </button>
+                </div>
+              </NavBar>
+              <TabsComponent>
+                <section className="flex h-full w-full flex-col">
+                  <CodeComponent />
+                </section>
+              </TabsComponent>
+            </Containers>
+          )}
+        </>
       )}
-      ;
     </>
   );
 };

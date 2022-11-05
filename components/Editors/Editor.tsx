@@ -55,23 +55,24 @@ const TerminalHolder = tw.div<PROPS>`
 const EditorComponent = () => {
   const [inputField, setInputField] = useState(false);
 
+  const change = (val: any) => {
+    if (userData?.id === currentHost) {
+      setEditorData(val);
+    } else {
+      console.log(val);
+    }
+  };
+
   const {
-    serversData,
     editorData,
     setEditorData,
     language,
     openConsole,
-    setInput,
-    output,
     currentHost,
     setCurrentHost,
   } = React.useContext(ServerDataContext);
 
   const { userData } = React.useContext(UserDataContext);
-
-  useEffect(() => {
-    console.log(output);
-  }, [output]);
 
   return (
     <>
@@ -84,7 +85,7 @@ const EditorComponent = () => {
           theme="terminal"
           name="Code Editor"
           readOnly={userData?.id !== currentHost ? true : false}
-          onChange={(val: any) => setEditorData(val)}
+          onChange={(val: any) => change(val)}
           fontSize={25}
           showPrintMargin={true}
           showGutter={true}
@@ -95,7 +96,6 @@ const EditorComponent = () => {
             showLineNumbers: true,
             tabSize: 5,
           }}
-          onCopy={(input) => console.log(input)}
         />
       </EditorHolder>
       {openConsole && (
@@ -126,11 +126,7 @@ const EditorComponent = () => {
               Output
             </span>
           </div>
-          {inputField ? (
-            <InputField setInput={setInput} />
-          ) : (
-            <Output output={output} />
-          )}
+          {inputField ? <InputField /> : <Output />}
         </TerminalHolder>
       )}
     </>
@@ -139,17 +135,22 @@ const EditorComponent = () => {
 
 export default EditorComponent;
 
-const InputField = ({ setInput }: any) => {
+const InputField = () => {
+  const { userData } = React.useContext(UserDataContext);
+  const { currentHost, setInput, input } = React.useContext(ServerDataContext);
   return (
     <textarea
       className="h-full w-full bg-black p-4 outline-none border-none resize-none text-white"
       placeholder="Input Here"
+      value={input}
+      disabled={currentHost !== userData?.id ? true : false}
       onChange={(e: any) => setInput(e.target.value)}
     ></textarea>
   );
 };
 
-const Output = ({ output }: any) => {
+const Output = () => {
+  const { output } = React.useContext(ServerDataContext);
   return (
     <div className="h-full w-full bg-black p-4 outline-none whitespace-pre-wrap border-none resize-none text-white">
       {output || "Output Will Be Displayed Here"}

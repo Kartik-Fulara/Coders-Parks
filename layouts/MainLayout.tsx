@@ -48,6 +48,8 @@ const MainLayout = ({ children }: any) => {
     setMessagesData,
     input,
     setOutput,
+    output,
+    setInput,
     setSideBarServers,
     sideBarServers,
     setFriends,
@@ -142,7 +144,7 @@ const MainLayout = ({ children }: any) => {
     if (data.status === "Ok") {
       const { email, name, username, id, uid, chats, friends, servers } =
         data.data;
-      console.log(data.data);
+      // console.log(data.data);
       setUserData({ email, name, username, id, uid });
       if (username.length <= 20) {
         setSideBarServers(servers);
@@ -191,9 +193,13 @@ const MainLayout = ({ children }: any) => {
         setLoading(true);
         getUserData();
         chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
+
+        chatSocket.current.on("login", (data: any) => {
+          console.log(data);
+        });
+
         chatSocket.current?.on("getMessage", (data: any) => {
           const { data: transferData } = data;
-
           setRecieveChart(transferData);
         });
         chatSocket.current?.on("getRequest", (data: any) => {
@@ -209,14 +215,24 @@ const MainLayout = ({ children }: any) => {
           });
         });
 
+        serverSocket.current?.on("shareOutput", (data: any) => {
+          console.log(data);
+          setOutput(data);
+        });
+
+        serverSocket.current?.on("shareInput", (data: any) => {
+          console.log(data);
+          setInput(data);
+        });
+
         serverSocket.current?.on("changeHost", (data: any) => {
           setCurrentHost(data);
         });
 
         serverSocket.current?.on("codeShare", (data: any) => {
           if (userData?.id !== currentHost) {
-            console.log(userData);
-            console.log(serversData);
+            // console.log(userData);
+            // console.log(serversData);
             setEditorData(data);
           }
         });
@@ -239,33 +255,25 @@ const MainLayout = ({ children }: any) => {
   }, [router.pathname.split("/")[1] === "app" && router.isReady]);
 
   React.useEffect(() => {
-    serverSocket.current?.emit("changeHost", {
-      host: currentHost,
-      serverId: serversData?.id,
-    });
-  }, [currentHost]);
+    if (userData.length !== 0) {
+      const data = userData?.id;
 
-  React.useEffect(() => {
-    const init = async () => {
-      const { data }: any = await getServerChatByServerId(
-        serversData?.serverId
-      );
-      if (data) {
-        const { chatId, users } = data;
-
-        setServerChat({ chatId, users });
+      const checkUName = (userData?.username).length; // check if username is set or not
+      if (checkUName <= 20) {
+        setLoading(false);
+        setCheckUsername(true);
+      } else {
+        setLoading(false);
       }
-    };
-    if (serversData.length !== 0 && serverChat.length === 0) {
-      init();
+      chatSocket.current?.emit("login", data);
     }
-  }, [serversData]);
+  }, [userData]);
 
   React.useEffect(() => {
     const init = async () => {
+      setLoadingText("fetching server data");
       const data = await getServerDataById(sideBarServers[0]?.serverId);
       if (data.length !== 0) {
-        setLoadingText("fetching server data");
         setServersData(data);
         const SID = data.serverId;
         setCurrentHost(data?.currentHost);
@@ -306,19 +314,20 @@ const MainLayout = ({ children }: any) => {
   }, [chats]);
 
   React.useEffect(() => {
-    if (userData.length !== 0) {
-      const data = userData?.id;
+    const init = async () => {
+      const { data }: any = await getServerChatByServerId(
+        serversData?.serverId
+      );
+      if (data) {
+        const { chatId, users } = data;
 
-      const checkUName = (userData?.username).length; // check if username is set or not
-      if (checkUName <= 20) {
-        setLoading(false);
-        setCheckUsername(true);
-      } else {
-        setLoading(false);
+        setServerChat({ chatId, users });
       }
-      chatSocket.current?.emit("login", data);
+    };
+    if (serversData.length !== 0 && serverChat.length === 0) {
+      init();
     }
-  }, [userData]);
+  }, [serversData]);
 
   React.useEffect(() => {
     if (chatMessageSocket.length !== 0) {
@@ -362,13 +371,42 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     const timeout = setTimeout(() => {
       serverSocket.current?.emit("codeShare", editorData);
-    }, 1100);
+    }, 800);
 
     return () => clearTimeout(timeout);
   }, [editorData]);
 
+  React.useEffect(() => {
+    // send output to socket
+    const timeout = setTimeout(() => {
+      serverSocket.current?.emit("shareOutput", output);
+    }, 800);
+
+    return () => clearTimeout(timeout);
+  }, [output]);
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      serverSocket.current?.emit("shareInput", input);
+    }, 800);
+
+    return () => clearTimeout(timeout);
+  }, [input]);
+
+  React.useEffect(() => {
+    serverSocket.current?.emit("changeHost", {
+      host: currentHost,
+      serverId: serversData?.id,
+    });
+  }, [currentHost]);
+
   const LoadingFunction = () => {
-    return <div>{loadingText}</div>;
+    return (
+      <div className="flex justify-center items-center h-full w-full relative bg-black4">
+        <div className="text-white">{loadingText}</div>
+        <div className="animate-spin rounded-full h-48 w-48 border-t-2 border-b-2 border-green-500 absolute"></div>
+      </div>
+    );
   };
 
   return (

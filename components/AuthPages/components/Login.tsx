@@ -17,23 +17,28 @@ const Login = ({ handleLogin }: any) => {
   });
 
   const router = useRouter();
-
+  const [isLogin, setIsLogin] = React.useState(false);
   const [show, setShow] = React.useState(false);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     try {
+      setIsLogin(true);
       const data = await login(loginProps.email, loginProps.password);
 
       if (data.status === "ok") {
         handleLogin(true);
+        setIsLogin(false);
         router.push("/app/friends");
+        toast.success("Login successful");
       } else if (data.status === "error") {
         toast.error(data.message);
+        setIsLogin(false);
       }
     } catch (error: any) {
       toast.error(error.message);
+      setIsLogin(false);
     }
   };
 
@@ -78,9 +83,44 @@ const Login = ({ handleLogin }: any) => {
             </span>
           )}
         </div>
-        <button className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl">
-          Login
-        </button>
+        {isLogin ? (
+          <div className="flex gap-4">
+            <button
+              type="button"
+              disabled
+              className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl"
+            >
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v1a7 7 0 00-7 7h1zm0 0a8 8 0 018 8H9a7 7 0 00-7-7v1zm0 0h1a8 8 0 018 8v-1a7 7 0 00-7-7zm0 0v1a8 8 0 018-8h-1a7 7 0 00-7 7z"
+                ></path>
+              </svg>
+              <span className="text-white">Loading...</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            type="submit"
+            className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl"
+          >
+            Login
+          </button>
+        )}
       </form>
     </div>
   );

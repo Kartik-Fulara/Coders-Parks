@@ -1,7 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
 import tw from "tailwind-styled-components";
 import { DownArrow, UpArrow, DeleteIcon, SettingIcon } from "../../Icons/Icons";
-import { ServerDataContext } from "../../Context/ContextProvide";
+import {
+  ServerDataContext,
+  UserDataContext,
+} from "../../Context/ContextProvide";
 import { Code, Chat, ShareIcon, Menu } from "../../Icons/Icons";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import toast from "react-hot-toast";
@@ -63,7 +66,10 @@ const ServerHolder = () => {
     showWhichComponent,
     openHolder,
     setOpenHolder,
+    currentHost,
   } = useContext(ServerDataContext);
+
+  const { userData } = useContext(UserDataContext);
 
   const [serverId, setServerId] = useState("");
   const [members, setMembers] = useState([]);
@@ -209,7 +215,21 @@ const ServerHolder = () => {
                         src={member?.userAvatar}
                       />
                     </div>
-                    <span className="uppercase">{member?.userName}</span>
+                    <span
+                      className={`uppercase ${
+                        member?.userId === userData?.id
+                          ? "text-white"
+                          : "text-inherit"
+                      } `}
+                    >
+                      {member?.userName}
+                    </span>
+
+                    {currentHost === member?.userId && (
+                      <span className="absolute right-4 text-green-500">
+                        Host
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
