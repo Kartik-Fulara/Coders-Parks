@@ -88,7 +88,7 @@ const Login = ({ handleLogin }: any) => {
             <button
               type="button"
               disabled
-              className="p-4  bg-blue-500 flex gap-4 rounded-2xl w-[30rem] shadow-xl"
+              className="p-4  bg-blue-500 flex justify-center items-center gap-4 rounded-2xl w-[30rem] shadow-xl"
             >
               <svg
                 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
@@ -116,7 +116,7 @@ const Login = ({ handleLogin }: any) => {
         ) : (
           <button
             type="submit"
-            className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl"
+            className="p-4 bg-blue-500 rounded-2xl w-[30rem] shadow-xl justify-center items-center text-center"
           >
             Login
           </button>
