@@ -63,6 +63,8 @@ const MainLayout = ({ children }: any) => {
     setServerChat,
     currentHost,
     setCurrentHost,
+    logoutLoading,
+    setLogoutLoading,
   } = useContext(ServerDataContext);
 
   const { chatMessageSocket, setChatMessageSocket, serverChatMessageSocket } =
@@ -164,6 +166,7 @@ const MainLayout = ({ children }: any) => {
 
   const handleLogOut = (msg = ""): void => {
     const init = async () => {
+      setLogoutLoading(true);
       const data = await logout();
       if (data.message) {
         router.push("/");
@@ -181,6 +184,7 @@ const MainLayout = ({ children }: any) => {
         setLoading(true);
         setLogin(false);
         setLoadingText("Loading...");
+        setLogoutLoading(false);
       }
     };
     init();

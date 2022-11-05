@@ -103,9 +103,14 @@ const SidebarTooltip = tw.span`
 const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   const [focus, setFocus] = useState("0");
   const [canCreateServer, setCanCreateServer] = useState(true);
-
-  const { sideBarServers, setSelectedServerId, openHolder, setOpenHolder } =
-    useContext(ServerDataContext);
+  
+  const {
+    sideBarServers,
+    setSelectedServerId,
+    openHolder,
+    setOpenHolder,
+    logoutLoading,
+  } = useContext(ServerDataContext);
   const { userData } = useContext(UserDataContext);
 
   const router = useRouter();
@@ -225,16 +230,27 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
           </IconsHolders>
           <div className="h-fit w-full" onClick={() => handleLogOut()}>
             <IconsHolders className="bg-black justify-center items-center ml-3">
-              <Image
-                src="/Asserts/logout.svg"
-                height={100}
-                alt="logout"
-                className="p-2 pl-3"
-                width={100}
-              />
-              <SidebarTooltip>
-                <span className="text-green-500 text-xl">Logout</span>
-              </SidebarTooltip>
+              {logoutLoading ? (
+                <>
+                  {/* loading  */}
+                  <div className="h-10 w-[90%] p-1">
+                    <div className="animate-spin rounded-full h-full w-full border-b-2 border-green-600"></div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Image
+                    src="/Asserts/logout.svg"
+                    height={100}
+                    alt="logout"
+                    className="p-2 pl-3"
+                    width={100}
+                  />
+                  <SidebarTooltip>
+                    <span className="text-green-500 text-xl">Logout</span>
+                  </SidebarTooltip>
+                </>
+              )}
             </IconsHolders>
           </div>
           <Link

@@ -32,7 +32,7 @@ const ContextProvider = ({ children }: any) => {
     React.useState<any>([]);
   const [searchUserModel, setSearchUserModel] = React.useState(false);
   const [selectedServerId, setSelectedServerId] = React.useState<any>("");
-
+  const [logoutLoading, setLogoutLoading] = React.useState<any>(false);
   const [openHolder, setOpenHolder] = React.useState<any>(false);
 
   return (
@@ -79,6 +79,8 @@ const ContextProvider = ({ children }: any) => {
           setOpenHolder,
           currentHost,
           setCurrentHost,
+          logoutLoading,
+          setLogoutLoading,
         }}
       >
         <SocketTransferData.Provider
