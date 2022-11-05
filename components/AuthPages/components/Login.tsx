@@ -84,11 +84,11 @@ const Login = ({ handleLogin }: any) => {
           )}
         </div>
         {isLogin ? (
-          <div className="flex gap-4">
+          <div>
             <button
               type="button"
               disabled
-              className="p-4  bg-blue-500  rounded-2xl w-[30rem] shadow-xl"
+              className="p-4  bg-blue-500 flex gap-4 rounded-2xl w-[30rem] shadow-xl"
             >
               <svg
                 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
