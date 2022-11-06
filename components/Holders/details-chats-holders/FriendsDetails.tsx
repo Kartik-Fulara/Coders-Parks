@@ -18,6 +18,7 @@ const NavBar = tw.nav`
     text-lg
     font-medium
     px-4
+    mb-4
 `;
 
 const FriendsDetails = ({
@@ -39,9 +40,10 @@ const FriendsDetails = ({
         <div className="flex w-[calc(100%-4.025rem)] h-full gap-2 justify-start items-center">
           <span
             onClick={() => setIsPending(false)}
-            className={`uppercase cursor-pointer select-none text-white w-16  text-center text-opacity-70 ${
-              !pending &&
-              "bg-black h-[60%] rounded-lg text-opacity-100 pt-[0.09rem]"
+            className={`uppercase cursor-pointer select-none text-white w-16  text-center  ${
+              !pending
+                ? "bg-black text-white h-[60%] rounded-lg text-opacity-100 pt-[0.09rem] "
+                : "text-opacity-50"
             }`}
           >
             All
@@ -51,33 +53,25 @@ const FriendsDetails = ({
               setIsPending(true);
               setRecieveReq(false);
             }}
-            className={`uppercase cursor-pointer select-none text-white w-32 text-center text-opacity-70 ${
-              pending &&
-              "bg-black h-[60%] rounded-lg text-opacity-100 pt-[0.09rem] "
+            className={`uppercase cursor-pointer select-none text-white w-32 text-center  ${
+              pending
+                ? "bg-black text-white h-[60%] rounded-lg text-opacity-100 pt-[0.09rem] "
+                : "text-opacity-50"
             }`}
           >
-            Pending
+            Requests
           </span>
         </div>
       </NavBar>
-      {pending ? (
-        <DisplayPendingFriends
-          token={token}
-          recieveReq={recieveReq}
-          setRecieveReq={setRecieveReq}
-          setSendRe={setSendRe}
-        />
-      ) : (
-        <DisplayAllFriends token={token} />
-      )}
+      {pending ? <DisplayPendingFriends /> : <DisplayAllFriends />}
     </div>
   );
 };
 
 export default FriendsDetails;
 
-const DisplayAllFriends = ({ token }: any) => {
-  const [friends, setFriends] = useState<any>([]);
+const DisplayAllFriends = () => {
+  const { friends } = useContext(ServerDataContext);
 
   return (
     <div className="h-[calc(100%-var(--friendsDetails-nav-height))] w-full flex flex-col gap-4 text-white">
@@ -108,38 +102,105 @@ const DisplayAllFriends = ({ token }: any) => {
   );
 };
 
-const DisplayPendingFriends = ({
-  token,
-  recieveReq,
-  setRecieveReq,
-  setSendRe,
-}: any) => {
-  const [friends, setFriends] = useState<any>([]);
+const DisplayPendingFriends = () => {
+  const { pendingRequests, sendRequests } = useContext(ServerDataContext);
+  const [checkBox, setCheckBox] = useState({
+    all: true,
+    recieve: false,
+    send: false,
+  });
+  const [requests, setRequests] = useState<any>([]);
 
   useEffect(() => {
-    setFriends([]);
-    // getFriends();
-  }, [token]);
-
-  // useEffect(() => {
-  //   if (!recieveReq && previous.length !== 0) {
-  //     setFriends([]);
-  //     previous = [];
-  //   }
-  // }, [recieveReq]);
+    if (checkBox.all) {
+      setRequests([...pendingRequests, ...sendRequests]);
+    } else if (checkBox.recieve) {
+      setRequests([...pendingRequests]);
+    } else if (checkBox.send) {
+      setRequests([...sendRequests]);
+    }
+  }, [checkBox]);
 
   return (
     <>
-      {recieveReq && (
-        <Toast
-          getFriends={getFriends}
-          setRecieveReq={setRecieveReq}
-          setSendRe={setSendRe}
-        />
-      )}
+      <div className="w-full h-10 flex justify-end items-center">
+        {/* custom checkbox */}
+        <div className="flex justify-start items-center gap-4 px-4">
+          <div
+            onClick={() => {
+              setCheckBox({ recieve: false, send: false, all: true });
+            }}
+            className={`h-4 w-4 rounded-md border-2 cursor-pointer border-white ${
+              checkBox.all ? "bg-black border-white" : "bg-white"
+            }`}
+            id="all"
+          ></div>
+          <label
+            onClick={() => {
+              setCheckBox({ recieve: false, send: false, all: true });
+            }}
+            htmlFor="all"
+            className="text-white cursor-pointer select-none"
+          >
+            All
+          </label>
+          <div
+            onClick={() => {
+              setCheckBox({
+                send: false,
+                recieve: true,
+                all: false,
+              });
+            }}
+            className={`h-4 w-4 rounded-md border-2 border-white cursor-pointer ${
+              checkBox.recieve ? "bg-black border-white" : "bg-white"
+            }`}
+            id="recieve"
+          ></div>
+          <label
+            htmlFor="recieve"
+            className="text-white cursor-pointer select-none"
+            onClick={() => {
+              setCheckBox({
+                send: false,
+                recieve: true,
+                all: false,
+              });
+            }}
+          >
+            Recieved
+          </label>
+          <div
+            onClick={() => {
+              setCheckBox({ recieve: false, send: true, all: false });
+            }}
+            id="sent"
+            className={`h-4 w-4 rounded-md border-2 border-white cursor-pointer ${
+              checkBox.send ? "bg-black border-white" : "bg-white"
+            }`}
+          ></div>
+          <label
+            htmlFor="sent"
+            onClick={() => {
+              setCheckBox({ recieve: false, send: true, all: false });
+            }}
+            className="text-white cursor-pointer select-none"
+          >
+            Sent
+          </label>
+        </div>
+      </div>
       <div className="h-[calc(100%-var(--friendsDetails-nav-height))] w-full flex flex-col gap-4 p-4 text-white">
-        {friends.length === 0 && <NoFriends msg={"Not Any Pending Requests"} />}
-        {friends?.map((friend: any) => (
+        {pendingRequests.length === 0 &&
+          sendRequests.length === 0 &&
+          checkBox.all && <NoFriends msg={"Not Any Requests"} />}
+        {pendingRequests.length === 0 && checkBox.recieve && (
+          <NoFriends msg={"Not Any Recieve Requests"} />
+        )}
+        {sendRequests.length === 0 && checkBox.send && (
+          <NoFriends msg={"Not Any Send Requests"} />
+        )}
+        {requests?.map((friend: any) => (
           <div
             key={friend.id}
             className="h-[4rem] w-full flex justify-between items-center px-4 bg-black2"
@@ -209,7 +270,7 @@ const Toast = ({ getFriends, setRecieveReq, setSendRe }: any) => {
 
 const NoFriends = ({ msg }: any) => {
   return (
-    <div className="h-full w-full flex justify-center items-center text-white">
+    <div className=" h-full w-full flex justify-center items-center pb-48 uppercase text-white">
       {msg}
     </div>
   );

@@ -14,7 +14,7 @@ const Editor = dynamic(
   async () => {
     const ace = await import("react-ace");
     // All themes
-    require("ace-builds/src-noconflict/theme-terminal");
+    require("ace-builds/src-noconflict/theme-twilight");
     // mode
     require("ace-builds/src-noconflict/mode-java");
     require("ace-builds/src-noconflict/mode-python");
@@ -28,7 +28,14 @@ const Editor = dynamic(
     return ace;
   },
   {
-    loading: () => <>Loading...</>,
+    loading: () => (
+      <>
+        <div className="flex justify-center items-center h-full w-full relative">
+          <div className="text-white">Setting Editor</div>
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500 absolute"></div>
+        </div>
+      </>
+    ),
     ssr: false,
   }
 );
@@ -82,7 +89,7 @@ const EditorComponent = () => {
           style={{ width: "100%", height: "100%" }}
           placeholder="Code Here To Display Others"
           mode={`${language}`}
-          theme="terminal"
+          theme="twilight"
           name="Code Editor"
           readOnly={userData?.id !== currentHost ? true : false}
           onChange={(val: any) => change(val)}
@@ -152,7 +159,7 @@ const InputField = () => {
 const Output = () => {
   const { output } = React.useContext(ServerDataContext);
   return (
-    <div className="h-full w-full bg-black p-4 outline-none whitespace-pre-wrap border-none resize-none text-white">
+    <div className="h-full w-full bg-black p-4 overflow-auto outline-none whitespace-pre-wrap border-none resize-none text-white">
       {output || "Output Will Be Displayed Here"}
     </div>
   );

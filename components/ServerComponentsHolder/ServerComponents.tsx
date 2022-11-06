@@ -48,12 +48,21 @@ const languageOption = [
 ];
 
 const languageOnValue = [
-  { value: 62, on: "java" },
-  { value: 63, on: "javascript" },
-  { value: 71, on: "python" },
-  { value: 50, on: "c" },
-  { value: 54, on: "c++" },
-  { value: 51, on: "c#" },
+  { value: "java", on: "java" },
+  { value: "javascript", on: "javascript" },
+  { value: "python", on: "python" },
+  { value: "c", on: "c" },
+  { value: "cpp", on: "c++" },
+  { value: "csharp", on: "c#" },
+];
+
+const language_id = [
+  { id: 62, language: "java" },
+  { id: 63, language: "javascript" },
+  { id: 71, language: "python" },
+  { id: 50, language: "c" },
+  { id: 54, language: "c++" },
+  { id: 51, language: "c#" },
 ];
 
 const ServerComponents = () => {
@@ -75,15 +84,17 @@ const ServerComponents = () => {
       toast.error("Please write some code");
       return;
     }
-    setOutput("Loading.....");
     const init = async () => {
+      setOutput("Loading.....");
       console.log("Clicked");
-      const output = await runCode(editorData, language, input);
+      const id: any = language_id.find((item) => item.language === language);
+      const output = await runCode(editorData, id.id, input);
       console.log(output);
 
       const { data } = output;
       if (data === "No Data") {
         setOutput("Something went wrong");
+        return;
       } else {
         if (data.message && data.stderr) {
           const out =

@@ -52,6 +52,7 @@ const MainLayout = ({ children }: any) => {
     setInput,
     setSideBarServers,
     sideBarServers,
+    friends,
     setFriends,
     setSendRequests,
     chats,
@@ -59,6 +60,7 @@ const MainLayout = ({ children }: any) => {
     chatId,
     searchUserModel,
     setSearchUserModel,
+    sendRequests,
     serverChat,
     setServerChat,
     currentHost,
@@ -110,13 +112,13 @@ const MainLayout = ({ children }: any) => {
   }, [query && router.isReady]);
 
   const setFriendsData = (friendsData: any) => {
-    const acceptedFriends = friendsData.map(
+    const acceptedFriends = friendsData.filter(
       (friend: any) => friend.isAccept === true
     );
-    const pendingFriends = friendsData.map(
+    const pendingFriends = friendsData.filter(
       (friend: any) => friend.isAccept === false && friend.isReq === true
     );
-    const sentFriends = friendsData.map(
+    const sentFriends = friendsData.filter(
       (friend: any) => friend.isAccept === false && friend.isReq === false
     );
     setFriends(acceptedFriends);
@@ -191,6 +193,18 @@ const MainLayout = ({ children }: any) => {
   };
 
   React.useEffect(() => {
+    console.log(friends);
+  }, [friends]);
+
+  React.useEffect(() => {
+    console.log(pendingRequests);
+  }, [pendingRequests]);
+
+  React.useEffect(() => {
+    console.log(sendRequests);
+  }, [sendRequests]);
+
+  React.useEffect(() => {
     const init = async () => {
       const isTokenVerify = await isToken();
       if (handleRoutes.includes(router.pathname) && isTokenVerify) {
@@ -212,7 +226,10 @@ const MainLayout = ({ children }: any) => {
 
         serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
         serverSocket.current?.on("roomUsers", (data: any) => {
-          serverSocket.current?.emit("syncCode", editorData);
+          console.log(data);
+          if (isCodeSync) {
+            serverSocket.current?.emit("syncCode", editorData);
+          }
           serverSocket.current?.on("syncCode", (data: any) => {
             setEditorData(data);
             isCodeSync = true;
@@ -235,9 +252,10 @@ const MainLayout = ({ children }: any) => {
 
         serverSocket.current?.on("codeShare", (data: any) => {
           if (userData?.id !== currentHost) {
-            // console.log(userData);
-            // console.log(serversData);
+            console.log(data);
             setEditorData(data);
+          } else {
+            console.log(data);
           }
         });
 
@@ -374,8 +392,12 @@ const MainLayout = ({ children }: any) => {
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
-      serverSocket.current?.emit("codeShare", editorData);
-    }, 800);
+      if (userData?.id === currentHost) {
+        serverSocket.current?.emit("codeShare", editorData);
+      } else {
+        console.log(editorData);
+      }
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [editorData]);
@@ -384,7 +406,7 @@ const MainLayout = ({ children }: any) => {
     // send output to socket
     const timeout = setTimeout(() => {
       serverSocket.current?.emit("shareOutput", output);
-    }, 800);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, [output]);
@@ -392,7 +414,7 @@ const MainLayout = ({ children }: any) => {
   React.useEffect(() => {
     const timeout = setTimeout(() => {
       serverSocket.current?.emit("shareInput", input);
-    }, 800);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, [input]);
