@@ -145,7 +145,8 @@ const MainLayout = ({ children }: any) => {
   const getUserData = async () => {
     setLoadingText("fetching user details");
     const { data }: any = await userDetails();
-    if (data.status === "Ok") {
+    console.log(data);
+    if (data?.status === "Ok") {
       const { email, name, username, id, uid, chats, friends, servers } =
         data.data;
       // console.log(data.data);
@@ -161,7 +162,7 @@ const MainLayout = ({ children }: any) => {
     } else {
       setLoading(false);
       setUserData([]);
-      toast.error("Something went wrong");
+      toast.error("Something went wrong Please login again");
       await logout();
     }
   };

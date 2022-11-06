@@ -119,6 +119,7 @@ const DisplayPendingFriends = () => {
     } else if (checkBox.send) {
       setRequests([...sendRequests]);
     }
+    console.log(requests);
   }, [checkBox]);
 
   return (
