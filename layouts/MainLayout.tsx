@@ -162,6 +162,7 @@ const MainLayout = ({ children }: any) => {
     } else {
       setLoading(false);
       setUserData([]);
+      console.log(data);
       toast.error("Something went wrong Please login again");
       await logout();
     }
