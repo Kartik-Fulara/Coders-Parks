@@ -116,10 +116,10 @@ const MainLayout = ({ children }: any) => {
       (friend: any) => friend.isAccept === true
     );
     const pendingFriends = friendsData.filter(
-      (friend: any) => friend.isAccept === false && friend.isReq === true
+      (friend: any) => friend.isAccept === false && friend.isReq === false
     );
     const sentFriends = friendsData.filter(
-      (friend: any) => friend.isAccept === false && friend.isReq === false
+      (friend: any) => friend.isAccept === false && friend.isReq === true
     );
     setFriends(acceptedFriends);
     setSendRequests(sentFriends);

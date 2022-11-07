@@ -74,7 +74,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const handleAddFriends = (id: any) => {
     const init = async () => {
       const { data } = await addFriends(id);
-
+      console.log(data);
       // setSendReq(true);
       toast.success("Friend Request Sent");
     };

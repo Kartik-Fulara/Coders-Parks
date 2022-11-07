@@ -63,7 +63,7 @@ const FriendsDetails = ({
           </span>
         </div>
       </NavBar>
-      {pending ? <DisplayPendingFriends /> : <DisplayAllFriends />}
+      {pending ? <DisplayFriendsRequests /> : <DisplayAllFriends />}
     </div>
   );
 };
@@ -92,8 +92,8 @@ const DisplayAllFriends = () => {
             <span>{friend.username}</span>
           </div>
           <div className="flex gap-4 items-center">
-            <span className="text-red-500 hover:text-opacity-100 text-opacity-50">
-              Remove
+            <span className="text-red-500 hover:text-opacity-100 text-opacity-50 hover:bg-black4 h-[80%] w-fit p-2 pb-1">
+              Remove Friend
             </span>
           </div>
         </div>
@@ -102,7 +102,29 @@ const DisplayAllFriends = () => {
   );
 };
 
-const DisplayPendingFriends = () => {
+const AcceptFriendsRequests = () => {
+  return (
+    <div className="w-full h-full flex gap-5">
+      <div className="text-green-500 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md">
+        Accept
+      </div>
+      <div className="text-red-700 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md">
+        Reject
+      </div>
+    </div>
+  );
+};
+
+const WaitingAcceptRequests = () => {
+  return (
+    <div className="w-full h-full flex gap-5">
+      <div className="text-gray-600">Waiting for Requests to Accept</div>
+      <div className="text-red-700 hover:bg-black4">Cancel Requests</div>
+    </div>
+  );
+};
+
+const DisplayFriendsRequests = () => {
   const { pendingRequests, sendRequests } = useContext(ServerDataContext);
   const [checkBox, setCheckBox] = useState({
     all: true,
@@ -219,9 +241,11 @@ const DisplayPendingFriends = () => {
               <span>{friend.username}</span>
             </div>
             <div className="flex gap-4 items-center">
-              <span className="text-red-500 hover:text-opacity-100 text-opacity-50">
-                Remove
-              </span>
+              {friend.isReq ? (
+                <WaitingAcceptRequests />
+              ) : (
+                <AcceptFriendsRequests />
+              )}
             </div>
           </div>
         ))}
