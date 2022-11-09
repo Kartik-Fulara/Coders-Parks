@@ -28,7 +28,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
   } catch (err: any) {
-    res.send({ status: "Something went wrong" });
+    const error = err.response.data;
+    res.send({ status: "Something went wrong", error: error });
     return;
   }
 };

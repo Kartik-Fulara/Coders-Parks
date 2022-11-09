@@ -21,8 +21,6 @@ import { io } from "socket.io-client";
 import SearchUser from "../models/SearchUser";
 import { isToken } from "../libs/isToken";
 
-let isCodeSync = false;
-
 const handleRoutes = ["/app/friends", "/app/channel/c", "/app/profile"];
 
 const MainLayout = ({ children }: any) => {
@@ -32,7 +30,7 @@ const MainLayout = ({ children }: any) => {
   const [call, setCall] = React.useState<any>(false);
   const [checkUsername, setCheckUsername] = React.useState<any>(false);
   const [recieveChat, setRecieveChart] = useState<any>([]);
-  const [userID, setUserID] = useState<any>(null);
+  const [isCodeSync, setIsCodeSync] = useState<any>(false);
   const [loading, setLoading] = useState<any>(true);
 
   const { loadingText, setLoadingText, userData, setUserData } =
@@ -40,7 +38,6 @@ const MainLayout = ({ children }: any) => {
   const {
     serversData,
     setServersData,
-    pendingRequests,
     setPendingRequests,
     editorData,
     setEditorData,
@@ -52,7 +49,6 @@ const MainLayout = ({ children }: any) => {
     setInput,
     setSideBarServers,
     sideBarServers,
-    friends,
     setFriends,
     setSendRequests,
     chats,
@@ -60,17 +56,24 @@ const MainLayout = ({ children }: any) => {
     chatId,
     searchUserModel,
     setSearchUserModel,
-    sendRequests,
     serverChat,
     setServerChat,
     currentHost,
     setCurrentHost,
-    logoutLoading,
     setLogoutLoading,
+    friends,
+    pendingRequests,
+    sendRequests,
+    language,
+    setLanguage,
   } = useContext(ServerDataContext);
 
-  const { chatMessageSocket, setChatMessageSocket, serverChatMessageSocket } =
-    useContext(SocketTransferData);
+  const {
+    chatMessageSocket,
+    setChatMessageSocket,
+    serverChatMessageSocket,
+    requestSocket,
+  } = useContext(SocketTransferData);
 
   const chatSocket = useRef<any>(null);
   const serverSocket = useRef<any>(null);
@@ -111,21 +114,6 @@ const MainLayout = ({ children }: any) => {
     }
   }, [query && router.isReady]);
 
-  const setFriendsData = (friendsData: any) => {
-    const acceptedFriends = friendsData.filter(
-      (friend: any) => friend.isAccept === true
-    );
-    const pendingFriends = friendsData.filter(
-      (friend: any) => friend.isAccept === false && friend.isReq === false
-    );
-    const sentFriends = friendsData.filter(
-      (friend: any) => friend.isAccept === false && friend.isReq === true
-    );
-    setFriends(acceptedFriends);
-    setSendRequests(sentFriends);
-    setPendingRequests(pendingFriends);
-  };
-
   const getServerDataById = async (id: string) => {
     const { data } = await getServerDetailsById(id);
     if (data) {
@@ -139,6 +127,45 @@ const MainLayout = ({ children }: any) => {
     if (data) {
       setSideBarServers(data);
       setCall(false);
+    }
+  };
+
+  const setFriendsData = (friendsData: any) => {
+    const acceptedFriends = friendsData.filter(
+      (friend: any) => friend.isAccept === true
+    );
+    const pendingFriends = friendsData.filter(
+      (friend: any) => friend.isAccept === false && friend.isReq === false
+    );
+    const sentFriends = friendsData.filter(
+      (friend: any) => friend.isAccept === false && friend.isReq === true
+    );
+
+    console.log(acceptedFriends, pendingFriends, sentFriends);
+
+    if (acceptedFriends.length > 0) {
+      if (friends.length === 0) {
+        setFriends(acceptedFriends);
+      } else {
+        const newFriends = [...friends, ...acceptedFriends];
+        setFriends(newFriends);
+      }
+    }
+    if (pendingFriends.length > 0) {
+      if (pendingRequests.length === 0) {
+        setSendRequests(sentFriends);
+      } else {
+        const newPendingFriends = [...pendingRequests, ...pendingFriends];
+        setPendingRequests(newPendingFriends);
+      }
+    }
+    if (sentFriends.length > 0) {
+      if (sendRequests.length === 0) {
+        setPendingRequests(pendingFriends);
+      } else {
+        const newSentFriends = [...sendRequests, ...sentFriends];
+        setSendRequests(newSentFriends);
+      }
     }
   };
 
@@ -160,11 +187,12 @@ const MainLayout = ({ children }: any) => {
         setLoading(false);
       }
     } else {
+      const data = await logout();
+      router.push("/");
       setLoading(false);
       setUserData([]);
       console.log(data);
       toast.error("Something went wrong Please login again");
-      await logout();
     }
   };
 
@@ -173,7 +201,7 @@ const MainLayout = ({ children }: any) => {
       setLogoutLoading(true);
       const data = await logout();
       if (data.message) {
-        router.push("/");
+        router.push("/?login");
         msg === "" ? toast.success(data.message) : toast.success(msg);
         setUserData([]);
         setChats([]);
@@ -195,26 +223,19 @@ const MainLayout = ({ children }: any) => {
   };
 
   React.useEffect(() => {
-    console.log(friends);
-  }, [friends]);
-
-  React.useEffect(() => {
-    console.log(pendingRequests);
-  }, [pendingRequests]);
-
-  React.useEffect(() => {
-    console.log(sendRequests);
-  }, [sendRequests]);
-
-  React.useEffect(() => {
     const init = async () => {
       const isTokenVerify = await isToken();
       if (handleRoutes.includes(router.pathname) && isTokenVerify) {
         setLoading(true);
         getUserData();
-        chatSocket.current = io("wss://chat-codepark-socket.glitch.me");
+
+        chatSocket.current = io("wss://chat-coders-park-socket.glitch.me");
 
         chatSocket.current.on("login", (data: any) => {
+          console.log(data);
+        });
+
+        chatSocket.current.on("logout", (data: any) => {
           console.log(data);
         });
 
@@ -224,17 +245,19 @@ const MainLayout = ({ children }: any) => {
         });
         chatSocket.current?.on("getRequest", (data: any) => {
           const { data: ret } = data;
+          setFriendsData([ret]);
         });
 
         serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
+
         serverSocket.current?.on("roomUsers", (data: any) => {
           console.log(data);
-          if (isCodeSync) {
-            serverSocket.current?.emit("syncCode", editorData);
-          }
+          serverSocket.current?.emit("syncCode", editorData);
           serverSocket.current?.on("syncCode", (data: any) => {
-            setEditorData(data);
-            isCodeSync = true;
+            if (!isCodeSync) {
+              setEditorData(data);
+              setIsCodeSync(true);
+            }
           });
         });
 
@@ -246,6 +269,11 @@ const MainLayout = ({ children }: any) => {
         serverSocket.current?.on("shareInput", (data: any) => {
           console.log(data);
           setInput(data);
+        });
+
+        serverSocket.current?.on("shareLanguage", (data: any) => {
+          console.log(data);
+          setLanguage(data);
         });
 
         serverSocket.current?.on("changeHost", (data: any) => {
@@ -301,6 +329,7 @@ const MainLayout = ({ children }: any) => {
         setServersData(data);
         const SID = data.serverId;
         setCurrentHost(data?.currentHost);
+        console.log(SID, userData.id, userData.username);
         serverSocket.current?.emit("joinRoom", {
           serverId: SID,
           id: userData.id,
@@ -428,6 +457,16 @@ const MainLayout = ({ children }: any) => {
     });
   }, [currentHost]);
 
+  React.useEffect(() => {
+    if (requestSocket.length !== 0) {
+      chatSocket.current?.emit("sendRequest", requestSocket);
+    }
+  }, [requestSocket]);
+
+  React.useEffect(() => {
+    serverSocket.current?.emit("shareLanguage", language);
+  }, [language]);
+
   const LoadingFunction = () => {
     return (
       <div className="flex justify-center items-center h-full w-full relative bg-black4">
@@ -441,7 +480,7 @@ const MainLayout = ({ children }: any) => {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <main
-        className={` bg-white flex w-screen h-screen ${
+        className={` bg-white overflow-y-hidden flex w-screen h-screen ${
           !handleRoutes.includes(router.pathname)
             ? "flex-col gap-4"
             : "flex-row"

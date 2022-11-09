@@ -71,9 +71,10 @@ const ServerHolder = () => {
 
   const { userData } = useContext(UserDataContext);
 
+  
   const [serverId, setServerId] = useState("");
   const [members, setMembers] = useState([]);
-  const [showProfile, setShowProfile] = useState(false);
+  const [showProfile, setShowProfile] = useState("");
 
   useEffect(() => {
     setMembers(serversData.members);
@@ -90,7 +91,11 @@ const ServerHolder = () => {
   }, [serversData]);
 
   const handleProfile = (member: any) => {
-    setShowProfile(!showProfile);
+    if (showProfile !== member) {
+      setShowProfile(member);
+    } else {
+      setShowProfile("");
+    }
   };
 
   return (
@@ -199,36 +204,62 @@ const ServerHolder = () => {
                 <span className=" text-white uppercase">Members</span>
                 <span className="text-white ">{members?.length}</span>
               </div>
-              <div className="flex gap-4 items-center w-full flex-col">
+              <div className="flex gap-4 items-center w-full flex-col overflow-auto">
                 {members?.map((member: any) => (
                   <div
                     key={member?.userId}
-                    onClick={() => handleProfile(member)}
-                    className="w-full h-12 rounded-xl pl-4 items-center justify-start gap-4 flex bg-black2 relative"
+                    className="w-full h-fit rounded-xl pl-4 items-center justify-start gap-4 flex bg-black2 relative flex-col"
                   >
-                    <div className="h-10 w-10 p-1">
-                      <Avatar
-                        name={member?.userName}
-                        round={true}
-                        size="50"
-                        className="w-full h-full"
-                        src={member?.userAvatar}
-                      />
-                    </div>
-                    <span
-                      className={`uppercase ${
-                        member?.userId === userData?.id
-                          ? "text-white"
-                          : "text-inherit"
-                      } `}
+                    <div
+                      className="w-full h-12 flex justify-start items-center gap-4"
+                      onClick={() => handleProfile(member?.userId)}
                     >
-                      {member?.userName}
-                    </span>
-
-                    {currentHost === member?.userId && (
-                      <span className="absolute right-4 text-green-500">
-                        Host
+                      <div className="h-10 w-10 p-1">
+                        <Avatar
+                          name={member?.userName}
+                          round={true}
+                          size="50"
+                          className="w-full h-full"
+                          src={member?.userAvatar}
+                        />
+                      </div>
+                      <span
+                        className={`uppercase ${
+                          member?.userId === userData?.id
+                            ? "text-white"
+                            : "text-inherit"
+                        } `}
+                      >
+                        {member?.userName}
                       </span>
+
+                      {currentHost === member?.userId && (
+                        <span className="absolute right-4 text-green-500">
+                          Host
+                        </span>
+                      )}
+                    </div>
+                    {showProfile === member?.userId && (
+                      <div className="h-fit w-full">
+                        <div className="flex gap-4 items-center justify-center w-full flex-col pb-4">
+                          <div className="h-[80%] w-[70%] rounded-2xl p-2 bg-black1 flex justify-center items-center">
+                            Profile
+                          </div>
+                          {currentHost === userData?.id &&
+                            userData?.id !== showProfile && (
+                              <div className="h-[80%] w-[70%] rounded-2xl p-2 bg-black1 flex justify-center items-center">
+                                Make Host
+                              </div>
+                            )}
+
+                          {userData?.id === serversData.Owner &&
+                            userData?.id !== showProfile && (
+                              <div className="h-[80%] w-[70%] rounded-2xl p-2 bg-black1 flex justify-center items-center text-red-500">
+                                Kick
+                              </div>
+                            )}
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}

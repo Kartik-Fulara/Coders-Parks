@@ -38,8 +38,8 @@ const SetUserName = ({ setUsername }: any) => {
     const data = await logout();
     if (data.message) {
       router.push("/?login");
-      toast.success("Verify yourself to continue");
       setUsername(false);
+      toast.success("Verify yourself to continue");
     }
   };
 
@@ -47,11 +47,12 @@ const SetUserName = ({ setUsername }: any) => {
     event.preventDefault();
     const init = async () => {
       const { data: changeUsername } = await changeUserName(userName);
-      console.log(changeUsername);
-      handleLogout();
+      if (changeUsername) {
+        setUserName("");
+        handleLogout();
+      }
     };
     init();
-    setUserName("");
   };
 
   return (

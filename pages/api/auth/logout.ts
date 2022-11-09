@@ -27,6 +27,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     });
     res.status(200).json({ message: "Logout the user" });
   } catch (err: any) {
-    res.send({ status: "error" });
+    const error = err.response.data;
+    res.send({ status: "error", error: error });
   }
 };

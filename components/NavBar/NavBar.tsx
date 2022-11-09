@@ -11,6 +11,7 @@ absolute
 top-0
 flex
 w-full
+overflow-hidden
 h-[8rem]
 bg-transparent
 z-50
@@ -41,9 +42,9 @@ const NavBar = ({
   };
 
   const ImageHolder = tw.div`
-
+    cursor-pointer
     relative
-    h-[5rem]
+    h-[6rem]
     w-[20rem]
     rounded-lg
     overflow-hidden
@@ -53,24 +54,25 @@ const NavBar = ({
   return (
     //@ts-ignore
     <Navbar>
-      <section className="w-full justify-between items-center h-full flex px-10 gap-10">
+      <section className="w-full justify-between items-center h-full flex px-5 gap-10">
         <div className="flex items-center justify-center gap-4">
-          <ImageHolder>
-            <Image
-              src="/Asserts/Coders.png"
-              alt="Ghost Gate Way"
-              height={800}
-              width={800}
-            />
+          {/* @ts-ignore */}
+          <ImageHolder
+            onClick={() => {
+              router.push("/");
+              handleClose();
+            }}
+          >
+            <Image src="/Asserts/Coders.png" alt="Ghost Gate Way" fill={true} />
           </ImageHolder>
           <span
-            className="text-white font-bold text-2xl"
+            className="text-white font-bold text-2xl cursor-pointer"
             onClick={handleLoginClick}
           >
             Login
           </span>
           <span
-            className="text-white text-center font-bold bg-green-500 h-15 w-44 px-2 pt-1 pb-2   text-2xl"
+            className="text-white text-center font-bold bg-green-500 h-15 w-44 px-2 pt-1 pb-2   text-2xl cursor-pointer"
             onClick={handleRegisterClick}
           >
             Register
@@ -78,7 +80,7 @@ const NavBar = ({
         </div>
         {open && (
           <div
-            className="flex justify-center items-center h-8 w-8 text-white"
+            className="flex justify-center items-center h-8 w-8 text-white cursor-pointer"
             onClick={handleClose}
           >
             <CloseIcon />

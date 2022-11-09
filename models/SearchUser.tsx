@@ -6,7 +6,11 @@ import { startChat } from "../libs/chats";
 
 import { queryUserByUserName, addFriends } from "../libs/chats";
 import toast from "react-hot-toast";
-import { ServerDataContext } from "../Context/ContextProvide";
+import {
+  UserDataContext,
+  ServerDataContext,
+  SocketTransferData,
+} from "../Context/ContextProvide";
 
 const SearchUserComponent = tw.section`
     absolute
@@ -34,9 +38,33 @@ const SearchUserWrapper = tw.div`
 const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const [userName, setUserName] = React.useState<string>("");
   const [canSendMessage, setCanSendMessage] = React.useState<boolean>(true);
-  const { chats, setChats } = React.useContext(ServerDataContext);
-
+  const [canSendReq, setCanSendReq] = React.useState<boolean>(true);
+  const {
+    chats,
+    setChats,
+    setFriends,
+    setSendRequests,
+    setPendingRequests,
+    sendRequests,
+  } = React.useContext(ServerDataContext);
+  const { userData } = React.useContext(UserDataContext);
+  const { setRequestSocket } = React.useContext(SocketTransferData);
   const [user, setUser] = React.useState<any>(null);
+
+  const setFriendsData = (friendsData: any) => {
+    const acceptedFriends = friendsData.filter(
+      (friend: any) => friend.isAccept === true
+    );
+    const pendingFriends = friendsData.filter(
+      (friend: any) => friend.isAccept === false && friend.isReq === false
+    );
+    const sentFriends = friendsData.filter(
+      (friend: any) => friend.isAccept === false && friend.isReq === true
+    );
+    setFriends(acceptedFriends);
+    setSendRequests(sentFriends);
+    setPendingRequests(pendingFriends);
+  };
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
@@ -44,13 +72,29 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
       const { data } = await queryUserByUserName(userName);
 
       if (data?.data.data !== undefined) {
-        if (
-          chats?.find((chat: any) => chat?.user?.id === data?.data.data?.id)
-        ) {
+        const { data: searchUserData } = data.data;
+        const isAlreadyInChat = chats?.find(
+          (chat: any) => chat?.user?.id === searchUserData?.id
+        );
+        const reqData = sendRequests?.filter(
+          (req: any) => req.friend === searchUserData?.id
+        );
+        if (searchUserData?.id !== userData?.id) {
+          if (isAlreadyInChat !== undefined && isAlreadyInChat.length > 0) {
+            setCanSendMessage(false);
+          } else {
+            setCanSendMessage(true);
+          }
+          if (reqData !== undefined && reqData.length > 0) {
+            setCanSendReq(false);
+          } else {
+            setCanSendReq(true);
+          }
+        } else {
           setCanSendMessage(false);
-          toast.error("User already in your chats");
+          setCanSendReq(false);
         }
-        setUser({ ...data?.data.data });
+        setUser({ ...searchUserData });
       } else {
         setUser("");
       }
@@ -75,8 +119,14 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     const init = async () => {
       const { data } = await addFriends(id);
       console.log(data);
-      // setSendReq(true);
-      toast.success("Friend Request Sent");
+      const { message, friendData, myData }: any = data;
+      if (message === "Friend added") {
+        toast.success("Friend Request Sent");
+        setFriendsData([friendData]);
+        setRequestSocket(myData);
+      } else {
+        toast.error("Request Not Send Try Again");
+      }
     };
     init();
   };
@@ -131,14 +181,16 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                     Say Hi
                   </button>
                 )}
-                <button
-                  aria-label="Add Friends"
-                  type="button"
-                  onClick={() => handleAddFriends(user?.id)}
-                  className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
-                >
-                  <AddFriends />
-                </button>
+                {canSendReq && (
+                  <button
+                    aria-label="Add Friends"
+                    type="button"
+                    onClick={() => handleAddFriends(user?.id)}
+                    className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
+                  >
+                    <AddFriends />
+                  </button>
+                )}
               </div>
             </div>
           ) : (

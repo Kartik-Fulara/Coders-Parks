@@ -10,8 +10,7 @@ const Container = tw.main`
     justify-start
     h-screen
     w-full
-    relative
-    
+    relative    
     bg-black
     text-white
 `;
@@ -21,7 +20,6 @@ const Wrapper = tw.section`
     flex-col
     lg:flex-row
     items-center
-    p-6
     justify-evenly
     h-screen
     w-full
@@ -30,18 +28,16 @@ const Wrapper = tw.section`
 `;
 
 const AuthContainer = tw.div`
-
     flex
     flex-col
     items-center
-    justify-center
+    justify-start
     gap-6
     h-[40rem]
-    w-[40rem]
+    w-[60%]
+    lg:w-[40rem]
     rounded-xl
     shadow-xl
-    p-4
-
 `;
 
 const Codersgateway = ({ login, handleLogin }: any) => {

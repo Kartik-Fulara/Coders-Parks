@@ -34,7 +34,17 @@ const Login = ({ handleLogin }: any) => {
         router.push("/app/friends");
         toast.success("Login successful");
       } else if (data.status === "error") {
-        toast.error(data.message);
+        const { email, name, password } = data.message;
+        if (email !== "" && password !== "") {
+          toast.error("Email or password is incorrect");
+        } else if (email !== "") {
+          toast.error(email);
+        } else if (password !== "") {
+          toast.error(password);
+        } else if (name !== "") {
+          toast.error(name);
+        }
+
         setIsLogin(false);
       }
     } catch (error: any) {
@@ -60,12 +70,12 @@ const Login = ({ handleLogin }: any) => {
           type="email"
           name="email"
           placeholder="Email"
-          className="p-4 bg-transparent outline-none border-white rounded-lg w-[90%] lg:w-[30rem] shadow-xl border-2"
+          className="p-4 bg-transparent outline-none border-white rounded-lg w-full shadow-xl border-2"
           onChange={(e: any) =>
             setLoginProps({ ...loginProps, email: e.target.value })
           }
         />
-        <div className="flex justify-center items-center gap-2 p-4 bg-transparent outline-none border-white rounded-lg w-[90%] lg:w-[30rem] shadow-xl border-2">
+        <div className="flex justify-center items-center gap-2 p-4 bg-transparent outline-none border-white rounded-lg w-full shadow-xl border-2">
           <input
             type={!show ? "password" : "text"}
             placeholder="Password"
@@ -85,20 +95,20 @@ const Login = ({ handleLogin }: any) => {
           )}
         </div>
         {isLogin ? (
-          <div>
-            <button
-              type="button"
-              disabled
-              className="p-4  bg-blue-500 flex justify-center items-center gap-4 rounded-2xl w-[30rem] shadow-xl"
-            >
+          <button
+            type="button"
+            disabled
+            className="p-4 bg-blue-700 rounded-2xl w-full shadow-xl justify-center items-center text-center flex gap-4"
+          >
+            <span className="h-6 w-6">
               <LoadingIcon />
-              <span className="text-white">Loading...</span>
-            </button>
-          </div>
+            </span>
+            <span className="text-white">Loading...</span>
+          </button>
         ) : (
           <button
             type="submit"
-            className="p-4 bg-blue-500 rounded-2xl w-[30rem] shadow-xl justify-center items-center text-center"
+            className="p-4 bg-blue-500 rounded-2xl w-full shadow-xl justify-center items-center text-center flex"
           >
             Login
           </button>

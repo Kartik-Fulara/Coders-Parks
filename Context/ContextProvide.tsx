@@ -27,13 +27,17 @@ const ContextProvider = ({ children }: any) => {
   const [openConsole, setOpenConsole] = React.useState<any>(false);
   const [input, setInput] = React.useState<any>("");
   const [output, setOutput] = React.useState<any>("");
-  const [chatMessageSocket, setChatMessageSocket] = React.useState<any>([]);
-  const [serverChatMessageSocket, setServerChatMessageSocket] =
-    React.useState<any>([]);
   const [searchUserModel, setSearchUserModel] = React.useState(false);
   const [selectedServerId, setSelectedServerId] = React.useState<any>("");
   const [logoutLoading, setLogoutLoading] = React.useState<any>(false);
   const [openHolder, setOpenHolder] = React.useState<any>(false);
+  const [openProfileSettings, setOpenProfileSettings] =
+    React.useState<any>(false);
+
+  const [chatMessageSocket, setChatMessageSocket] = React.useState<any>([]);
+  const [serverChatMessageSocket, setServerChatMessageSocket] =
+    React.useState<any>([]);
+  const [requestSocket, setRequestSocket] = React.useState<any>([]);
 
   return (
     <UserDataContext.Provider
@@ -81,6 +85,8 @@ const ContextProvider = ({ children }: any) => {
           setCurrentHost,
           logoutLoading,
           setLogoutLoading,
+          openProfileSettings,
+          setOpenProfileSettings,
         }}
       >
         <SocketTransferData.Provider
@@ -89,6 +95,8 @@ const ContextProvider = ({ children }: any) => {
             setChatMessageSocket,
             serverChatMessageSocket,
             setServerChatMessageSocket,
+            requestSocket,
+            setRequestSocket,
           }}
         >
           {children}

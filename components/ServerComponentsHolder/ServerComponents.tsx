@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useRef } from "react";
 import ChannelHolder from "../Holders/ChannelHolder";
-import { ServerDataContext } from "../../Context/ContextProvide";
+import {
+  ServerDataContext,
+  UserDataContext,
+} from "../../Context/ContextProvide";
 
 import tw from "tailwind-styled-components";
 import CodeComponent from "../Holders/details-servers-holders/CodeComponent";
 import ChatComponents from "../Holders/details-servers-holders/ChatComponents";
-
 
 import DropDown from "../Elements/DropDown";
 import { runCode } from "../../libs/server";
@@ -67,7 +69,11 @@ const language_id = [
 
 const ServerComponents = () => {
   const [loading, setLoading] = React.useState(true);
+
+  const { userData } = useContext(UserDataContext);
+
   const {
+    currentHost,
     serversData,
     openConsole,
     setOpenConsole,
@@ -157,11 +163,17 @@ const ServerComponents = () => {
             <Containers>
               <NavBar>
                 <div className="w-48 h-[80%]">
-                  <DropDown
-                    options={languageOption}
-                    onValue={languageOnValue}
-                    setFunc={setLanguage}
-                  />
+                  {currentHost === userData?.id ? (
+                    <DropDown
+                      options={languageOption}
+                      onValue={languageOnValue}
+                      setFunc={setLanguage}
+                    />
+                  ) : (
+                    <div className="cursor-pointer h-full w-full bg-black1 text-center flex justify-center items-center pb-1 rounded-md uppercase">
+                      {language}
+                    </div>
+                  )}
                 </div>
                 <div
                   className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
@@ -169,15 +181,17 @@ const ServerComponents = () => {
                 >
                   {openConsole ? "close" : "open"} Terminal
                 </div>
-                <div>
-                  <button
-                    type="button"
-                    className="cursor-pointer h-[80%] w-36 bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
-                    onClick={() => getOutput()}
-                  >
-                    Run
-                  </button>
-                </div>
+                {currentHost === userData?.id && (
+                  <div className="h-[80%] w-36">
+                    <button
+                      type="button"
+                      className="cursor-pointer h-full w-full bg-black1 text-center flex justify-center items-center pb-1 rounded-xl uppercase"
+                      onClick={() => getOutput()}
+                    >
+                      Run
+                    </button>
+                  </div>
+                )}
               </NavBar>
               <TabsComponent>
                 <section className="flex h-full w-full flex-col">

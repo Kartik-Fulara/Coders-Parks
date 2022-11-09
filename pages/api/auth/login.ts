@@ -20,21 +20,21 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     const data = await response.json();
 
-    // save to httpOnly cookies to prevent XSS attacks and CSRF attacks (CSRF attacks are not possible because we are using the same domain) and prevent access from the client side (document.cookie)
-    res.setHeader(
-      "Set-Cookie",
-      `token=${data.token}; path=/; expires=${new Date(
-        Date.now() + 1000 * 60 * 60 * 24 * 7
-      ).toUTCString()}; HttpOnly`
-    ); // 7 days
-
     if (response.ok) {
+      // save to httpOnly cookies to prevent XSS attacks and CSRF attacks (CSRF attacks are not possible because we are using the same domain) and prevent access from the client side (document.cookie)
+      res.setHeader(
+        "Set-Cookie",
+        `token=${data.token}; path=/; expires=${new Date(
+          Date.now() + 1000 * 60 * 60 * 24 * 7
+        ).toUTCString()}; HttpOnly`
+      ); // 7 days
+
       res.send({ status: "ok" });
     } else {
-      res.send({ status: "error", message: data.message });
+      res.send({ status: "error", message: data });
     }
   } catch (err: any) {
     console.log(err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err });
   }
 };
