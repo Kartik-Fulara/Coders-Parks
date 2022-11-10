@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext } from "react";
 import tw from "tailwind-styled-components";
-
+import { ChatIcon, CloseCircle, CloseIcon, Menu } from "../../Icons/Icons";
 import { useRouter } from "next/router";
 import { ServerDataContext } from "../../Context/ContextProvide";
 
@@ -90,14 +90,37 @@ const FriendsBtn = tw.div`
     hover:bg-black1
 `;
 
+const IconsHolders = tw.div`
+    flex
+    justify-center
+    relative
+    items-center
+    w-[80%]
+    
+    h-[3rem]
+    pl-[0.05rem]
+    rounded-3xl 
+    hover:rounded-xl  
+    ml-2
+    bg-green-500
+    text-white
+    transition-all
+    duration-300
+    ease-linear
+    cursor-pointer
+    group
+`;
+
 const FriendsHolder = () => {
   const router = useRouter();
   const [loading, setLoading] = React.useState(true);
-  const { chats, setChatId, setSearchUserModel, openHolder } =
+  const { chats, setChatId, setSearchUserModel, openHolder, setOpenHolder } =
     useContext(ServerDataContext);
 
-  const [selectedUser, setSelectedUser] = React.useState("friends");
+  const [dms, setDms] = React.useState([]);
 
+  const [selectedUser, setSelectedUser] = React.useState("friends");
+  const [search, setSearch] = React.useState("");
   const [findDms, setFindDms] = React.useState(true);
 
   const handleClick = (user: any, chatId: any) => {
@@ -129,11 +152,28 @@ const FriendsHolder = () => {
       setLoading(true);
     } else {
       setLoading(false);
+      setDms(chats);
     }
   }, [chats]);
 
+  useEffect(() => {
+    if (search === "") {
+      setDms(chats);
+    } else {
+      const filteredDms = chats.filter((dm: any) => {
+        return dm.users.username.toLowerCase().includes(search.toLowerCase());
+      });
+      console.log(filteredDms);
+      setDms(chats);
+    }
+  }, [search]);
+
   return (
-    <>
+    <div
+      className={`h-screen w-screen lg:w-fit flex justify-between items-center lg:bg-transparent xl:relative absolute
+    ${openHolder ? "bg-[rgba(0,0,0,0.5)] " : "bg-transparent"}
+    `}
+    >
       {/* @ts-ignore */}
       <FriendsHolderComponent $Open={openHolder}>
         <FriendsHolderWrapper>
@@ -151,6 +191,7 @@ const FriendsHolder = () => {
                   type="text"
                   placeholder="Search a Direct Message"
                   className="bg-transparent w-full h-full text-white text-opacity-50 text-lg outline-none"
+                  onChange={(e) => setSearch(e.target.value)}
                 />
               </SearchHolder>
             ) : (
@@ -188,7 +229,7 @@ const FriendsHolder = () => {
             <div className="w-full h-[0.1rem] opacity-30 bg-white "></div>
           </div>
           <DirectMessagesHolder>
-            {chats?.map((chat: any) => (
+            {dms?.map((chat: any) => (
               <div
                 key={chat?.chatId}
                 className={`flex gap-4 w-full h-[4rem] rounded-lg cursor-pointer py-2 px-4 justify-center items-center ${
@@ -206,7 +247,23 @@ const FriendsHolder = () => {
           </DirectMessagesHolder>
         </FriendsHolderWrapper>
       </FriendsHolderComponent>
-    </>
+      <div
+        className={`w-full h-full justify-end items-center ${
+          openHolder ? "flex" : "hidden"
+        } `}
+      >
+        <IconsHolders
+          className={`bg-black1 w-10 lg:hidden justify-center items-center mr-2  ${
+            openHolder ? "flex" : "hidden"
+          } `}
+          onClick={() => setOpenHolder(!openHolder)}
+        >
+          <div className="h-10 w-[90%] p-1">
+            {!openHolder ? <Menu /> : <CloseIcon />}
+          </div>
+        </IconsHolders>
+      </div>
+    </div>
   );
 };
 

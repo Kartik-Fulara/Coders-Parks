@@ -16,17 +16,22 @@ interface Props {
 
 const Sidebar = tw.div<Props>`
     gap-2
-    flex
-    
-    flex-col
+    hidden
+    md:flex
+    flex-row
+    md:flex-col
     items-center
     justify-between
-    h-screen
+    md:h-screen
+    absolute
+    bottom-0
+    left-0
     w-[var(--global-sidebar-width)]
     min-w-[var(--global-sidebar-width)]
-    relative
+    md:relative
     xl:bg-black4
     bg-black3
+
 
     text-white
     py-2
@@ -35,7 +40,8 @@ const Sidebar = tw.div<Props>`
 
 const SidebarTop = tw.div`
 flex
-flex-col
+flex-row
+md:flex-col
 items-center
 justify-start
 w-full
@@ -47,7 +53,8 @@ gap-4
 const SidebarBottom = tw.div`
   flex
   w-full
-  flex-col
+  flex-row
+  md:flex-col
   relative
   justify-center
   items-center
@@ -62,6 +69,7 @@ const IconsHolders = tw.div`
     relative
     items-center
     w-[80%]
+    
     h-[3rem]
     pl-[0.05rem]
     rounded-3xl 
@@ -103,7 +111,7 @@ const SidebarTooltip = tw.span`
 const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   const [focus, setFocus] = useState("0");
   const [canCreateServer, setCanCreateServer] = useState(true);
-  
+
   const {
     sideBarServers,
     setSelectedServerId,
@@ -137,6 +145,16 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
       {/* @ts-ignore*/}
       <Sidebar $Open={openHolder}>
         <SidebarTop>
+          <div className="flex md:hidden gap-2">
+            <IconsHolders
+              className="bg-black1 md:hidden justify-center items-center ml-3"
+              onClick={() => setOpenHolder(!openHolder)}
+            >
+              <div className="h-10 w-[90%] p-1">
+                {!openHolder ? <Menu /> : <CloseIcon />}
+              </div>
+            </IconsHolders>
+          </div>
           <div
             key={"0"}
             onClick={() => setFocus("0")}
@@ -149,7 +167,7 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
                 } overflow-hidden hover:rounded-xl gap-2 flex justify-center items-center h-fit relative group`}
               >
                 <div
-                  className={`absolute  left-0 bg-white w-1  group-hover:h-[80%] ${
+                  className={`absolute  left-0 bg-white w-1 md:flex group-hover:h-[80%] hidden ${
                     focus === "0" ? "h-[80%]" : "h-[30%]"
                   } transition-all `}
                 ></div>
@@ -221,7 +239,7 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
         <SidebarBottom>
           {/* @ts-ignore */}
           <IconsHolders
-            className="bg-black1  justify-center items-center ml-3 xl:hidden"
+            className="bg-black1  hidden md:flex justify-center items-center ml-3 xl:hidden"
             onClick={() => setOpenHolder(!openHolder)}
           >
             <div className="h-10 w-[90%] p-1">

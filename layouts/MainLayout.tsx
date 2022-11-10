@@ -20,6 +20,7 @@ import {
 import { io } from "socket.io-client";
 import SearchUser from "../models/SearchUser";
 import { isToken } from "../libs/isToken";
+import BottomBar from "../components/BottomBar/BottomBar";
 
 const handleRoutes = ["/app/friends", "/app/channel/c", "/app/profile"];
 
@@ -131,6 +132,7 @@ const MainLayout = ({ children }: any) => {
   };
 
   const setFriendsData = (friendsData: any) => {
+    // console.log(friendsData);
     const acceptedFriends = friendsData.filter(
       (friend: any) => friend.isAccept === true
     );
@@ -141,9 +143,11 @@ const MainLayout = ({ children }: any) => {
       (friend: any) => friend.isAccept === false && friend.isReq === true
     );
 
-    console.log(acceptedFriends, pendingFriends, sentFriends);
+    // console.log(acceptedFriends, pendingFriends, sentFriends);
 
-    if (acceptedFriends.length > 0) {
+    if (acceptedFriends.length !== 0) {
+      // console.log("Accepted Req");
+
       if (friends.length === 0) {
         setFriends(acceptedFriends);
       } else {
@@ -151,17 +155,20 @@ const MainLayout = ({ children }: any) => {
         setFriends(newFriends);
       }
     }
-    if (pendingFriends.length > 0) {
+    if (pendingFriends.length !== 0) {
+      // console.log("Pending Req");
       if (pendingRequests.length === 0) {
-        setSendRequests(sentFriends);
+        setPendingRequests(pendingFriends);
       } else {
         const newPendingFriends = [...pendingRequests, ...pendingFriends];
         setPendingRequests(newPendingFriends);
       }
     }
-    if (sentFriends.length > 0) {
+    if (sentFriends.length !== 0) {
+      // console.log("Send Req");
+      // console.log(sendRequests);
       if (sendRequests.length === 0) {
-        setPendingRequests(pendingFriends);
+        setSendRequests(sentFriends);
       } else {
         const newSentFriends = [...sendRequests, ...sentFriends];
         setSendRequests(newSentFriends);
@@ -172,11 +179,11 @@ const MainLayout = ({ children }: any) => {
   const getUserData = async () => {
     setLoadingText("fetching user details");
     const { data }: any = await userDetails();
-    console.log(data);
+
     if (data?.status === "Ok") {
       const { email, name, username, id, uid, chats, friends, servers } =
         data.data;
-      // console.log(data.data);
+
       setUserData({ email, name, username, id, uid });
       if (username.length <= 20) {
         setSideBarServers(servers);
@@ -191,7 +198,7 @@ const MainLayout = ({ children }: any) => {
       router.push("/");
       setLoading(false);
       setUserData([]);
-      console.log(data);
+
       toast.error("Something went wrong Please login again");
     }
   };
@@ -232,11 +239,11 @@ const MainLayout = ({ children }: any) => {
         chatSocket.current = io("wss://chat-coders-park-socket.glitch.me");
 
         chatSocket.current.on("login", (data: any) => {
-          console.log(data);
+          // console.log(data);
         });
 
         chatSocket.current.on("logout", (data: any) => {
-          console.log(data);
+          // console.log(data);
         });
 
         chatSocket.current?.on("getMessage", (data: any) => {
@@ -244,14 +251,17 @@ const MainLayout = ({ children }: any) => {
           setRecieveChart(transferData);
         });
         chatSocket.current?.on("getRequest", (data: any) => {
-          const { data: ret } = data;
-          setFriendsData([ret]);
+          const { reqData: ret } = data;
+          console.log(ret);
+          if (ret !== undefined) {
+            setFriendsData([ret]);
+          }
         });
 
         serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
 
         serverSocket.current?.on("roomUsers", (data: any) => {
-          console.log(data);
+          // console.log(data);
           serverSocket.current?.emit("syncCode", editorData);
           serverSocket.current?.on("syncCode", (data: any) => {
             if (!isCodeSync) {
@@ -262,17 +272,17 @@ const MainLayout = ({ children }: any) => {
         });
 
         serverSocket.current?.on("shareOutput", (data: any) => {
-          console.log(data);
+          // console.log(data);
           setOutput(data);
         });
 
         serverSocket.current?.on("shareInput", (data: any) => {
-          console.log(data);
+          // console.log(data);
           setInput(data);
         });
 
         serverSocket.current?.on("shareLanguage", (data: any) => {
-          console.log(data);
+          // console.log(data);
           setLanguage(data);
         });
 
@@ -282,10 +292,10 @@ const MainLayout = ({ children }: any) => {
 
         serverSocket.current?.on("codeShare", (data: any) => {
           if (userData?.id !== currentHost) {
-            console.log(data);
+            // console.log(data);
             setEditorData(data);
           } else {
-            console.log(data);
+            // console.log(data);
           }
         });
 
@@ -329,7 +339,7 @@ const MainLayout = ({ children }: any) => {
         setServersData(data);
         const SID = data.serverId;
         setCurrentHost(data?.currentHost);
-        console.log(SID, userData.id, userData.username);
+        // console.log(SID, userData.id, userData.username);
         serverSocket.current?.emit("joinRoom", {
           serverId: SID,
           id: userData.id,
@@ -426,7 +436,7 @@ const MainLayout = ({ children }: any) => {
       if (userData?.id === currentHost) {
         serverSocket.current?.emit("codeShare", editorData);
       } else {
-        console.log(editorData);
+        // console.log(editorData);
       }
     }, 1000);
 
@@ -467,6 +477,14 @@ const MainLayout = ({ children }: any) => {
     serverSocket.current?.emit("shareLanguage", language);
   }, [language]);
 
+  React.useEffect(() => {
+    console.log("send", sendRequests);
+  }, [sendRequests]);
+
+  React.useEffect(() => {
+    console.log("recieve", pendingRequests);
+  }, [pendingRequests]);
+
   const LoadingFunction = () => {
     return (
       <div className="flex justify-center items-center h-full w-full relative bg-black4">
@@ -480,10 +498,10 @@ const MainLayout = ({ children }: any) => {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <main
-        className={` bg-white overflow-y-hidden flex w-screen h-screen ${
+        className={` bg-white overflow-hidden flex w-screen h-screen ${
           !handleRoutes.includes(router.pathname)
             ? "flex-col gap-4"
-            : "flex-row"
+            : "flex-col md:flex-row"
         }`}
       >
         {loading && router.pathname !== "/" && <LoadingFunction />}
@@ -520,6 +538,10 @@ const MainLayout = ({ children }: any) => {
               <SearchUser handleModelClose={setSearchUserModel} />
             )}
             {userData !== 0 && <>{children}</>}
+            <BottomBar
+              handleModelOpen={handleModelOpen}
+              handleLogOut={handleLogOut}
+            />
           </>
         )}
         {router.pathname === "/" && <>{children}</>}

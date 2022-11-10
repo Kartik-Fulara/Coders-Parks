@@ -24,17 +24,14 @@ const CreateServerModelWrapper = tw.div`
     flex-col
     items-center
     justify-center
-    w-[30rem]
+    w-[80%]
+    md:w-[30rem]
     h-[33rem]
     bg-black4
     text-white
 `;
 
 const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  const [file, setFile] = React.useState<File>();
-
   const { userData } = useContext(UserDataContext);
 
   const [isServer, setIsServer] = React.useState<any>(true);
@@ -79,7 +76,7 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
               aria-label="create a new server"
               className={`${
                 isServer ? `bg-black1 opacity-100` : `opacity-50`
-              }  w-fit p-2 cursor-pointer`}
+              }  w-fit p-2 cursor-pointer rounded-lg`}
               onClick={() => setIsServer(true)}
             >
               Create a Server
@@ -89,7 +86,7 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
               aria-label="join a new server"
               className={`${
                 !isServer ? `bg-black1 opacity-100` : `opacity-50`
-              }  w-fit p-2 cursor-pointer`}
+              }  w-fit p-2 cursor-pointer rounded-lg`}
               onClick={() => setIsServer(false)}
             >
               Join a Server
@@ -102,7 +99,10 @@ const CreateNewServer = ({ handleModelClose, setCall, id }: any) => {
               handleSubmit={handleSubmit}
             />
           ) : (
-            <JOIN_A_NEW_SERVER setCall={setCall}  handleModelClose={handleModelClose} />
+            <JOIN_A_NEW_SERVER
+              setCall={setCall}
+              handleModelClose={handleModelClose}
+            />
           )}
         </div>
       </CreateServerModelWrapper>
@@ -124,33 +124,13 @@ const CREATE_A_NEW_SERVER = ({
     </div>
     <section className="flex w-full flex-col justify-center gap-10 items-center">
       <div className="relative">
-        <Avatar
-          name={serverDetail.name}
-          src={serverDetail.name || "S"}
-          className="cursor-pointer"
-          round={true}
-          size="8rem"
-        />
-        {/* when i will add server image  */}
-        {/* <div className="absolute bottom-3 right-1">
-          <button
-            aria-label="upload image"
-            onClick={() => {
-              fileInputRef.current?.click();
-            }}
-            className="h-10 w-10 flex justify-center items-center rounded-full bg-black1  text-blue-500"
-          >
-            <div className="h-8 w-8">
-              <ImageIcon />
-            </div>
-          </button>
-        </div> */}
+        <Avatar name={serverDetail.name || "S N"} round={true} size="8rem" />
       </div>
 
       <input
         type="text"
         placeholder="Server Name"
-        className="w-[20rem] h-[2.5rem] rounded-md bg-black1 text-white p-2"
+        className=" w-[85%] md:w-[20rem] h-[2.5rem] rounded-md bg-black1 text-white p-2"
         value={serverDetail.name}
         onChange={(e) =>
           setServerDetail({ ...serverDetail, name: e.target.value })
@@ -159,7 +139,7 @@ const CREATE_A_NEW_SERVER = ({
 
       <button
         type="submit"
-        className="w-[20rem] h-[2.5rem] rounded-md bg-blue-500 text-white p-2"
+        className="w-[85%] md:w-[20rem] h-[2.5rem] rounded-md bg-blue-500 text-white p-2"
         onClick={() => handleSubmit()}
       >
         Create Server
@@ -168,7 +148,7 @@ const CREATE_A_NEW_SERVER = ({
   </>
 );
 
-const JOIN_A_NEW_SERVER = ({setCall, handleModelClose}:any) => {
+const JOIN_A_NEW_SERVER = ({ setCall, handleModelClose }: any) => {
   const { userData } = useContext(UserDataContext);
   const [serverId, setServerId] = React.useState<any>(null);
   const [serverDetail, setServerDetail] = React.useState<any>([]);
@@ -216,19 +196,23 @@ const JOIN_A_NEW_SERVER = ({setCall, handleModelClose}:any) => {
     <div className="h-[4rem] w-full flex justify-center items-center flex-col">
       <div className="flex flex-col w-full h-full justify-start items-center gap-6 ">
         <form
-          className="flex w-full justify-center gap-4  items-center"
+          className="flex w-full justify-center gap-4  items-center flex-col md:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
-            serverId!=="" ? fetchServerData() : toast.error("Enter Server Id");
+            serverId !== ""
+              ? fetchServerData()
+              : toast.error("Enter Server Id");
           }}
         >
           <input
             type="text"
             placeholder="Enter Server Link ID"
-            className="h-10 w-[20rem] bg-black1 rounded-lg text-white text-lg font-medium px-4"
+            className="h-10 w-[80%] lg:w-[20rem] bg-black1 rounded-lg text-white text-lg font-medium px-4"
             onChange={(e: any) => setServerId(e.target.value)}
           />
-          <button type="submit">Search</button>
+          <button className="w-[80%] lg:w-[20rem]" type="submit">
+            Search
+          </button>
         </form>
         {serverDetail.length !== 0 ? (
           <div className="flex w-[90%] justify-between p-4 items-center  h-fit bg-black2 rounded-3xl">

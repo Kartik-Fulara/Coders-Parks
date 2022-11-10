@@ -1,6 +1,11 @@
 import React from "react";
 import tw from "tailwind-styled-components";
-import { CloseCircle, SendMessage, AddFriends } from "../Icons/Icons";
+import {
+  CloseCircle,
+  SendMessage,
+  AddFriends,
+  CheckIcon,
+} from "../Icons/Icons";
 import Avatar from "react-avatar";
 import { startChat } from "../libs/chats";
 
@@ -29,8 +34,12 @@ const SearchUserWrapper = tw.div`
     flex-col
     items-center
     justify-center
-    w-[30rem]
-    h-[30rem]
+    w-[80%]
+    h-[25rem]
+    lg:w-[30rem]
+    lg:h-[30rem]
+    xl:w-[50rem]
+    xl:h-[50rem]
     bg-black4
     text-white
 `;
@@ -39,6 +48,10 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const [userName, setUserName] = React.useState<string>("");
   const [canSendMessage, setCanSendMessage] = React.useState<boolean>(true);
   const [canSendReq, setCanSendReq] = React.useState<boolean>(true);
+  const [loading, setLoading] = React.useState<any>({
+    chat: false,
+    friend: false,
+  });
   const {
     chats,
     setChats,
@@ -46,10 +59,13 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     setSendRequests,
     setPendingRequests,
     sendRequests,
+    pendingRequests,
+    friends,
   } = React.useContext(ServerDataContext);
   const { userData } = React.useContext(UserDataContext);
   const { setRequestSocket } = React.useContext(SocketTransferData);
   const [user, setUser] = React.useState<any>(null);
+  const [isReq, setIsReq] = React.useState<boolean>(false);
 
   const setFriendsData = (friendsData: any) => {
     const acceptedFriends = friendsData.filter(
@@ -61,9 +77,31 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     const sentFriends = friendsData.filter(
       (friend: any) => friend.isAccept === false && friend.isReq === true
     );
-    setFriends(acceptedFriends);
-    setSendRequests(sentFriends);
-    setPendingRequests(pendingFriends);
+
+    if (acceptedFriends.length !== 0) {
+      if (friends.length === 0) {
+        setFriends(acceptedFriends);
+      } else {
+        const newFriends = [...friends, ...acceptedFriends];
+        setFriends(newFriends);
+      }
+    }
+    if (pendingFriends.length !== 0) {
+      if (pendingRequests.length === 0) {
+        setPendingRequests(pendingFriends);
+      } else {
+        const newPendingFriends = [...pendingRequests, ...pendingFriends];
+        setPendingRequests(newPendingFriends);
+      }
+    }
+    if (sentFriends.length !== 0) {
+      if (sendRequests.length === 0) {
+        setSendRequests(sentFriends);
+      } else {
+        const newSentFriends = [...sendRequests, ...sentFriends];
+        setSendRequests(newSentFriends);
+      }
+    }
   };
 
   const handleSubmit = (event: any) => {
@@ -73,12 +111,18 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
 
       if (data?.data.data !== undefined) {
         const { data: searchUserData } = data.data;
-        const isAlreadyInChat = chats?.find(
-          (chat: any) => chat?.user?.id === searchUserData?.id
+        console.log(searchUserData);
+        console.log(chats);
+        const isAlreadyInChat = chats?.filter(
+          (chat: any) => chat?.users?.id === searchUserData?.id
         );
-        const reqData = sendRequests?.filter(
+        console.log(isAlreadyInChat);
+        const reqData = [...sendRequests, ...pendingRequests]?.filter(
           (req: any) => req.friend === searchUserData?.id
         );
+
+        console.log(reqData);
+
         if (searchUserData?.id !== userData?.id) {
           if (isAlreadyInChat !== undefined && isAlreadyInChat.length > 0) {
             setCanSendMessage(false);
@@ -87,6 +131,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
           }
           if (reqData !== undefined && reqData.length > 0) {
             setCanSendReq(false);
+            reqData[0].isReq === true ? setIsReq(true) : setIsReq(false);
           } else {
             setCanSendReq(true);
           }
@@ -104,11 +149,14 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   };
 
   const handleStartChat = () => {
+    setLoading({ ...loading, chat: true });
     const init = async () => {
       const { data } = await startChat(user.id);
-
-      const chatData = data.currentChats;
-      setChats([...chats, chatData]);
+      if (data !== undefined) {
+        setLoading({ ...loading, chat: false });
+        const chatData = data.currentChats;
+        setChats([...chats, chatData]);
+      }
 
       handleModelClose();
     };
@@ -116,16 +164,25 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   };
 
   const handleAddFriends = (id: any) => {
+    setLoading({ ...loading, friend: true });
     const init = async () => {
       const { data } = await addFriends(id);
       console.log(data);
       const { message, friendData, myData }: any = data;
+      console.log(friendData);
+      console.log(myData);
       if (message === "Friend added") {
         toast.success("Friend Request Sent");
-        setFriendsData([friendData]);
-        setRequestSocket(myData);
+        setFriendsData([myData]);
+        setRequestSocket({ receiverId: id, reqData: friendData });
+        setLoading({ ...loading, friend: false });
+        canSendReq === true ? setCanSendReq(false) : setCanSendReq(true);
+        canSendReq === false && myData.isReq === true
+          ? setIsReq(true)
+          : setIsReq(false);
       } else {
         toast.error("Request Not Send Try Again");
+        setLoading({ ...loading, friend: false });
       }
     };
     init();
@@ -135,30 +192,35 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     // @ts-ignore
     <SearchUserComponent>
       <SearchUserWrapper>
-        <div
-          className="h-16 w-full flex px-6 mb-4 justify-end items-end cursor-pointer"
-          onClick={() => handleModelClose(false)}
-        >
-          <span className="h-10 w-10">
+        <div className="h-16 w-full flex px-6 mb-4 justify-end items-end">
+          <span
+            className="h-10 w-10  cursor-pointer"
+            onClick={() => handleModelClose(false)}
+          >
             <CloseCircle />
           </span>
         </div>
         <div className="flex flex-col w-full h-full justify-start items-center gap-6 ">
           <form
             onSubmit={handleSubmit}
-            className="flex w-full justify-center gap-4  items-center"
+            className="flex w-full flex-col lg:flex-row justify-center gap-4  items-center"
           >
             <input
               type="text"
               placeholder="Search User"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              className="h-10 w-[20rem] bg-black1 rounded-lg text-white text-lg font-medium px-4"
+              className="h-10 w-[80%] bg-black1 rounded-lg text-white text-lg font-medium px-4"
             />
-            <button type="submit">Search</button>
+            <button
+              type="submit"
+              className="w-[80%] h-fit bg-black2 text-white py-2 pb-3 rounded-3xl cursor-pointer"
+            >
+              Search
+            </button>
           </form>
           {(user !== " " || user !== "") && user ? (
-            <div className="flex w-[90%] justify-between p-4 items-center  h-fit bg-black2 rounded-3xl">
+            <div className="flex flex-col lg:w-row w-[90%] justify-between p-4 items-center  h-fit bg-black2 rounded-3xl gap-4">
               <div className="w-full h-full flex gap-4 items-center justify-start">
                 <Avatar
                   name={user?.username}
@@ -170,7 +232,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                   {user?.username}
                 </span>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-4 justify-center items-center flex-col lg:flex-row">
                 {canSendMessage && (
                   <button
                     aria-label="Start Chat"
@@ -181,15 +243,67 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                     Say Hi
                   </button>
                 )}
-                {canSendReq && (
-                  <button
-                    aria-label="Add Friends"
-                    type="button"
-                    onClick={() => handleAddFriends(user?.id)}
-                    className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
-                  >
-                    <AddFriends />
-                  </button>
+                {canSendReq ? (
+                  <>
+                    {!loading.friend ? (
+                      <button
+                        aria-label="Add Friends"
+                        type="button"
+                        onClick={() => handleAddFriends(user?.id)}
+                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
+                      >
+                        <AddFriends />
+                      </button>
+                    ) : (
+                      <button
+                        aria-label="Add Friends"
+                        type="button"
+                        disabled
+                        onClick={() => handleAddFriends(user?.id)}
+                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
+                      >
+                        {/* loading */}
+
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v1a7 7 0 00-7 7h1z"
+                          ></path>
+                        </svg>
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className=" w-fit py-4 flex justify-center items-center">
+                    {!isReq ? (
+                      <div className="gap-4 flex justify-center items-center rounded-3xl h-full w-fit">
+                        <span className="h-10 w-10  bg-transparent text-green-500 font-bold rounded-3xl">
+                          <CheckIcon />
+                        </span>
+                        <span className="h-10 w-10  bg-transparent text-red-700 font-bold rounded-3xl">
+                          <CloseCircle />
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="bg-transparent text-white font-bold h-full flex items-center justify-center w-fit">
+                        <span className="w-44">Waiting For Accept</span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
