@@ -22,6 +22,9 @@ module.exports = {
         'black3': '#282b30',
         'black4': '#1e2124'
       },
+      screens: {
+        'bml': '896px'
+      },
   },
   plugins: [],
 }

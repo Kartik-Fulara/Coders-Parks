@@ -498,10 +498,10 @@ const MainLayout = ({ children }: any) => {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <main
-        className={` bg-white overflow-hidden flex w-screen h-screen ${
+        className={` bg-white overflow-hidden flex w-screen min-w-screen max-w-screen min-h-screen max-h-screen h-screen ${
           !handleRoutes.includes(router.pathname)
             ? "flex-col gap-4"
-            : "flex-col md:flex-row"
+            : "flex-col bml:flex-row"
         }`}
       >
         {loading && router.pathname !== "/" && <LoadingFunction />}
@@ -538,10 +538,12 @@ const MainLayout = ({ children }: any) => {
               <SearchUser handleModelClose={setSearchUserModel} />
             )}
             {userData !== 0 && <>{children}</>}
-            <BottomBar
-              handleModelOpen={handleModelOpen}
-              handleLogOut={handleLogOut}
-            />
+            <div className="w-full h-fit bml:hidden flex">
+              <BottomBar
+                handleModelOpen={handleModelOpen}
+                handleLogOut={handleLogOut}
+              />
+            </div>
           </>
         )}
         {router.pathname === "/" && <>{children}</>}

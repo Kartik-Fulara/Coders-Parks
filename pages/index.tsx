@@ -5,7 +5,7 @@ import nookies from "nookies";
 const Home: NextPage = () => {
   
   return (
-    <main className="flex min-h-screen bg-black flex-col items-center justify-center py-2">
+    <main className="flex min-h-screen min-w-screen bg-black flex-col items-center justify-center py-2">
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />

@@ -1,7 +1,8 @@
 import React from "react";
 import nookies from "nookies";
-
+import { ServerDataContext } from "../../Context/ContextProvide";
 const index = ({ children }: any) => {
+  const { openHolder, setOpenHolder } = React.useContext(ServerDataContext);
   return (
     <div className="flex w-screen h-screen overflow-hidden bg-black4">
       {children}

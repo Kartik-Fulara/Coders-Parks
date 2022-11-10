@@ -12,7 +12,6 @@ const BottomNavBar = tw.div`
     flex-row
     justify-between
     items-center
-    md:hidden
     bg-black3
     w-full
     min-h-w-[var(--global-sidebar-width)]
@@ -74,9 +73,9 @@ const BottomBar = ({ handleModelOpen, handleLogOut }: any) => {
       {/* @ts-ignore */}
       <BottomNavBar>
         <BottomNavBarLeft>
-          <div className="flex md:hidden gap-2">
+          <div className="flex  gap-2">
             <IconsHolders
-              className="bg-black1 md:hidden justify-center items-center ml-3"
+              className="bg-black1  justify-center items-center ml-3"
               onClick={() => setOpenHolder(!openHolder)}
             >
               <div className="h-10 w-[90%] p-1">
@@ -84,7 +83,7 @@ const BottomBar = ({ handleModelOpen, handleLogOut }: any) => {
               </div>
             </IconsHolders>
           </div>
-          <div className="flex md:hidden gap-2">
+          <div className="flex gap-2">
             <Link href="/app/friends">
               <div
                 className={`w-full rounded-xl overflow-hidden hover:rounded-xl gap-2 flex justify-center items-center h-fit relative group`}

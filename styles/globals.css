@@ -12,3 +12,6 @@
   --holders-sidebar-width: 20rem;
   --global-sidebar-width: 4.5rem;
 }
+body {
+  background-color: black;
+}

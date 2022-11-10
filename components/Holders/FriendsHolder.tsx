@@ -169,11 +169,7 @@ const FriendsHolder = () => {
   }, [search]);
 
   return (
-    <div
-      className={`h-screen w-screen lg:w-fit flex justify-between items-center lg:bg-transparent xl:relative absolute
-    ${openHolder ? "bg-[rgba(0,0,0,0.5)] " : "bg-transparent"}
-    `}
-    >
+    <>
       {/* @ts-ignore */}
       <FriendsHolderComponent $Open={openHolder}>
         <FriendsHolderWrapper>
@@ -248,22 +244,11 @@ const FriendsHolder = () => {
         </FriendsHolderWrapper>
       </FriendsHolderComponent>
       <div
-        className={`w-full h-full justify-end items-center ${
-          openHolder ? "flex" : "hidden"
-        } `}
-      >
-        <IconsHolders
-          className={`bg-black1 w-10 lg:hidden justify-center items-center mr-2  ${
-            openHolder ? "flex" : "hidden"
-          } `}
-          onClick={() => setOpenHolder(!openHolder)}
-        >
-          <div className="h-10 w-[90%] p-1">
-            {!openHolder ? <Menu /> : <CloseIcon />}
-          </div>
-        </IconsHolders>
-      </div>
-    </div>
+        className={`absolute bml:hidden h-full w-full bg-[rgba(0,0,0,0.5)]
+      ${openHolder ? "flex" : "hidden"}`}
+        onClick={() => setOpenHolder(false)}
+      ></div>
+    </>
   );
 };
 

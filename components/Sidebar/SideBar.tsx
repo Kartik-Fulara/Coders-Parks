@@ -17,22 +17,19 @@ interface Props {
 const Sidebar = tw.div<Props>`
     gap-2
     hidden
-    md:flex
-    flex-row
-    md:flex-col
+    bml:flex
+    flex-col
     items-center
     justify-between
-    md:h-screen
+    h-full
     absolute
     bottom-0
     left-0
     w-[var(--global-sidebar-width)]
     min-w-[var(--global-sidebar-width)]
-    md:relative
+    bml:relative
     xl:bg-black4
     bg-black3
-
-
     text-white
     py-2
     pr-2
@@ -41,7 +38,7 @@ const Sidebar = tw.div<Props>`
 const SidebarTop = tw.div`
 flex
 flex-row
-md:flex-col
+bml:flex-col
 items-center
 justify-start
 w-full
@@ -54,7 +51,7 @@ const SidebarBottom = tw.div`
   flex
   w-full
   flex-row
-  md:flex-col
+  bml:flex-col
   relative
   justify-center
   items-center

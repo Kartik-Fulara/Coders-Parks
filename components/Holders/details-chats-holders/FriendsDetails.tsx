@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
-import { getFriends } from "../../../libs/chats";
 import { Refresh } from "../../../Icons/Icons";
 import Avatar from "react-avatar";
 
@@ -19,13 +18,11 @@ const NavBar = tw.nav`
     font-medium
     px-4
     mb-4
+    
 `;
 
 const FriendsDetails = ({
-  token,
-  recieveReq,
   setRecieveReq,
-  setSendRe,
 }: any) => {
   const [pending, setIsPending] = useState(false);
 
@@ -74,7 +71,7 @@ const DisplayAllFriends = () => {
   const { friends } = useContext(ServerDataContext);
 
   return (
-    <div className="h-[calc(100%-var(--friendsDetails-nav-height))] w-full flex flex-col gap-4 text-white">
+    <div className="h-full w-full flex flex-col gap-4 text-white">
       {friends.length === 0 && (
         <NoFriends msg={`No Friends! Why Don't You Search new Friends `} />
       )}
@@ -213,7 +210,7 @@ const DisplayFriendsRequests = () => {
           </label>
         </div>
       </div>
-      <div className="h-[calc(100%-var(--friendsDetails-nav-height))] w-full flex flex-col gap-4 p-4 text-white">
+      <div className="h-full w-full flex flex-col gap-4 p-4 text-white">
         {pendingRequests.length === 0 &&
           sendRequests.length === 0 &&
           checkBox.all && <NoFriends msg={"Not Any Requests"} />}
