@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
 import { Refresh } from "../../../Icons/Icons";
 import Avatar from "react-avatar";
+import { acceptFriend } from "../../../libs/chats";
 
 import { ServerDataContext } from "../../../Context/ContextProvide";
+import toast from "react-hot-toast";
 
 const NavBar = tw.nav`
     flex
@@ -21,9 +23,7 @@ const NavBar = tw.nav`
     
 `;
 
-const FriendsDetails = ({
-  setRecieveReq,
-}: any) => {
+const FriendsDetails = ({ setRecieveReq }: any) => {
   const [pending, setIsPending] = useState(false);
 
   const { setOpenHolder, openHolder } = useContext(ServerDataContext);
@@ -70,6 +70,10 @@ export default FriendsDetails;
 const DisplayAllFriends = () => {
   const { friends } = useContext(ServerDataContext);
 
+  useEffect(() => {
+    console.log(friends);
+  }, [friends]);
+
   return (
     <div className="h-full w-full flex flex-col gap-4 text-white">
       {friends.length === 0 && (
@@ -84,6 +88,7 @@ const DisplayAllFriends = () => {
                 name={friend?.username}
                 round={true}
                 textSizeRatio={1.75}
+                className="h-full w-full"
               />
             </div>
             <span>{friend.username}</span>
@@ -99,10 +104,20 @@ const DisplayAllFriends = () => {
   );
 };
 
-const AcceptFriendsRequests = () => {
+const AcceptFriendsRequests = (friendId: any) => {
+  const acceptFrnd = async () => {
+    const response = await acceptFriend(friendId);
+    console.log(response);
+    if (response) {
+      toast.success("Friend Request Accepted");
+    }
+  };
   return (
     <div className="w-full h-full flex gap-5">
-      <div className="text-green-500 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md">
+      <div
+        onClick={() => acceptFrnd()}
+        className="text-green-500 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md"
+      >
         Accept
       </div>
       <div className="text-red-700 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md">
@@ -112,7 +127,7 @@ const AcceptFriendsRequests = () => {
   );
 };
 
-const WaitingAcceptRequests = () => {
+const WaitingAcceptRequests = (friendId: any) => {
   return (
     <div className="w-full h-full flex gap-5">
       <div className="text-gray-600">Waiting for Requests to Accept</div>
@@ -239,9 +254,9 @@ const DisplayFriendsRequests = () => {
             </div>
             <div className="flex gap-4 items-center">
               {friend.isReq ? (
-                <WaitingAcceptRequests />
+                <WaitingAcceptRequests friendId={friend.friend} />
               ) : (
-                <AcceptFriendsRequests />
+                <AcceptFriendsRequests friendId={friend.friend} />
               )}
             </div>
           </div>

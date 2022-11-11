@@ -84,3 +84,40 @@ export const getPendingFriends = async (token: any) => {
     console.log(err);
   }
 };
+
+export const acceptFriend = async (data: any) => {
+  const friendId = data.friendId;
+
+  try {
+    const res = await axios.put(`/api/chat/acceptFriend?friendId=${friendId}`);
+    return { status: "ok", data: res.data.data };
+  } catch (err) {
+    console.log(err);
+    return { status: "error" };
+  }
+};
+
+export const rejectFriend = async (data: any) => {
+  const friendId = data.friendId;
+  try {
+    const res = await axios.delete(
+      `/api/chat/rejectFriend?friendId=${friendId}`
+    );
+    return { status: "ok", data: res.data.data };
+  } catch (err) {
+    console.log(err);
+    return { status: "error" };
+  }
+};
+
+export const removeFriend = async (friendId: any) => {
+  try {
+    const res = await axios.delete(
+      `/api/chat/removeFriend?friendId=${friendId}`
+    );
+    return { status: "ok", data: res.data.data };
+  } catch (err) {
+    console.log(err);
+    return { status: "error" };
+  }
+};

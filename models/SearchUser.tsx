@@ -38,8 +38,8 @@ const SearchUserWrapper = tw.div`
     h-[25rem]
     lg:w-[30rem]
     lg:h-[30rem]
-    xl:w-[50rem]
-    xl:h-[50rem]
+    xl:h-[40rem]
+    xl:w-[40rem]
     bg-black4
     text-white
 `;
@@ -210,17 +210,17 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
               placeholder="Search User"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
-              className="h-10 w-[80%] bg-black1 rounded-lg text-white text-lg font-medium px-4"
+              className="h-10 w-[80%] lg:w-[20rem] bg-black1 rounded-lg text-white text-lg font-medium px-4"
             />
             <button
               type="submit"
-              className="w-[80%] h-fit bg-black2 text-white py-2 pb-3 rounded-3xl cursor-pointer"
+              className="w-[80%] lg:w-[10rem] h-fit bg-black2 text-white py-2 pb-3 rounded-3xl cursor-pointer"
             >
               Search
             </button>
           </form>
           {(user !== " " || user !== "") && user ? (
-            <div className="flex flex-col lg:w-row w-[90%] justify-between p-4 items-center  h-fit bg-black2 rounded-3xl gap-4">
+            <div className="flex flex-col sm:flex-row w-[90%] justify-between p-4 items-center  h-fit bg-black2 rounded-3xl gap-4">
               <div className="w-full h-full flex gap-4 items-center justify-start">
                 <Avatar
                   name={user?.username}
@@ -232,12 +232,12 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                   {user?.username}
                 </span>
               </div>
-              <div className="flex gap-4 justify-center items-center flex-col lg:flex-row">
+              <div className="flex gap-4 justify-center items-center flex-col sm:flex-row w-full sm:w-fit">
                 {canSendMessage && (
                   <button
                     aria-label="Start Chat"
                     type="button"
-                    className="bg-blue-700 text-white font-bold rounded-3xl h-10 w-20 flex items-center justify-center"
+                    className="bg-blue-700 text-white font-bold rounded-3xl h-10 w-full sm:w-20 flex items-center justify-center"
                     onClick={handleStartChat}
                   >
                     Say Hi
@@ -250,7 +250,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                         aria-label="Add Friends"
                         type="button"
                         onClick={() => handleAddFriends(user?.id)}
-                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
+                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10"
                       >
                         <AddFriends />
                       </button>
@@ -260,7 +260,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                         type="button"
                         disabled
                         onClick={() => handleAddFriends(user?.id)}
-                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-10"
+                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10"
                       >
                         {/* loading */}
 

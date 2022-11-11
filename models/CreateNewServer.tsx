@@ -26,7 +26,8 @@ const CreateServerModelWrapper = tw.div`
     justify-center
     w-[80%]
     md:w-[30rem]
-    h-[33rem]
+    md:h-[40rem]
+    h-[30rem]
     bg-black4
     text-white
 `;
@@ -119,12 +120,16 @@ const CREATE_A_NEW_SERVER = ({
 }: any) => (
   <>
     <div className="h-[4rem] w-full flex justify-center items-center flex-col">
-      <h1 className="text-2xl font-bold">Create New Server</h1>
-      <p className="text-white opacity-50">Give your Server a Name and Image</p>
+      <h1 className="text-2xl font-bold flex">Create New Server</h1>
+      <p className="text-white opacity-50 flex">
+        Give your Server a Name and Image
+      </p>
     </div>
-    <section className="flex w-full flex-col justify-center gap-10 items-center">
+    <section className="flex w-full flex-col justify-center gap-6 items-center">
       <div className="relative">
-        <Avatar name={serverDetail.name || "S N"} round={true} size="8rem" />
+        {serverDetail.name !== "" && (
+          <Avatar name={serverDetail.name || ""} round={true} size="8rem" />
+        )}
       </div>
 
       <input
