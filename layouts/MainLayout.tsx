@@ -272,8 +272,8 @@ const MainLayout = ({ children }: any) => {
 
         chatSocket.current?.on("getMessage", (data: any) => {
           const { data: transferData } = data;
-          // console.log(transferData);
-          setRecieveChart(transferData);
+          console.log(transferData);
+          setIsNewChat(transferData);
         });
 
         chatSocket.current?.on("getRequest", (data: any) => {
@@ -486,18 +486,13 @@ const MainLayout = ({ children }: any) => {
       }
       setCall(false);
       setMessagesData((prev: any) => {
-        const ret = prev.filter(
-          (msg: any) => msg.chatId === recieveChat.chatId
-        );
+        let ret = prev.filter((msg: any) => msg.chatId === recieveChat.chatId);
 
-        const ret2 = prev.filter(
-          (msg: any) => msg.chatId !== recieveChat.chatId
-        );
+        let ret2 = prev.filter((msg: any) => msg.chatId !== recieveChat.chatId);
         if (ret.length > 0) {
           ret[0].users.push(recieveChat.data);
         } else {
           ret2.push({ chatId: chatId, users: [recieveChat.data] });
-          return ret2;
         }
         return [...ret2, ...ret];
       });
@@ -583,6 +578,38 @@ const MainLayout = ({ children }: any) => {
       chatSocket.current?.emit("rejectRequest", rejectReq);
     }
   }, [rejectReq]);
+
+  React.useEffect(() => {
+    if (isNewChat !== undefined && isNewChat.length !== 0) {
+      const init = async () => {
+        const response = await getUserChat();
+        console.log(response);
+        const { message, chats: userChat } = response;
+        console.log(userChat);
+        if (message === "User chats") {
+          if (chats.length > 0) {
+            setChats((prev: any) => {
+              const ret = prev.filter(
+                (chat: any) => chat.chatId !== userChat[0].chatId
+              );
+              return [...ret, userChat];
+            });
+          } else {
+            setChats(userChat);
+          }
+        }
+        setRecieveChart(isNewChat);
+      };
+      const isInChat = chats.filter(
+        (chat: any) => chat.chatId === isNewChat.chatId
+      );
+      if (isInChat.length === 0) {
+        init();
+      } else {
+        setRecieveChart(isNewChat);
+      }
+    }
+  }, [isNewChat]);
 
   const LoadingFunction = () => {
     return (

@@ -71,7 +71,7 @@ const DmsComponent = () => {
         setMessages([]);
       }
     }
-  }, [chatId && router.isReady]);
+  }, [chatId]);
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -86,7 +86,6 @@ const DmsComponent = () => {
             ret[0].users.push(data.data.data);
           } else {
             ret2.push({ chatId: chatId, users: [data.data.data] });
-            return ret2;
           }
           return [...ret2, ...ret];
         });
