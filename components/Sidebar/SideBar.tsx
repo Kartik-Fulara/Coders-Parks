@@ -273,6 +273,7 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
             className="h-fit w-full rounded-3xl hover:rounded-xl flex justify-center items-center relative group"
             onClick={() => setFocus(userData?.id)}
           >
+            {/* @ts-ignore */}
             <IconsHolders
               className={`${
                 focus === userData?.id ? "rounded-xl" : "rounded-3xl"

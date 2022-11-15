@@ -6,7 +6,7 @@ export const login = async (email: string, password: string) => {
       email,
       password,
     });
-    console.log(res);
+    // console.log(res);
     return res.data;
   } catch (err: any) {
     console.log(err);
@@ -37,7 +37,7 @@ export const register = async (
 
 export const logout = async () => {
   const res = await axios.delete(`/api/auth/logout`);
-  console.log(res.data);
+  // console.log(res.data);
   return res.data;
 };
 

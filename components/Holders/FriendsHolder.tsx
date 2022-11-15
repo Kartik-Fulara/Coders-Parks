@@ -27,7 +27,7 @@ const FriendsHolderComponent = tw.section<Props>`
     max-w-[var(--holders-sidebar-width)]
     bg-black3
     overflow-hidden
-    z-[50]
+    z-[51]
 `;
 
 const FriendsHolderWrapper = tw.div`
@@ -141,10 +141,7 @@ const FriendsHolder = () => {
   ];
 
   useEffect(() => {
-    if (router.query.id && router.pathname === "/app/friends") {
-      setSelectedUser(`${router.query.id}`);
-      setChatId(`${router.query.id}`);
-    }
+    router.push(`/app/friends`);
   }, [router.isReady]);
 
   useEffect(() => {
@@ -163,7 +160,7 @@ const FriendsHolder = () => {
       const filteredDms = chats.filter((dm: any) => {
         return dm.users.username.toLowerCase().includes(search.toLowerCase());
       });
-      console.log(filteredDms);
+      // console.log(filteredDms);
       setDms(chats);
     }
   }, [search]);
@@ -244,10 +241,12 @@ const FriendsHolder = () => {
         </FriendsHolderWrapper>
       </FriendsHolderComponent>
       <div
-        className={`absolute bml:hidden h-full w-full bg-[rgba(0,0,0,0.5)]
+        className={`absolute bml:hidden h-full w-full text-white bg-[rgba(0,0,0,0.5)] z-[50] justify-end items-center
       ${openHolder ? "flex" : "hidden"}`}
         onClick={() => setOpenHolder(false)}
-      ></div>
+      >
+        Close
+      </div>
     </>
   );
 };

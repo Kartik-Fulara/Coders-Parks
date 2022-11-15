@@ -1,10 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
-import { Refresh } from "../../../Icons/Icons";
 import Avatar from "react-avatar";
-import { acceptFriend } from "../../../libs/chats";
+import {
+  acceptFriend,
+  addFriends,
+  rejectFriend,
+  removeFriend,
+  declineReq,
+} from "../../../libs/chats";
 
-import { ServerDataContext } from "../../../Context/ContextProvide";
+import { LoadingAnimIcon } from "../../../Icons/Icons";
+
+import {
+  ServerDataContext,
+  SocketTransferData,
+} from "../../../Context/ContextProvide";
 import toast from "react-hot-toast";
 
 const NavBar = tw.nav`
@@ -25,8 +35,6 @@ const NavBar = tw.nav`
 
 const FriendsDetails = ({ setRecieveReq }: any) => {
   const [pending, setIsPending] = useState(false);
-
-  const { setOpenHolder, openHolder } = useContext(ServerDataContext);
 
   return (
     <div className="h-full max-w-full w-full bg-black4">
@@ -67,20 +75,57 @@ const FriendsDetails = ({ setRecieveReq }: any) => {
 
 export default FriendsDetails;
 
-const DisplayAllFriends = () => {
-  const { friends } = useContext(ServerDataContext);
+const LoadingBtn = () => (
+  <button
+    type="button"
+    aria-label="Loading"
+    className="flex gap-4 items-center h-10 w-10"
+    disabled
+  >
+    <LoadingAnimIcon />
+  </button>
+);
 
-  useEffect(() => {
-    console.log(friends);
-  }, [friends]);
+const DisplayAllFriends = () => {
+  const { friends, setFriends } = useContext(ServerDataContext);
+  const { setRemoveFriendSocket } = useContext(SocketTransferData);
+  const [removeFriendLoading, setRemoveFriendLoading] = useState(false);
+
+  const removeFrnds = async (friendsId: any) => {
+    setRemoveFriendLoading(true);
+    const { data } = await removeFriend(friendsId);
+    if (data.status === "Ok") {
+      const { data: retData } = data;
+      // console.log(retData);
+      if (retData.message === "Friend removed") {
+        setRemoveFriendLoading(false);
+        setRemoveFriendSocket({
+          receiverId: friendsId,
+          removeData: retData.friendData,
+        });
+        const { friend } = retData.myData;
+        // console.log(friend);
+        setFriends((prev: any) => {
+          return prev.filter((frnd: any) => frnd.friend !== friend);
+        });
+        toast.success("Friend removed");
+      } else {
+        setRemoveFriendLoading(false);
+        toast.error("Something went wrong!!");
+      }
+    }
+  };
 
   return (
-    <div className="h-full w-full flex flex-col gap-4 text-white">
+    <div className="h-full w-full flex flex-col gap-4 text-white px-4">
       {friends.length === 0 && (
         <NoFriends msg={`No Friends! Why Don't You Search new Friends `} />
       )}
       {friends?.map((friend: any) => (
-        <div className="h-[4rem] w-full flex justify-between items-center px-4 bg-black2">
+        <div
+          className="h-[4rem] w-full flex justify-between items-center px-4 bg-black2 rounded-md"
+          key={friend.friend}
+        >
           <div className="flex gap-4 items-center">
             <div className="h-[3rem] w-[3rem]">
               <Avatar
@@ -93,11 +138,18 @@ const DisplayAllFriends = () => {
             </div>
             <span>{friend.username}</span>
           </div>
-          <div className="flex gap-4 items-center">
-            <span className="text-red-500 hover:text-opacity-100 text-opacity-50 hover:bg-black4 h-[80%] w-fit p-2 pb-1">
-              Remove Friend
-            </span>
-          </div>
+          {!removeFriendLoading ? (
+            <div
+              className="flex gap-4 items-center pb-1"
+              onClick={() => removeFrnds(friend.friend)}
+            >
+              <span className="text-red-500 hover:text-opacity-100 text-opacity-50 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer rounded-md">
+                Remove Friend
+              </span>
+            </div>
+          ) : (
+            <LoadingBtn />
+          )}
         </div>
       ))}
     </div>
@@ -105,33 +157,219 @@ const DisplayAllFriends = () => {
 };
 
 const AcceptFriendsRequests = (friendId: any) => {
-  const acceptFrnd = async () => {
-    const response = await acceptFriend(friendId);
-    console.log(response);
-    if (response) {
+  const { setFriends, setSendRequests, setPendingRequests } =
+    useContext(ServerDataContext);
+
+  const [loading, setLoading] = useState(false);
+
+  const { setRejectReq, setAddFrnd } = useContext(SocketTransferData);
+
+  const handleEvents = (data: any, event: any) => {
+    // console.log(data);
+    // console.log(event);
+    if (
+      data.status === "Ok" ||
+      data.message === "Friend added" ||
+      data.message === "Friend Request Cancel"
+    ) {
+      const { friendData, myData } = data;
+      // console.log(data);
+      if (!friendData.isAccept) {
+        if (!friendData.isReq) {
+          setSendRequests((prev: any) => {
+            return prev.filter((frnd: any) => frnd.friend !== myData.friend);
+          });
+        } else {
+          setPendingRequests((prev: any) => {
+            return prev.filter((frnd: any) => frnd.friend !== myData.friend);
+          });
+        }
+      } else {
+        setPendingRequests((prev: any) => {
+          return prev.filter((frnd: any) => frnd.friend !== myData.friend);
+        });
+        setFriends((prev: any) => {
+          const remFrnd = prev.filter(
+            (frnd: any) => frnd.friend !== myData.friend
+          );
+          return [...remFrnd, myData];
+        });
+      }
+      if (event === "accept") {
+        setAddFrnd({ receiverId: friendId, accData: friendData });
+      } else if (event === "reject") {
+        setRejectReq({ receiverId: friendId, rejData: friendData });
+      }
       toast.success("Friend Request Accepted");
+    } else {
+      // console.log("hello");
+      toast.error("Something went wrong!!");
     }
   };
+
+  const acceptFrnd = async () => {
+    setLoading(true);
+    const response = await acceptFriend(friendId);
+    // console.log(response);
+    if (response?.status === "ok") {
+      setLoading(false);
+      const { data } = response;
+      // console.log(data);
+      const { data: accData } = data;
+      // console.log(accData);
+      handleEvents(accData, "accept");
+    } else if (response?.status === "error") {
+      toast.error("Something went wrong");
+    }
+  };
+
+  const rejectFrnd = async () => {
+    let frndId;
+    setLoading(true);
+    // console.log(friendId);
+    if (typeof friendId === "string") {
+      frndId = friendId;
+    } else {
+      frndId = friendId.friendId;
+    }
+    const response = await declineReq(frndId);
+    // console.log(response);
+    if (response?.status === "ok") {
+      setLoading(false);
+      const { data } = response;
+      // console.log(data);
+      const { data: rejData } = data;
+      // console.log(rejData);
+      if (rejData !== undefined) {
+        handleEvents(rejData, "reject");
+      } else {
+        toast.error("Something went wrong!!");
+      }
+    } else if (response?.status === "error") {
+      toast.error("Something went wrong");
+    }
+  };
+
   return (
-    <div className="w-full h-full flex gap-5">
-      <div
-        onClick={() => acceptFrnd()}
-        className="text-green-500 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md"
-      >
-        Accept
-      </div>
-      <div className="text-red-700 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md">
-        Reject
-      </div>
-    </div>
+    <>
+      {!loading ? (
+        <div className="w-full h-full flex gap-5">
+          <div
+            onClick={() => acceptFrnd()}
+            className="text-green-500 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md"
+          >
+            Accept
+          </div>
+          <div
+            onClick={() => rejectFrnd()}
+            className="text-red-700 hover:bg-black4 h-[80%] w-fit p-2 cursor-pointer select-none rounded-md"
+          >
+            Reject
+          </div>
+        </div>
+      ) : (
+        <LoadingBtn />
+      )}
+    </>
   );
 };
 
-const WaitingAcceptRequests = (friendId: any) => {
+const WaitingAcceptRequests = ({ friendId, decline }: any) => {
+  const { setRequestSocket, setRemoveReq } = useContext(SocketTransferData);
+
+  const [rejectLoading, setRejectLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const { setSendRequests } = useContext(ServerDataContext);
+
+  const handleReq = (data: any) => {
+    setSendRequests((prev: any) => {
+      const ret = prev.filter((req: any) => req.friend !== data.friend);
+      const newReq = [...ret, data];
+      return newReq;
+    });
+  };
+
+  const rejectRequest = async () => {
+    setRejectLoading(true);
+    const response = await rejectFriend(friendId);
+    if (response?.status === "ok") {
+      const { data } = response;
+      setRejectLoading(false);
+      if (data === undefined) {
+        toast.error("Something went wrong");
+        return;
+      }
+      if (data.status === "Error") {
+        toast.error("Something went wrong");
+        return;
+      }
+      const { data: rejectData } = data;
+      // console.log(rejectData);
+      if (rejectData.message === "Friend Request Cancel") {
+        setRemoveReq({ receiverId: friendId, rejData: rejectData.friendData });
+        handleReq(rejectData.myData);
+
+        toast.success("Friend Request Cancelled");
+      }
+    } else if (response?.status === "error") {
+      toast.error("Something went wrong");
+    }
+  };
+
+  const resendRequest = async () => {
+    setResendLoading(true);
+    const response = await addFriends(friendId);
+    // console.log(response);
+    if (response) {
+      const { data } = response;
+      setResendLoading(false);
+      if (data.message === "Friend added") {
+        setRequestSocket({ receiverId: friendId, reqData: data.friendData });
+        handleReq(data.myData);
+        toast.success("Friend Request Sent");
+      }
+    } else {
+      toast.error("Something went wrong");
+    }
+  };
+
   return (
     <div className="w-full h-full flex gap-5">
-      <div className="text-gray-600">Waiting for Requests to Accept</div>
-      <div className="text-red-700 hover:bg-black4">Cancel Requests</div>
+      {decline ? (
+        <>
+          {!resendLoading ? (
+            <div
+              onClick={() => resendRequest()}
+              className="text-green-700 hover:bg-black4"
+            >
+              Resend Requests
+            </div>
+          ) : (
+            <LoadingBtn />
+          )}
+        </>
+      ) : (
+        <>
+          {!rejectLoading ? (
+            <>
+              <div className="text-gray-600">
+                Waiting for Requests to Accept
+              </div>
+              <div
+                onClick={() => rejectRequest()}
+                className="text-red-700 hover:bg-black4"
+              >
+                Cancel Requests
+              </div>
+            </>
+          ) : (
+            <>
+              <LoadingBtn />
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 };
@@ -153,7 +391,26 @@ const DisplayFriendsRequests = () => {
     } else if (checkBox.send) {
       setRequests([...sendRequests]);
     }
-    console.log(requests);
+  }, [pendingRequests]);
+
+  useEffect(() => {
+    if (checkBox.all) {
+      setRequests([...pendingRequests, ...sendRequests]);
+    } else if (checkBox.recieve) {
+      setRequests([...pendingRequests]);
+    } else if (checkBox.send) {
+      setRequests([...sendRequests]);
+    }
+  }, [sendRequests]);
+
+  useEffect(() => {
+    if (checkBox.all) {
+      setRequests([...pendingRequests, ...sendRequests]);
+    } else if (checkBox.recieve) {
+      setRequests([...pendingRequests]);
+    } else if (checkBox.send) {
+      setRequests([...sendRequests]);
+    }
   }, [checkBox]);
 
   return (
@@ -238,7 +495,7 @@ const DisplayFriendsRequests = () => {
         {requests?.map((friend: any) => (
           <div
             key={friend.id}
-            className="h-[4rem] w-full flex justify-between items-center px-4 bg-black2"
+            className="h-[4rem] w-full flex justify-between items-center px-4 bg-black2 rounded-md"
           >
             <div className="flex gap-4 items-center">
               <div className="h-[3rem] relative w-[3rem]">
@@ -254,7 +511,10 @@ const DisplayFriendsRequests = () => {
             </div>
             <div className="flex gap-4 items-center">
               {friend.isReq ? (
-                <WaitingAcceptRequests friendId={friend.friend} />
+                <WaitingAcceptRequests
+                  friendId={friend.friend}
+                  decline={friend.isDecline}
+                />
               ) : (
                 <AcceptFriendsRequests friendId={friend.friend} />
               )}
@@ -263,45 +523,6 @@ const DisplayFriendsRequests = () => {
         ))}
       </div>
     </>
-  );
-};
-
-const Toast = ({ getFriends, setRecieveReq, setSendRe }: any) => {
-  const [isHover, setIsHover] = useState(false);
-
-  const handleAccept = () => {
-    setSendRe(false);
-    setRecieveReq(false);
-    getFriends();
-  };
-
-  return (
-    <div
-      className="absolute top-4 right-4 h-24 w-[25rem] cursor-pointer"
-      onClick={() => handleAccept()}
-    >
-      <div
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
-        onClick={() => handleAccept()}
-        className={`h-full w-full rounded-lg flex justify-center items-center gap-5 cursor-pointer ${
-          isHover ? "bg-black1" : "bg-black"
-        } `}
-      >
-        <span className="text-white text-lg font-medium cursor-pointer select-none">
-          Click to see the Recent Request
-        </span>
-        <button
-          aria-label="close"
-          onClick={() => handleAccept()}
-          className={`h-14 w-14 p-4 rounded-lg text-lg font-medium cursor-pointer ${
-            isHover ? "bg-black text-green-500" : "text-white"
-          }`}
-        >
-          <Refresh />
-        </button>
-      </div>
-    </div>
   );
 };
 

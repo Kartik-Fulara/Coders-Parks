@@ -7,20 +7,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     const data = await fetch(
-      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/chat/acceptFriend`,
+      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/chat/getUserChat`,
       {
-        method: "PUT",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          friendId: req.query.friendId,
-        }),
       }
     ).then((res) => res.json());
-
-    // console.log(data)
 
     res.send({ data: data });
   } catch (err) {

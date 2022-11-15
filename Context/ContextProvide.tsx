@@ -37,7 +37,11 @@ const ContextProvider = ({ children }: any) => {
   const [chatMessageSocket, setChatMessageSocket] = React.useState<any>([]);
   const [serverChatMessageSocket, setServerChatMessageSocket] =
     React.useState<any>([]);
+  const [addFrnd, setAddFrnd] = React.useState<any>([]);
   const [requestSocket, setRequestSocket] = React.useState<any>([]);
+  const [removeFriendSocket, setRemoveFriendSocket] = React.useState<any>([]);
+  const [removeReq, setRemoveReq] = React.useState<any>([]);
+  const [rejectReq, setRejectReq] = React.useState<any>([]);
 
   return (
     <UserDataContext.Provider
@@ -97,6 +101,14 @@ const ContextProvider = ({ children }: any) => {
             setServerChatMessageSocket,
             requestSocket,
             setRequestSocket,
+            removeFriendSocket,
+            setRemoveFriendSocket,
+            removeReq,
+            setRemoveReq,
+            addFrnd,
+            setAddFrnd,
+            rejectReq,
+            setRejectReq,
           }}
         >
           {children}

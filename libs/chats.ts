@@ -1,6 +1,7 @@
 // get al chats with the help of uid
 import axios from "axios";
 
+
 export const userDetails = async (token = "") => {
   if (token !== undefined) {
     const res = await axios.get(`/api/chat/userDetails?token=${token}`);
@@ -23,8 +24,14 @@ export const queryUserByUserName = async (username: string) => {
 };
 
 export const changeUserName = async (username: string) => {
-  const res = await axios.post(`/api/chat/changeUserName`, { username });
-  return res;
+  try {
+    const res = await axios.post(`/api/chat/changeUserName`, { username });
+    // console.log(res);
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
 };
 
 export const getMessages = async (id: string) => {
@@ -90,6 +97,7 @@ export const acceptFriend = async (data: any) => {
 
   try {
     const res = await axios.put(`/api/chat/acceptFriend?friendId=${friendId}`);
+    console.log(res);
     return { status: "ok", data: res.data.data };
   } catch (err) {
     console.log(err);
@@ -98,7 +106,48 @@ export const acceptFriend = async (data: any) => {
 };
 
 export const rejectFriend = async (data: any) => {
-  const friendId = data.friendId;
+  let friendId;
+  if (typeof data === "string") {
+    friendId = data;
+  } else {
+    friendId = data.friendId;
+  }
+  // console.log(friendId);
+  try {
+    const res = await axios.delete(`/api/chat/deleteReq?friendId=${friendId}`);
+    return { status: "ok", data: res.data.data };
+  } catch (err) {
+    console.log(err);
+    return { status: "error" };
+  }
+};
+
+export const removeFriend = async (data: any) => {
+  let friendId;
+  if (typeof data === "string") {
+    friendId = data;
+  } else {
+    friendId = data.friendId;
+  }
+  try {
+    const res = await axios.delete(
+      `/api/chat/removeFriend?friendId=${friendId}`
+    );
+    return { status: "ok", data: res.data.data };
+  } catch (err) {
+    console.log(err);
+    return { status: "error" };
+  }
+};
+
+export const declineReq = async (data: any) => {
+  let friendId;
+  if (typeof data === "string") {
+    friendId = data;
+  } else {
+    friendId = data.friendId;
+  }
+  // console.log(friendId);
   try {
     const res = await axios.delete(
       `/api/chat/rejectFriend?friendId=${friendId}`
@@ -110,14 +159,12 @@ export const rejectFriend = async (data: any) => {
   }
 };
 
-export const removeFriend = async (friendId: any) => {
+export const getUserChat = async () => {
   try {
-    const res = await axios.delete(
-      `/api/chat/removeFriend?friendId=${friendId}`
-    );
-    return { status: "ok", data: res.data.data };
-  } catch (err) {
+    const res = await axios.get(`/api/chat/getUserChat`);
+    return res.data.data.data;
+  } catch (err: any) {
     console.log(err);
-    return { status: "error" };
+    return null;
   }
 };

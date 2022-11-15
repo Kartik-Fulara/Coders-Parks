@@ -47,7 +47,11 @@ const SetUserName = ({ setUsername }: any) => {
     event.preventDefault();
     const init = async () => {
       const { data: changeUsername } = await changeUserName(userName);
-      if (changeUsername) {
+      // console.log(changeUsername);
+      if (changeUsername.message === "Username already taken") {
+        setUserName("");
+        toast.error("Username already taken");
+      } else {
         setUserName("");
         handleLogout();
       }

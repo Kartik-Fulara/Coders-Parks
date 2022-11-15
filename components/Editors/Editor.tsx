@@ -66,7 +66,6 @@ const EditorComponent = () => {
     if (userData?.id === currentHost) {
       setEditorData(val);
     } else {
-      console.log(val);
     }
   };
 

@@ -5,6 +5,7 @@ import {
   SendMessage,
   AddFriends,
   CheckIcon,
+  Refresh,
 } from "../Icons/Icons";
 import Avatar from "react-avatar";
 import { startChat } from "../libs/chats";
@@ -36,6 +37,7 @@ const SearchUserWrapper = tw.div`
     justify-center
     w-[80%]
     h-[25rem]
+    md:w-[25rem]    
     lg:w-[30rem]
     lg:h-[30rem]
     xl:h-[40rem]
@@ -66,7 +68,8 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
   const { setRequestSocket } = React.useContext(SocketTransferData);
   const [user, setUser] = React.useState<any>(null);
   const [isReq, setIsReq] = React.useState<boolean>(false);
-
+  const [isDecline, setIsDecline] = React.useState<boolean>(false);
+  const [isAccept, setIsAccept] = React.useState<boolean>(false);
   const setFriendsData = (friendsData: any) => {
     const acceptedFriends = friendsData.filter(
       (friend: any) => friend.isAccept === true
@@ -77,6 +80,8 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     const sentFriends = friendsData.filter(
       (friend: any) => friend.isAccept === false && friend.isReq === true
     );
+
+    // console.log(sentFriends);
 
     if (acceptedFriends.length !== 0) {
       if (friends.length === 0) {
@@ -98,8 +103,16 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
       if (sendRequests.length === 0) {
         setSendRequests(sentFriends);
       } else {
-        const newSentFriends = [...sendRequests, ...sentFriends];
-        setSendRequests(newSentFriends);
+        // console.log(sendRequests);
+        setSendRequests((prev: any) => {
+          const sentRetFriends = prev.filter(
+            (friend: any) => friend.friend !== sentFriends[0].friend
+          );
+          const newSentRetFriends = [...sentRetFriends, ...sentFriends];
+          return newSentRetFriends;
+        });
+        setCanSendReq(false);
+        setIsReq(false);
       }
     }
   };
@@ -111,35 +124,55 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
 
       if (data?.data.data !== undefined) {
         const { data: searchUserData } = data.data;
-        console.log(searchUserData);
-        console.log(chats);
+        // console.log(searchUserData);
+        // console.log(chats);
         const isAlreadyInChat = chats?.filter(
           (chat: any) => chat?.users?.id === searchUserData?.id
         );
-        console.log(isAlreadyInChat);
-        const reqData = [...sendRequests, ...pendingRequests]?.filter(
-          (req: any) => req.friend === searchUserData?.id
-        );
+        // console.log(isAlreadyInChat);
+        const reqData = [
+          ...friends,
+          ...sendRequests,
+          ...pendingRequests,
+        ]?.filter((req: any) => req.friend === searchUserData?.id);
 
-        console.log(reqData);
-
+        // console.log(reqData);
         if (searchUserData?.id !== userData?.id) {
-          if (isAlreadyInChat !== undefined && isAlreadyInChat.length > 0) {
-            setCanSendMessage(false);
-          } else {
-            setCanSendMessage(true);
-          }
-          if (reqData !== undefined && reqData.length > 0) {
+          if (reqData.length > 0 && reqData[0].isAccept) {
+            setIsAccept(true);
+            if (isAlreadyInChat !== undefined && isAlreadyInChat.length > 0) {
+              setCanSendMessage(false);
+            } else {
+              setCanSendMessage(true);
+            }
             setCanSendReq(false);
-            reqData[0].isReq === true ? setIsReq(true) : setIsReq(false);
+            setUser({ ...searchUserData });
           } else {
-            setCanSendReq(true);
+            setIsAccept(false);
+            if (isAlreadyInChat !== undefined && isAlreadyInChat.length > 0) {
+              setCanSendMessage(false);
+            } else {
+              setCanSendMessage(true);
+            }
+            if (reqData !== undefined && reqData.length > 0) {
+              setCanSendReq(false);
+              // console.log(reqData[0]);
+              reqData[0].isReq === true ? setIsReq(true) : setIsReq(false);
+              if (reqData[0].isDecline && reqData[0].isReq) {
+                setIsDecline(true);
+              } else {
+                setIsDecline(false);
+              }
+            } else {
+              setCanSendReq(true);
+            }
           }
+          setUser({ ...searchUserData });
         } else {
           setCanSendMessage(false);
           setCanSendReq(false);
+          setUser({ ...searchUserData });
         }
-        setUser({ ...searchUserData });
       } else {
         setUser("");
       }
@@ -163,23 +196,34 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     init();
   };
 
-  const handleAddFriends = (id: any) => {
+  const handleAddFriends = (id: any, event: any) => {
     setLoading({ ...loading, friend: true });
     const init = async () => {
       const { data } = await addFriends(id);
-      console.log(data);
+      // console.log(data);
+      if (data === undefined) {
+        setLoading({ ...loading, friend: false });
+        toast.error("Something went wrong");
+        return;
+      }
       const { message, friendData, myData }: any = data;
-      console.log(friendData);
-      console.log(myData);
+      // console.log(friendData);
+      // console.log(myData);
       if (message === "Friend added") {
         toast.success("Friend Request Sent");
         setFriendsData([myData]);
         setRequestSocket({ receiverId: id, reqData: friendData });
         setLoading({ ...loading, friend: false });
-        canSendReq === true ? setCanSendReq(false) : setCanSendReq(true);
-        canSendReq === false && myData.isReq === true
-          ? setIsReq(true)
-          : setIsReq(false);
+        if (event === "add") {
+          canSendReq === true ? setCanSendReq(false) : setCanSendReq(true);
+          canSendReq === false && myData.isReq === true
+            ? setIsReq(false)
+            : setIsReq(true);
+        } else {
+          setCanSendReq(false);
+          setIsReq(true);
+          setIsDecline(false);
+        }
       } else {
         toast.error("Request Not Send Try Again");
         setLoading({ ...loading, friend: false });
@@ -249,7 +293,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                       <button
                         aria-label="Add Friends"
                         type="button"
-                        onClick={() => handleAddFriends(user?.id)}
+                        onClick={() => handleAddFriends(user?.id, "add")}
                         className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10"
                       >
                         <AddFriends />
@@ -259,8 +303,7 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                         aria-label="Add Friends"
                         type="button"
                         disabled
-                        onClick={() => handleAddFriends(user?.id)}
-                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10"
+                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10 flex justify-center items-center"
                       >
                         {/* loading */}
 
@@ -288,20 +331,44 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                     )}
                   </>
                 ) : (
-                  <div className=" w-fit py-4 flex justify-center items-center">
-                    {!isReq ? (
-                      <div className="gap-4 flex justify-center items-center rounded-3xl h-full w-fit">
-                        <span className="h-10 w-10  bg-transparent text-green-500 font-bold rounded-3xl">
-                          <CheckIcon />
-                        </span>
-                        <span className="h-10 w-10  bg-transparent text-red-700 font-bold rounded-3xl">
-                          <CloseCircle />
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="bg-transparent text-white font-bold h-full flex items-center justify-center w-fit">
-                        <span className="w-44">Waiting For Accept</span>
-                      </div>
+                  <div className="w-full sm:w-fit py-4 flex justify-center items-center">
+                    {!isAccept && (
+                      <>
+                        {!isReq ? (
+                          <div className="gap-4 flex justify-center items-center rounded-3xl h-full w-fit">
+                            <span className="h-10 w-10  bg-transparent text-green-500 font-bold rounded-3xl">
+                              <CheckIcon />
+                            </span>
+                            <span className="h-10 w-10  bg-transparent text-red-700 font-bold rounded-3xl">
+                              <CloseCircle />
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            {!isDecline ? (
+                              <div className="bg-transparent text-white font-bold h-full flex items-center justify-center w-fit">
+                                <span className="w-44">Waiting For Accept</span>
+                              </div>
+                            ) : (
+                              <button
+                                aria-label="Add Friends"
+                                type="button"
+                                onClick={() =>
+                                  handleAddFriends(user?.id, "again")
+                                }
+                                className="bg-green-500  justify-center items-center flex text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10"
+                              >
+                                <div className="h-10 w-10">
+                                  <Refresh />
+                                </div>
+                                <div className="flex w-32 sm:hidden">
+                                  Resend Request
+                                </div>
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

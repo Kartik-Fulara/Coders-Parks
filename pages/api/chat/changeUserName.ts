@@ -25,6 +25,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.send({ data: data });
   } catch (err:any) {
-    res.status(500).send({ message: err.message });
+    console.log(err);
+    if (err.response.data.message) {
+      res.status(401).send({ message: err.response.data.message });
+    } else {
+      res.status(500).send({ message: err.message });
+    }
   }
 };

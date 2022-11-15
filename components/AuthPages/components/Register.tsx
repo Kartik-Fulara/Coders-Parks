@@ -1,5 +1,5 @@
 import React from "react";
-import { CloseEye, OpenEye } from "../../../Icons/Icons";
+import { LoadingIcon, CloseEye, OpenEye } from "../../../Icons/Icons";
 
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
@@ -54,10 +54,7 @@ const Register = ({ handleLogin }: any) => {
           userDetails.password
         );
 
-        console.log(data);
-
         if (data.status === "ok") {
-          console.log(data);
           router.push("/?login");
           handleLogin(true);
           setIsRegister(false);
@@ -184,8 +181,11 @@ const Register = ({ handleLogin }: any) => {
             <button
               type="button"
               disabled
-              className="p-4  bg-blue-900  rounded-2xl w-full shadow-xl"
+              className="p-4 bg-blue-700 rounded-2xl w-full shadow-xl justify-center items-center text-center flex gap-4"
             >
+              <span className="h-6 w-6">
+                <LoadingIcon />
+              </span>
               Registering...
             </button>
           </div>

@@ -132,7 +132,7 @@ export const sendMessage = async (Suid: any, serverId: any, message: any) => {
     message: message,
   });
 
-  console.log(res);
+  // console.log(res);
 
   return res.data;
 };

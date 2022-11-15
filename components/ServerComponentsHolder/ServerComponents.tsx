@@ -95,7 +95,7 @@ const ServerComponents = () => {
       console.log("Clicked");
       const id: any = language_id.find((item) => item.language === language);
       const output = await runCode(editorData, id.id, input);
-      console.log(output);
+      // console.log(output);
 
       const { data } = output;
       if (data === "No Data") {

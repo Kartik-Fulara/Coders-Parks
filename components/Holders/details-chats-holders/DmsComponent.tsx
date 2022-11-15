@@ -49,9 +49,11 @@ const DmsComponent = () => {
   useEffect(() => {
     setMessages([]);
     setOtherUser([]);
+    console.log(chatId);
 
     const retCurrentChat = chats?.filter((chat: any) => chat.chatId === chatId);
 
+    // console.log(retCurrentChat);
     if (retCurrentChat.length <= 0) {
       setIsError(true);
     } else {
@@ -69,7 +71,7 @@ const DmsComponent = () => {
         setMessages([]);
       }
     }
-  }, [chatId]);
+  }, [chatId && router.isReady]);
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -117,7 +119,7 @@ const DmsComponent = () => {
   return (
     <>
       {isError ? (
-        <DmsErrorPage setOpenHolder={setOpenHolder} openHolder={openHolder} />
+        <DmsErrorPage />
       ) : !messages ? (
         <div className="h-full max-w-full w-full flex text-white justify-center items-center text-xl">
           Loading....
@@ -211,7 +213,7 @@ const DmsComponent = () => {
 
 export default DmsComponent;
 
-const DmsErrorPage = ({ setOpenHolder, openHolder }: any) => (
+const DmsErrorPage = () => (
   <div className="flex flex-col h-full max-w-[calc(100%-24.5rem)] w-[calc(100%-24.5rem)]">
     <div className="flex flex-row items-center justify-between px-4 py-2 border-b border-black3">
       <div className="flex flex-row items-center">

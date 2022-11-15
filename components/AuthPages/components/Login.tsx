@@ -46,6 +46,9 @@ const Login = ({ handleLogin }: any) => {
         }
 
         setIsLogin(false);
+      }else{
+        toast.error("Something went wrong");
+        setIsLogin(false);
       }
     } catch (error: any) {
       toast.error(error.message);

@@ -6,7 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 import CreateNewServer from "../models/CreateNewServer";
 import SideBar from "../components/Sidebar/SideBar";
 import { logout } from "../libs/auth";
-import { userDetails, getMessages } from "../libs/chats";
+import { userDetails, getMessages, getUserChat } from "../libs/chats";
 import {
   getUsersServer,
   getServerDetailsById,
@@ -33,6 +33,7 @@ const MainLayout = ({ children }: any) => {
   const [recieveChat, setRecieveChart] = useState<any>([]);
   const [isCodeSync, setIsCodeSync] = useState<any>(false);
   const [loading, setLoading] = useState<any>(true);
+  const [isNewChat, setIsNewChat] = useState<any>([]);
 
   const { loadingText, setLoadingText, userData, setUserData } =
     useContext(UserDataContext);
@@ -74,6 +75,10 @@ const MainLayout = ({ children }: any) => {
     setChatMessageSocket,
     serverChatMessageSocket,
     requestSocket,
+    removeFriendSocket,
+    removeReq,
+    addFrnd,
+    rejectReq,
   } = useContext(SocketTransferData);
 
   const chatSocket = useRef<any>(null);
@@ -224,6 +229,24 @@ const MainLayout = ({ children }: any) => {
         setLogin(false);
         setLoadingText("Loading...");
         setLogoutLoading(false);
+      } else if (data.error === "Error while logging out") {
+        router.push("/?login");
+        router.push("/");
+        toast.success(data.error);
+        setUserData([]);
+        setChats([]);
+        setFriends([]);
+        setSendRequests([]);
+        setPendingRequests([]);
+        setSideBarServers([]);
+        setEditorData("");
+        setMessagesData([]);
+        setChatMessageSocket([]);
+        setCheckUsername(false);
+        setLoading(true);
+        setLogin(false);
+        setLoadingText("Loading...");
+        setLogoutLoading(false);
       }
     };
     init();
@@ -236,7 +259,8 @@ const MainLayout = ({ children }: any) => {
         setLoading(true);
         getUserData();
 
-        chatSocket.current = io("wss://chat-coders-park-socket.glitch.me");
+        // chatSocket.current = io("wss://chat-coders-park-socket.glitch.me");
+        chatSocket.current = io("ws://localhost:9654");
 
         chatSocket.current.on("login", (data: any) => {
           // console.log(data);
@@ -248,17 +272,76 @@ const MainLayout = ({ children }: any) => {
 
         chatSocket.current?.on("getMessage", (data: any) => {
           const { data: transferData } = data;
+          // console.log(transferData);
           setRecieveChart(transferData);
         });
+
         chatSocket.current?.on("getRequest", (data: any) => {
           const { reqData: ret } = data;
-          console.log(ret);
+          // console.log(ret);
           if (ret !== undefined) {
             setFriendsData([ret]);
           }
         });
 
-        serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
+        chatSocket.current?.on("getRemove", (data: any) => {
+          // console.log("Reject");
+          const { removeData: ret } = data;
+          // console.log(ret);
+          if (ret !== undefined) {
+            setFriends((prev: any) =>
+              prev.filter((item: any) => item.friend !== ret.friend)
+            );
+          }
+        });
+
+        chatSocket.current?.on("getAccept", (data: any) => {
+          const { accData: ret } = data;
+          // console.log(ret);
+          if (ret !== undefined) {
+            setSendRequests((prev: any) => {
+              const remReq = prev.filter(
+                (req: any) => req.friend !== ret.friend
+              );
+              return remReq;
+            });
+            if (friends.length === 0) {
+              setFriends([ret]);
+            } else {
+              setFriends((prev: any) => [...prev, ret]);
+            }
+          }
+        });
+
+        chatSocket.current?.on("getCancel", (data: any) => {
+          const { rejData: ret } = data;
+          // console.log(ret);
+          if (ret !== undefined) {
+            setPendingRequests((prev: any) => {
+              const remReq = prev.filter(
+                (req: any) => req.friend !== ret.friend
+              );
+              return remReq;
+            });
+          }
+        });
+
+        chatSocket.current?.on("getReject", (data: any) => {
+          const { rejData: ret } = data;
+          // console.log(ret);
+          if (ret !== undefined) {
+            setSendRequests((prev: any) => {
+              const remReq = prev.filter(
+                (req: any) => req.friend !== ret.friend
+              );
+              const newReq = [...remReq, ret];
+              return newReq;
+            });
+          }
+        });
+
+        // serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
+        serverSocket.current = io(`ws://localhost:5000`);
 
         serverSocket.current?.on("roomUsers", (data: any) => {
           // console.log(data);
@@ -393,12 +476,6 @@ const MainLayout = ({ children }: any) => {
   }, [serversData]);
 
   React.useEffect(() => {
-    if (chatMessageSocket.length !== 0) {
-      chatSocket.current?.emit("sendMessage", chatMessageSocket);
-    }
-  }, [chatMessageSocket]);
-
-  React.useEffect(() => {
     if (recieveChat.length !== 0) {
       if (
         messagesData.filter(
@@ -426,6 +503,12 @@ const MainLayout = ({ children }: any) => {
       });
     }
   }, [recieveChat]);
+
+  React.useEffect(() => {
+    if (chatMessageSocket.length !== 0) {
+      chatSocket.current?.emit("sendMessage", chatMessageSocket);
+    }
+  }, [chatMessageSocket]);
 
   React.useEffect(() => {
     serverSocket.current?.emit("chatMessage", serverChatMessageSocket);
@@ -474,16 +557,32 @@ const MainLayout = ({ children }: any) => {
   }, [requestSocket]);
 
   React.useEffect(() => {
+    if (removeFriendSocket !== undefined && removeFriendSocket.length !== 0) {
+      chatSocket.current?.emit("removeFrnd", removeFriendSocket);
+    }
+  }, [removeFriendSocket]);
+
+  React.useEffect(() => {
+    if (removeReq !== undefined && removeReq.length !== 0) {
+      chatSocket.current?.emit("cancelRequest", removeReq);
+    }
+  }, [removeReq]);
+
+  React.useEffect(() => {
+    if (addFrnd !== undefined && addFrnd.length !== 0) {
+      chatSocket.current?.emit("acceptRequest", addFrnd);
+    }
+  }, [addFrnd]);
+
+  React.useEffect(() => {
     serverSocket.current?.emit("shareLanguage", language);
   }, [language]);
 
   React.useEffect(() => {
-    console.log("send", sendRequests);
-  }, [sendRequests]);
-
-  React.useEffect(() => {
-    console.log("recieve", pendingRequests);
-  }, [pendingRequests]);
+    if (rejectReq !== undefined && rejectReq.length !== 0) {
+      chatSocket.current?.emit("rejectRequest", rejectReq);
+    }
+  }, [rejectReq]);
 
   const LoadingFunction = () => {
     return (
