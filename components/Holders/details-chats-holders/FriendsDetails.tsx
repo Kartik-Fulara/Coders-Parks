@@ -90,15 +90,18 @@ const DisplayAllFriends = () => {
   const { friends, setFriends } = useContext(ServerDataContext);
   const { setRemoveFriendSocket } = useContext(SocketTransferData);
   const [removeFriendLoading, setRemoveFriendLoading] = useState(false);
+  const [frndId, setFrndId] = useState("");
 
   const removeFrnds = async (friendsId: any) => {
     setRemoveFriendLoading(true);
+    setFrndId(friendsId);
     const { data } = await removeFriend(friendsId);
     if (data.status === "Ok") {
       const { data: retData } = data;
       // console.log(retData);
       if (retData.message === "Friend removed") {
         setRemoveFriendLoading(false);
+        setFrndId("");
         setRemoveFriendSocket({
           receiverId: friendsId,
           removeData: retData.friendData,
@@ -138,7 +141,7 @@ const DisplayAllFriends = () => {
             </div>
             <span>{friend.username}</span>
           </div>
-          {!removeFriendLoading ? (
+          {!removeFriendLoading && frndId !== friend.friend ? (
             <div
               className="flex gap-4 items-center pb-1"
               onClick={() => removeFrnds(friend.friend)}
@@ -148,7 +151,7 @@ const DisplayAllFriends = () => {
               </span>
             </div>
           ) : (
-            <LoadingBtn />
+            friend.friend === frndId && <LoadingBtn />
           )}
         </div>
       ))}

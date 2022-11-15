@@ -34,6 +34,7 @@ const MainLayout = ({ children }: any) => {
   const [isCodeSync, setIsCodeSync] = useState<any>(false);
   const [loading, setLoading] = useState<any>(true);
   const [isNewChat, setIsNewChat] = useState<any>([]);
+  const [isAcceptReq, setIsAcceptReq] = useState<any>([]);
 
   const { loadingText, setLoadingText, userData, setUserData } =
     useContext(UserDataContext);
@@ -305,11 +306,7 @@ const MainLayout = ({ children }: any) => {
               );
               return remReq;
             });
-            if (friends.length === 0) {
-              setFriends([ret]);
-            } else {
-              setFriends((prev: any) => [...prev, ret]);
-            }
+            setIsAcceptReq(ret);
           }
         });
 
@@ -578,6 +575,16 @@ const MainLayout = ({ children }: any) => {
       chatSocket.current?.emit("rejectRequest", rejectReq);
     }
   }, [rejectReq]);
+
+  React.useEffect(() => {
+    if (isAcceptReq !== 0) {
+      if (friends.length === 0) {
+        setFriends([isAcceptReq]);
+      } else {
+        setFriends((prev: any) => [...prev, isAcceptReq]);
+      }
+    }
+  }, [isAcceptReq]);
 
   React.useEffect(() => {
     if (isNewChat !== undefined && isNewChat.length !== 0) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import tw from "tailwind-styled-components";
 import {
   CloseCircle,
@@ -6,6 +6,7 @@ import {
   AddFriends,
   CheckIcon,
   Refresh,
+  LoadingAnimIcon,
 } from "../Icons/Icons";
 import Avatar from "react-avatar";
 import { startChat } from "../libs/chats";
@@ -37,7 +38,6 @@ const SearchUserWrapper = tw.div`
     justify-center
     w-[80%]
     h-[25rem]
-    md:w-[25rem]    
     lg:w-[30rem]
     lg:h-[30rem]
     xl:h-[40rem]
@@ -232,6 +232,30 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     init();
   };
 
+  useEffect(() => {
+    const isFriend = friends?.filter(
+      (friend: any) => friend.friend === user?.friend
+    );
+    if (isFriend.length > 0) {
+      setCanSendReq(false);
+      setIsAccept(true);
+    }
+    const isInPending = pendingRequests?.filter(
+      (friend: any) => friend.friend === user?.friend
+    );
+    if (isInPending.length > 0) {
+      setCanSendReq(false);
+      setIsAccept(false);
+    }
+    const isInSendReq = sendRequests?.filter(
+      (friend: any) => friend.friend === user?.friend
+    );
+    if (isInSendReq.length > 0) {
+      setCanSendReq(false);
+      setIsAccept(false);
+    }
+  }, [friends, pendingRequests, sendRequests, user]);
+
   return (
     // @ts-ignore
     <SearchUserComponent>
@@ -303,30 +327,11 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
                         aria-label="Add Friends"
                         type="button"
                         disabled
-                        className="bg-blue-700 text-white font-bold p-2 rounded-3xl h-10 w-full sm:w-10 flex justify-center items-center"
+                        className="pl-2  bg-blue-700 text-white font-bold  rounded-3xl h-10 w-full sm:w-10 flex justify-center items-center"
                       >
                         {/* loading */}
 
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v1a7 7 0 00-7 7h1z"
-                          ></path>
-                        </svg>
+                        <LoadingAnimIcon />
                       </button>
                     )}
                   </>
