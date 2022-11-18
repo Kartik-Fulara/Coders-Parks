@@ -1,7 +1,6 @@
 import React from "react";
 import tw from "tailwind-styled-components";
-import { CloseCircle } from "../Icons/Icons";
-import { changeUserName, queryUserByUserName } from "../libs/chats";
+import { changeUserNameAtStart} from "../libs/chats";
 import { logout } from "../libs/auth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
@@ -46,7 +45,7 @@ const SetUserName = ({ setUsername }: any) => {
   const handleSubmit = (event: any) => {
     event.preventDefault();
     const init = async () => {
-      const { data: changeUsername } = await changeUserName(userName);
+      const { data: changeUsername } = await changeUserNameAtStart(userName);
       // console.log(changeUsername);
       if (changeUsername.message === "Username already taken") {
         setUserName("");

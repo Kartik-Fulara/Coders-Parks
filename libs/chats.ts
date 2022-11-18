@@ -23,9 +23,25 @@ export const queryUserByUserName = async (username: string) => {
   return res;
 };
 
-export const changeUserName = async (username: string, pass:string) => {
+export const changeUserName = async (username: string, pass = "") => {
   try {
-    const res = await axios.post(`/api/chat/changeUserName`, { username,pass });
+    const res = await axios.post(`/api/chat/changeUserName`, {
+      username,
+      pass,
+    });
+    console.log(res);
+    return res.data.data;
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
+};
+
+export const changeUserNameAtStart = async (username: string) => {
+  try {
+    const res = await axios.post(`/api/chat/changeUserNameAtStart`, {
+      username,
+    });
     console.log(res);
     return res.data.data;
   } catch (err) {
