@@ -31,11 +31,12 @@ const MainLayout = ({ children }: any) => {
   const [call, setCall] = React.useState<any>(false);
   const [checkUsername, setCheckUsername] = React.useState<any>(false);
   const [recieveChat, setRecieveChart] = useState<any>([]);
-  const [isCodeSync, setIsCodeSync] = useState<any>(false);
+  const [isCodeSync, setIsCodeSync] = useState<any>(true);
   const [loading, setLoading] = useState<any>(true);
   const [isNewChat, setIsNewChat] = useState<any>([]);
   const [isAcceptReq, setIsAcceptReq] = useState<any>([]);
-
+  const [serverMember, setServerMember] = useState<any>([]);
+  const [someoneJoin, setSomeOneJoin] = useState<any>([]);
   const { loadingText, setLoadingText, userData, setUserData } =
     useContext(UserDataContext);
   const {
@@ -80,6 +81,7 @@ const MainLayout = ({ children }: any) => {
     removeReq,
     addFrnd,
     rejectReq,
+    serverMembersSocket,
   } = useContext(SocketTransferData);
 
   const chatSocket = useRef<any>(null);
@@ -149,7 +151,7 @@ const MainLayout = ({ children }: any) => {
       (friend: any) => friend.isAccept === false && friend.isReq === true
     );
 
-    // console.log(acceptedFriends, pendingFriends, sentFriends);
+    console.log(acceptedFriends, pendingFriends, sentFriends);
 
     if (acceptedFriends.length !== 0) {
       // console.log("Accepted Req");
@@ -300,12 +302,9 @@ const MainLayout = ({ children }: any) => {
           const { accData: ret } = data;
           // console.log(ret);
           if (ret !== undefined) {
-            setSendRequests((prev: any) => {
-              const remReq = prev.filter(
-                (req: any) => req.friend !== ret.friend
-              );
-              return remReq;
-            });
+            setSendRequests((prev: any) =>
+              prev.filter((req: any) => req.friend !== ret.friend)
+            );
             setIsAcceptReq(ret);
           }
         });
@@ -341,14 +340,9 @@ const MainLayout = ({ children }: any) => {
         serverSocket.current = io(`ws://localhost:5000`);
 
         serverSocket.current?.on("roomUsers", (data: any) => {
-          // console.log(data);
-          serverSocket.current?.emit("syncCode", editorData);
-          serverSocket.current?.on("syncCode", (data: any) => {
-            if (!isCodeSync) {
-              setEditorData(data);
-              setIsCodeSync(true);
-            }
-          });
+          console.log(data);
+          setServerMember(data);
+          setSomeOneJoin(true);
         });
 
         serverSocket.current?.on("shareOutput", (data: any) => {
@@ -425,6 +419,7 @@ const MainLayout = ({ children }: any) => {
           id: userData.id,
           userName: userData.username,
           profileImage: userData.profileImage,
+          members: data,
         });
         setLoading(false);
       }
@@ -467,7 +462,11 @@ const MainLayout = ({ children }: any) => {
         setServerChat({ chatId, users });
       }
     };
-    if (serversData.length !== 0 && serverChat.length === 0) {
+    if (
+      serversData !== undefined &&
+      serversData?.length !== 0 &&
+      serverChat?.length === 0
+    ) {
       init();
     }
   }, [serversData]);
@@ -578,6 +577,7 @@ const MainLayout = ({ children }: any) => {
 
   React.useEffect(() => {
     if (isAcceptReq !== 0) {
+      console.log(friends);
       if (friends.length === 0) {
         setFriends([isAcceptReq]);
       } else {
@@ -617,6 +617,36 @@ const MainLayout = ({ children }: any) => {
       }
     }
   }, [isNewChat]);
+
+  React.useEffect(() => {
+    if (serverMember.length !== 0) {
+      console.log(serverMember);
+      if (serverMember.data !== undefined) {
+        setServersData(serverMember.data);
+      }
+      setServerMember([]);
+    }
+  }, [serverMember]);
+
+  React.useEffect(() => {
+    if (serverMembersSocket.length !== 0) {
+      serverSocket.current?.emit("leaveRoom", serverMembersSocket);
+    }
+  }, [serverMembersSocket]);
+
+  React.useEffect(() => {
+    if (someoneJoin) {
+      if (isCodeSync) {
+        serverSocket.current?.emit("syncCode", editorData);
+      } else {
+        serverSocket.current?.on("syncCode", (data: any) => {
+          setEditorData(data);
+          setIsCodeSync(false);
+        });
+      }
+      setSomeOneJoin(false);
+    }
+  }, [someoneJoin]);
 
   const LoadingFunction = () => {
     return (

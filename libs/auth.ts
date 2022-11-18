@@ -1,5 +1,5 @@
 import axios from "axios";
-import toast from "react-hot-toast";
+
 export const login = async (email: string, password: string) => {
   try {
     const res = await axios.post(`/api/auth/login`, {
@@ -58,4 +58,32 @@ export const getUid = async (refreshToken: any) => {
   }
 
   return res.data;
+};
+
+export const changePassword = async (
+  email: any,
+  oldPass: any,
+  newPass: any
+) => {
+  try {
+    const res = await axios.post(`/api/auth/changePass`, {
+      email,
+      oldPass,
+      newPass,
+    });
+    return res.data;
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", message: err };
+  }
+};
+
+export const updateDetails = async (userDetails: any) => {
+  try {
+    const res = await axios.post(`/api/auth/updateDetails`, userDetails);
+    return res.data;
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", message: "Something Went Wrong!!" };
+  }
 };

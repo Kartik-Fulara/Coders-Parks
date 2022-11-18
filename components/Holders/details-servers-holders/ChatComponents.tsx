@@ -61,11 +61,6 @@ const ChatComponents = () => {
           message
         );
         if (data.status === "Ok") {
-          // setServerChat((prev: any) => {
-          //   const prevChat = prev.users;
-          //   const newChat = [...prevChat, data.data.data];
-          //   return { ...prev, users: newChat };
-          // });
           setServerChatMessageSocket({
             serverId: serversData?.serverId,
             data: data.data.data,
@@ -104,12 +99,14 @@ const ChatComponents = () => {
           {usersData?.length > 0 &&
             chat &&
             chat?.map((item: any) => (
-              <div className="flex gap-4" key={item._id} ref={messageRef}>
-                <ChatMessage
-                  data={item.messages}
-                  user={usersData}
-                  isCurrentUser={item.senderId}
-                />
+              <div className="flex gap-4" key={item?._id} ref={messageRef}>
+                <>
+                  <ChatMessage
+                    data={item?.messages || []}
+                    user={usersData || []}
+                    isCurrentUser={item?.senderId || ""}
+                  />
+                </>
               </div>
             ))}
         </div>

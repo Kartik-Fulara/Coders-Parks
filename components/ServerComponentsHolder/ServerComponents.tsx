@@ -63,7 +63,7 @@ const language_id = [
   { id: 63, language: "javascript" },
   { id: 71, language: "python" },
   { id: 50, language: "c" },
-  { id: 54, language: "c++" },
+  { id: 54, language: "cpp" },
   { id: 51, language: "c#" },
 ];
 
@@ -126,7 +126,7 @@ const ServerComponents = () => {
   };
 
   useEffect(() => {
-    if (serversData.length <= 0) {
+    if (serversData!==undefined &&  serversData?.length <= 0) {
       setLoading(true);
     } else {
       setLoading(false);

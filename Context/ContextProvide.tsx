@@ -42,6 +42,7 @@ const ContextProvider = ({ children }: any) => {
   const [removeFriendSocket, setRemoveFriendSocket] = React.useState<any>([]);
   const [removeReq, setRemoveReq] = React.useState<any>([]);
   const [rejectReq, setRejectReq] = React.useState<any>([]);
+  const [serverMembersSocket, setServerMembersSocket] = React.useState<any>([]);
 
   return (
     <UserDataContext.Provider
@@ -109,6 +110,8 @@ const ContextProvider = ({ children }: any) => {
             setAddFrnd,
             rejectReq,
             setRejectReq,
+            serverMembersSocket,
+            setServerMembersSocket,
           }}
         >
           {children}

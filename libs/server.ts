@@ -149,3 +149,31 @@ export const getServerChatByServerId = async (serverId: any) => {
     return { status: "error", data: "No Data", message: err };
   }
 };
+
+export const leaveServer = async (serverID: any, userId: any) => {
+  try {
+    console.log(serverID, userId);
+    const { data } = await axios.post(`/api/servers/leaveServer`, {
+      serverID,
+      userId,
+    });
+     const { data:retData } = data;
+     return { status: "ok", data: retData };
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", data: "No Data", message: err };
+  }
+};
+
+export const deleteServer = async (serverID: any, members: any) => {
+  try {
+    const { data } = await axios.post(`/api/servers/deleteServer`, {
+      serverID,
+      members,
+    });
+    return { status: "ok", data: data };
+  } catch (err: any) {
+    console.log(err);
+    return { status: "error", data: "No Data", message: err };
+  }
+};

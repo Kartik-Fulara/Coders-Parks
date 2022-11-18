@@ -23,11 +23,11 @@ export const queryUserByUserName = async (username: string) => {
   return res;
 };
 
-export const changeUserName = async (username: string) => {
+export const changeUserName = async (username: string, pass:string) => {
   try {
-    const res = await axios.post(`/api/chat/changeUserName`, { username });
-    // console.log(res);
-    return res.data;
+    const res = await axios.post(`/api/chat/changeUserName`, { username,pass });
+    console.log(res);
+    return res.data.data;
   } catch (err) {
     console.log(err);
     return err;

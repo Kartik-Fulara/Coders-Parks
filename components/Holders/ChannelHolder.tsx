@@ -1,14 +1,24 @@
 import React, { useState, useContext, useEffect } from "react";
 import tw from "tailwind-styled-components";
-import { DownArrow, UpArrow, DeleteIcon, SettingIcon } from "../../Icons/Icons";
+import {
+  LeaveIcon,
+  DownArrow,
+  UpArrow,
+  DeleteIcon,
+  SettingIcon,
+} from "../../Icons/Icons";
 import {
   ServerDataContext,
   UserDataContext,
+  SocketTransferData,
 } from "../../Context/ContextProvide";
 import { Code, Chat, ShareIcon, Menu } from "../../Icons/Icons";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import toast from "react-hot-toast";
 import Avatar from "react-avatar";
+import { leaveServer } from "../../libs/server";
+import { useRouter } from "next/router";
+import { logout } from "../../libs/auth";
 
 interface Props {
   $Open: boolean;
@@ -58,6 +68,8 @@ const ServersChannels = tw.section`
 `;
 
 const ServerHolder = () => {
+  const router = useRouter();
+
   const [dropDown, setDropDown] = useState(false);
 
   const {
@@ -65,28 +77,37 @@ const ServerHolder = () => {
     setShowWhichComponent,
     showWhichComponent,
     openHolder,
-    setOpenHolder,
     currentHost,
+    setServersData,
+    setSideBarServers,
+    setServerChat,
   } = useContext(ServerDataContext);
 
   const { userData } = useContext(UserDataContext);
 
-  
+  const { setServerMembersSocket } = useContext(SocketTransferData);
+
   const [serverId, setServerId] = useState("");
   const [members, setMembers] = useState([]);
   const [showProfile, setShowProfile] = useState("");
 
   useEffect(() => {
-    setMembers(serversData.members);
-
+    console.log(serversData);
     if (
-      serversData.length !== 0 &&
       serversData !== undefined &&
+      serversData?.length !== 0 &&
       serversData !== "No Data"
     ) {
+      console.log(serversData);
       const id = serversData?.serverLinks[0] || "";
 
       setServerId(id);
+      setMembers(serversData?.members);
+    } else {
+      router.push("/app/friends");
+      setServersData([]);
+      setSideBarServers([]);
+      setServerChat([]);
     }
   }, [serversData]);
 
@@ -95,6 +116,27 @@ const ServerHolder = () => {
       setShowProfile(member);
     } else {
       setShowProfile("");
+    }
+  };
+
+  const handleLeaveServer = async () => {
+    const res = await leaveServer(serversData?.serverId, userData?.id);
+    console.log(res);
+    const { data } = res;
+    if (data !== undefined && data.message === "Server Left") {
+      setServersData([]);
+      setSideBarServers([]);
+      router.push("/app/friends");
+      toast.success("Server Left");
+      console.log(data);
+      if (data.data !== undefined) {
+        setServerMembersSocket(data.data);
+      }
+    } else {
+      router.push("/app/friends");
+      setServersData([]);
+      setSideBarServers([]);
+      setServerChat([]);
     }
   };
 
@@ -126,30 +168,27 @@ const ServerHolder = () => {
             >
               <div className="w-full  bg-black p-4 ">
                 <ul className="flex flex-col w-full gap-2 z-20">
-                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-white rounded-xl z-20">
-                    <CopyToClipboard
-                      text={serverId}
-                      onCopy={() => toast.success("Copied to clipboard")}
-                    >
+                  <CopyToClipboard
+                    text={serverId}
+                    onCopy={() => toast.success("Copied to clipboard")}
+                  >
+                    <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-white rounded-xl z-20">
                       <div className="flex gap-4">
                         <span className="w-6 h-6 z-10">
                           <ShareIcon />
                         </span>
-                        <span>Share Server Link</span>
+                        <span>Share Server Code</span>
                       </div>
-                    </CopyToClipboard>
-                  </li>
-                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-white rounded-xl z-20">
+                    </li>
+                  </CopyToClipboard>
+                  <li
+                    className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-red-400 rounded-xl z-20 "
+                    onClick={() => handleLeaveServer()}
+                  >
                     <span className="w-6 h-6">
-                      <SettingIcon />
+                      <LeaveIcon />
                     </span>
-                    <span className="z-10">Server Settings</span>
-                  </li>
-                  <li className="w-full cursor-pointer flex gap-3 p-3 bg-black2 text-red-400 rounded-xl z-20 ">
-                    <span className="w-6 h-6">
-                      <DeleteIcon />
-                    </span>
-                    <span>Delete Server</span>
+                    <span>Leave Server</span>
                   </li>
                 </ul>
               </div>
@@ -208,7 +247,9 @@ const ServerHolder = () => {
                 {members?.map((member: any) => (
                   <div
                     key={member?.userId}
-                    className="w-full h-fit rounded-xl pl-4 items-center justify-start gap-4 flex bg-black2 relative flex-col"
+                    className={`w-full h-fit rounded-xl pl-4 items-center justify-start gap-4 flex bg-black2 relative flex-col ${
+                      member.isKick ? "hidden" : "flex"
+                    }`}
                   >
                     <div
                       className="w-full h-12 flex justify-start items-center gap-4"
@@ -239,28 +280,6 @@ const ServerHolder = () => {
                         </span>
                       )}
                     </div>
-                    {showProfile === member?.userId && (
-                      <div className="h-fit w-full">
-                        <div className="flex gap-4 items-center justify-center w-full flex-col pb-4">
-                          <div className="h-[80%] w-[70%] rounded-2xl p-2 bg-black1 flex justify-center items-center">
-                            Profile
-                          </div>
-                          {currentHost === userData?.id &&
-                            userData?.id !== showProfile && (
-                              <div className="h-[80%] w-[70%] rounded-2xl p-2 bg-black1 flex justify-center items-center">
-                                Make Host
-                              </div>
-                            )}
-
-                          {userData?.id === serversData.Owner &&
-                            userData?.id !== showProfile && (
-                              <div className="h-[80%] w-[70%] rounded-2xl p-2 bg-black1 flex justify-center items-center text-red-500">
-                                Kick
-                              </div>
-                            )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>

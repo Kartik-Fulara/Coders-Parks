@@ -119,6 +119,12 @@ const DisplayAllFriends = () => {
     }
   };
 
+  useEffect(() => {
+    if (friends !== undefined && friends[0]?.length === 0) {
+      setFriends([]);
+    }
+  }, [friends]);
+
   return (
     <div className="h-full w-full flex flex-col gap-4 text-white px-4">
       {friends.length === 0 && (
@@ -497,10 +503,10 @@ const DisplayFriendsRequests = () => {
         )}
         {requests?.map((friend: any) => (
           <div
-            key={friend.id}
+            key={friend.friend}
             className="h-[4rem] w-full flex justify-between items-center px-4 bg-black2 rounded-md"
           >
-            <div className="flex gap-4 items-center">
+            <div className="flex gap-4 items-center" key={friend.friend}>
               <div className="h-[3rem] relative w-[3rem]">
                 <Avatar
                   src={friend?.profilePic}

@@ -1,35 +1,28 @@
+// reset the password of current user
 import { NextApiRequest, NextApiResponse } from "next";
 import nookies from "nookies";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const cookies = nookies.get({ req });
-
   const token = cookies.token;
-
-  const { username,pass } = req.body;
-
+  const body = req.body;
+  console.log(body);
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/chat/changeUserName`,
+      `${process.env.NEXT_PUBLIC_AUTH_API_URL}/change/changePass`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username,pass }),
+        body: JSON.stringify(body),
       }
     );
-
     const data = await response.json();
-
-    res.send({ data: data });
-  } catch (err:any) {
+    res.status(200).json(data);
+  } catch (err: any) {
     console.log(err);
-    if (err.response.data.message) {
-      res.status(401).send({ message: err.response.data.message });
-    } else {
-      res.status(500).send({ message: err.message });
-    }
+    res.status(500).send({ status: "error" });
   }
 };

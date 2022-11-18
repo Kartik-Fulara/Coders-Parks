@@ -121,8 +121,12 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     event.preventDefault();
     const init = async () => {
       const { data } = await queryUserByUserName(userName);
-
-      if (data?.data.data !== undefined) {
+      console.log(data);
+      if (
+        data !== undefined &&
+        data.data !== undefined &&
+        data?.data.data !== undefined
+      ) {
         const { data: searchUserData } = data.data;
         // console.log(searchUserData);
         // console.log(chats);
@@ -232,29 +236,47 @@ const SearchUser = ({ handleModelClose, handleCall, setSendReq }: any) => {
     init();
   };
 
+  // useEffect(() => {
+  //   const isFriend = friends?.filter(
+  //     (friend: any) => friend.friend === user?.friend
+  //   );
+  //   if (isFriend.length > 0) {
+  //     setCanSendReq(false);
+  //     setIsAccept(true);
+  //   }
+  //   const isInPending = pendingRequests?.filter(
+  //     (friend: any) => friend.friend === user?.friend
+  //   );
+  //   if (isInPending.length > 0) {
+  //     setCanSendReq(false);
+  //     setIsAccept(false);
+  //   }
+  //   const isInSendReq = sendRequests?.filter(
+  //     (friend: any) => friend.friend === user?.friend
+  //   );
+  //   if (isInSendReq.length > 0) {
+  //     setCanSendReq(false);
+  //     setIsAccept(false);
+  //   }
+  // }, [friends, pendingRequests, sendRequests, user]);
+
   useEffect(() => {
-    const isFriend = friends?.filter(
-      (friend: any) => friend.friend === user?.friend
-    );
-    if (isFriend.length > 0) {
-      setCanSendReq(false);
-      setIsAccept(true);
+    if (user !== 0) {
+      console.log(friends);
     }
-    const isInPending = pendingRequests?.filter(
-      (friend: any) => friend.friend === user?.friend
-    );
-    if (isInPending.length > 0) {
-      setCanSendReq(false);
-      setIsAccept(false);
+  }, [friends]);
+
+  useEffect(() => {
+    if (user !== 0) {
+      console.log(pendingRequests);
     }
-    const isInSendReq = sendRequests?.filter(
-      (friend: any) => friend.friend === user?.friend
-    );
-    if (isInSendReq.length > 0) {
-      setCanSendReq(false);
-      setIsAccept(false);
+  }, [pendingRequests]);
+
+  useEffect(() => {
+    if (user !== 0) {
+      console.log(sendRequests);
     }
-  }, [friends, pendingRequests, sendRequests, user]);
+  }, [sendRequests]);
 
   return (
     // @ts-ignore

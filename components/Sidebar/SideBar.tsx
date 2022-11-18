@@ -128,6 +128,9 @@ const SideBar = ({ handleModelOpen, handleLogOut, setId }: any) => {
   useEffect(() => {
     if (sideBarServers?.length >= 1) {
       setCanCreateServer(false);
+    }else{
+      setFocus("0");
+      setCanCreateServer(true);
     }
   }, [sideBarServers]);
 
