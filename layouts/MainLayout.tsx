@@ -262,8 +262,8 @@ const MainLayout = ({ children }: any) => {
         setLoading(true);
         getUserData();
 
-        // chatSocket.current = io("wss://chat-coders-park-socket.glitch.me");
-        chatSocket.current = io("ws://localhost:9654");
+        chatSocket.current = io("wss://chat-coders-park-socket.glitch.me");
+        // chatSocket.current = io("ws://localhost:9654");
 
         chatSocket.current.on("login", (data: any) => {
           // console.log(data);
@@ -336,8 +336,8 @@ const MainLayout = ({ children }: any) => {
           }
         });
 
-        // serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
-        serverSocket.current = io(`ws://localhost:5000`);
+        serverSocket.current = io(`wss://channel-socket-coders-park.glitch.me`);
+        // serverSocket.current = io(`ws://localhost:5000`);
 
         serverSocket.current?.on("roomUsers", (data: any) => {
           console.log(data);
